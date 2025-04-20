@@ -56,7 +56,7 @@
 \section{Introduction}
 \label{sec:introduction}
 
-TODO~\cite{Hackenberg_2023} 
+%TODO~\cite{Hackenberg_2023} 
 
 With today's shift from a seller's to a buyer's market, there is a clear trend towards product customization. 
 Customers are constantly seeking products that cater to their specific needs and budgets. 
@@ -73,13 +73,15 @@ To increase software reuse and streamline development processes, developers crea
 These software modules can be reused across different product models and customized as needed to meet specific requirements for each market.
 
 Originating in software development, SPLE principles have now spread far beyond the software domain. 
- Companies in many other industries, such as automotive, aerospace, consumer electronics, are taking advantage of reusability and variability management by reducing time-to-market, improving efficiency, and increasing customer satisfaction. Some of the many published examples of the improvements that have followed the implementation of PLE are as follows:
+Companies in many other industries, such as automotive, aerospace, consumer electronics, are taking advantage of reusability and variability management by reducing time-to-market, improving efficiency, and increasing customer satisfaction. 
+For instance, Lockheed Martin estimates that because of the approach it saves over \$47 million a year ~\cite{Gregg_2015}, while Hewlett-Packard reports that it builds products 10 times as complex, with 1/4 of the staff, in 1/3 of the time, and with 1/25 of the bugs of previous products ~\cite{Mebane_2007}.
+%Some of the many published examples of the improvements that have followed the implementation of PLE are as follows:
 
-•	Lockheed Martin has been employing Feature-based Product Line Engineering (PLE) for Amazon Web Services (AWS) since the mid-2000's and estimates that because of the approach, over \$47 million of cost is avoided each and every year ~\cite{Gregg_2015}.
+% •	Lockheed Martin has been employing Feature-based Product Line Engineering (PLE) for Amazon Web Services (AWS) since the mid-2000's and estimates that because of the approach, over \$47 million of cost is avoided each and every year ~\cite{Gregg_2015}.
 
-•	Hewlett-Packard reports that with a product line approach, they were able to build products 10 times as complex, with 1/4 of the staff, in 1/3 of the time, and with 1/25 of the number of bugs of earlier products ~\cite{Mebane_2007}. 
+% •	Hewlett-Packard reports that with a product line approach, they were able to build products 10 times as complex, with 1/4 of the staff, in 1/3 of the time, and with 1/25 of the number of bugs of earlier products ~\cite{Mebane_2007}. 
 
-•	A company from a railway domain reports, that the lead time of software changes has decreased significantly: “The time needed for implementing new functionality is about a month, whereas it was estimated to be about six months to a year”~\cite{Abbas_2020}. 
+% •	A company from a railway domain reports, that the lead time of software changes has decreased significantly: “The time needed for implementing new functionality is about a month, whereas it was estimated to be about six months to a year”~\cite{Abbas_2020}. 
 
 However, when it comes to incorporating SPLE principles into the creation of technical systems, particularly when creating geometric representations of product lines of mechanical products, this approach has not yet become established. 
 % In this paper, we demonstrate the possibility of applying the PLE principles to designing physical products by developing an FPV drone product line in CAD software. Building FPV drones means meeting different customer requirements, which vary primarily in performance. These include:     
@@ -116,7 +118,7 @@ and a literature review about PLE in other domains is provided in Section~\ref{s
 A software product line is a set of systems that share a common, managed set of features satisfying the specific needs of a particular market segment or mission and that are developed from a common set of core assets in a prescribed way ~\cite{Clements_2002}, where
 a feature is a characteristic of a member product in a product line that distinguishes it from other member products in the product line ~\cite{ISO/IEC_26550}.
 %A concrete product of a product line is called a product variant.
-Van der Linden ~\cite{Linden_2007} formulated several principles that are fundamental in PLE. They include, among others, the principle of the two-life-cycle approach, which includes the domain engineering and the application engineering lifecycle, and the principle of variability management.
+Van der Linden et al. ~\cite{Linden_2007} formulated several principles that are fundamental in PLE. They include, among others, the principle of the two-life-cycle approach, which includes the domain engineering and the application engineering lifecycle, and the principle of variability management.
 
 Domain engineering is a reuse-based approach defining the scope (i.e., domain definition), specifying the structure (i.e., domain architecture), and building the assets (e.g. requirements, designs, software code, documentation) for a class of systems, subsystems, or member products ~\cite{ISO/IEC_26550}. During domain analysis, developers determine the scope of the software product line and identify its common and variable features, which they then document in a variability model. 
 A number of techniques have been developed to manage variability.
@@ -133,8 +135,7 @@ module incompatibility to unexpected product behavior ~\cite{Parslov_2015}.
 \label{sec:ple-other}
 
 When it comes to development of physical products, building blocks of a product in the product line, or shared assets, can include, but are not limited to, requirements, design specifications, design models, source code, build files, test plans and test cases, user documentation, repair manuals and installation guides, project budgets, schedules, and work plans, product calibration and configuration files, data models, parts lists, and more ~\cite{Clements_2015}. 
-
-The product variant is instantiated from a common design that represents all the possible combinations of features for all the possible variants. The design is called a 150\% model, or a superset model, because, as Clements ~\cite{Clements_2015} states, it has the content necessary to support any product in the product line. 
+A product variant is instantiated from a common design that represents all the possible combinations of features for all the possible variants. The design is called a 150\% model, or a superset model, because, as Clements ~\cite{Clements_2015} states, it has the content necessary to support any product in the product line. 
 
 It is well-known that due to software intangibility, hardware engineering cannot be compared to software engineering. 
 While applying SPLE principles to the development of hardware, it is important to consider its physical nature, especially when it comes to module interfaces. 
@@ -154,8 +155,7 @@ In this third chapter we introduce the case study, which is prepared for testing
 The selected product line includes three first person view (FPV) drone variants: an ultralight drone, a freestyle drone and a long-range drone, which differ primarily in their performance characteristics.
 First, we provide an overview of the atomic modules of the product line, from which the individual variants have been assembled in Section~\ref{sec:atomic-modules}.
 Then, we explain the configuration options of the drone use case in the form of a feature tree model in Section~\ref{sec:configuration-options}.
-And finally, we introduce the 150\% model for the drone use case.
-
+And finally, we introduce the 150\% model for the drone use case in Section~\ref{sec:150-model}.
 
 
 \subsection{Atomic modules}
@@ -239,11 +239,11 @@ Covers shown in \cref{fig:atomic-modules} protect internal components of the dro
 \begin{figure}[htbp]
     
     \subcaptionbox{Small cover\label{fig:cover-small}}{
-        \includegraphics[height=1.5cm]{./drone-case-modules-cover-small.jpg}
+        \includegraphics[height=1cm]{./Small Cover2.jpg}
     }
     \hfill
     \subcaptionbox{Large cover\label{fig:cover-large}}{
-        \includegraphics[height=1.5cm]{./drone-case-modules-cover-large.jpg}
+        \includegraphics[height=1cm]{./LargeCover2.jpg}
     }
     \caption{Overview of the cover modules}
     \label{fig:atomic-modules}
@@ -290,23 +290,22 @@ For instance, a large propeller cannot be mounted on a small frame without inter
 \label{sec:150-model}
 
 The case study demonstrates the utilization of digital LEGOs to create a 150\% model of a 3D drone architecture. 
-The model shown in \cref{fig:150-model} is built in LeoCAD\footnote{Official LeoCAD website: \url{https://leocad.org}}, a program that adheres to the LDraw standard\footnote{Official LDraw website: \url{https:/ldraw.org}}. 
-Within the structure of the LDraw file, a main document serves as the foundation where all three variants of the drone are instantiated. 
-Each variant is further segmented into submodels, which consist of modular components. 
-These modules are essentially instances of the submodels, all organized within the same file.
-
-\cref{fig:ldraw-standard} demonstrates a meta-model of the LDraw file. 
-The file contains multiple assemblies. 
-Each assembly contains multiple references, which point to either a model (which itself can contain sub-assemblies) or a brick. 
+The model is built in LeoCAD\footnote{Official LeoCAD website: \url{https://leocad.org}}, which, thanks to its intuitive user interface, is a useful tool for the teaching of various engineering concepts. 
+LeoCAD adheres to the LDraw standard\footnote{Official LDraw website: \url{https:/ldraw.org}}. 
+\cref{fig:ldraw-standard} demonstrates a meta-model of the LDraw file. The file contains multiple assemblies. 
+Each assembly contains multiple references, which point to either a model (which itself can contain sub-assemblies) or bricks (which are standardized and belong to a brick catalog). 
 The reference includes transformation data (position, orientation) and optional appearance data (color).
 
-As it can be seen in \cref{fig:ldraw-model}, the LDraw model is the instance of the meta-model. 
+Within the structure of the LDraw file, a main model shown in \cref{fig:150-model} serves as the foundation where all three variants of the drone are instantiated. 
+Each variant is further segmented into submodels, which consist of modular components. 
+These modules are essentially instances of the submodels, all organized within the same file.
 The main model serves as the primary assembly, the three different drone variants are also categorized as assemblies. 
 Moreover, components such as modules (e.g., covers, frames, batteries, and propellers) are also classified as assemblies. 
 An assembly consists of children, where each child is linked to either a brick or another assembly. 
-The bricks are standardized and belong to a brick catalog. 
-For instance, while a frame assembly is composed of numerous bricks, a freestyle drone assembly does not directly reference bricks. 
-Instead, it refers to other assemblies within the hierarchy.
+% For instance, while a frame assembly is composed of numerous bricks, a freestyle drone assembly does not directly reference bricks. 
+% Instead, it refers to other assemblies within the hierarchy.
+
+
 
 \begin{figure}[htbp]
     \includegraphics[width=\columnwidth]{./ldraw-standard.png}
@@ -318,11 +317,11 @@ The approach enables to reuse the modules and submodels, promoting efficiency an
 The 150\% model encompasses all feasible combinations of drone features across the different variants. 
 This abundance of information extends beyond the actual requirements of a specific drone type; for instance, showcasing three distinct battery sizes even though a practical FPV drone would only utilize one.
 
-\begin{figure}[htbp]
-    \includegraphics[width=\columnwidth]{./ldraw-model.png}
-    \caption{LDraw model}
-    \label{fig:ldraw-model}
-\end{figure}
+% \begin{figure}[htbp]
+%     \includegraphics[width=\columnwidth]{./ldraw-model.png}
+%     \caption{LDraw model}
+%     \label{fig:ldraw-model}
+% \end{figure}
 
 
 \begin{figure*}[htbp]
@@ -335,13 +334,17 @@ This abundance of information extends beyond the actual requirements of a specif
 \section{Conclusion}
 \label{sec:conclusion}
 
-The knowledge acquired from the literature review coupled with the case study have provided a comprehensive demonstration of how SPLE principles can be effectively applied to the development of physical products. 
-
-Initially, atomic modules were created for FPV drones, allowing for the assembly of individual variants from these modules. 
-Subsequently, a robust variability model was developed. Finally, a comprehensive 150\% model was established for the drone use case. 
-
+The knowledge acquired from the literature review coupled with the case study have provided a comprehensive demonstration of how SPLE principles can be effectively applied to the development of physical products with the usage of digital Lego. 
+The first step was to create atomic drone modules, which could then be assembled into individual variants. 
+Then, a robust variability model and a comprehensive 150\% model were developed. 
 By utilizing these methodologies, we were able to derive a product line comprising three distinct drone variants from the model. 
-This process highlighted how modularity, effective variability management, and systematic reuse strategies can significantly improve the design and production processes of physical products.
+This allowed us to demonstrate how well digital LEGO is suited to the 150\% modelling and reuse of modules across the entire product line.
+
+In the next steps, we plan to explore geometric interfaces between components of physical products in a product line. Unlike software engineering, the realm of interfacing in this context remains relatively uncharted, making it an interesting area for exploration. 
+One aspect to consider is the impact of a change to a single module on the entire product line. 
+By examining whether such changes are consistent across all products in the line, we can gain insight into issues related to interface compatibility and mechanical stability. 
+The use of digital LEGO is a very promising way to explore this area in an easy way.
+
 
 
 \bibliography{main}

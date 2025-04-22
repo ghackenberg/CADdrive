@@ -9,7 +9,7 @@
 
 \begin{document}
 
-\title{Bridging Digital and Physical: Applying Software Product Line Engineering to Digital LEGO}
+\title{Bridging Digital and Physical: Applying Software Product Line Engineering Principles to Digital LEGO}
 
 \author{Aleksandra Erohina}
 \affiliation{
@@ -19,7 +19,6 @@
     \state{Upper Austria}
     \country{Austria}
 }
-%\email{aleksandra.erohina@fh-ooe.at}
 
 \author{Christian Zehetner}
 \orcid{0000-0002-3149-8476}
@@ -56,55 +55,42 @@
 \section{Introduction}
 \label{sec:introduction}
 
-%TODO~\cite{Hackenberg_2023} 
-
 With today's shift from a seller's to a buyer's market, there is a clear trend towards product customization. 
 Customers are constantly seeking products that cater to their specific needs and budgets. 
 However, creating customer-specific designs can often be inefficient and costly, making it unaffordable for the average consumer.
-Besides, in most industries, very few or practically no systems are created “from scratch”, so engineers are likely to reuse knowledge from a previous project or product in the form of documents, processes, or models ~\cite{Góngora_2015}. 
+Besides, in most industries very few or practically no systems are created “from scratch”, so engineers are likely to reuse knowledge from a previous project or product in the form of documents, processes, or models~\cite{Góngora_2015}. 
 
-In order to find a balance between reuse and customization in software and systems development, software product line engineering (SPLE) has emerged as a viable solution. 
-SPLE is an approach to cost-efficiently derive tailored products to markets and customers, utilizing common components and services in a planned manner ~\cite{Runeson_2012}.
-The focus is shifted from building isolated products to building families of related products, while reuse is discussed not at an individual object level, e.g. libraries or components, but as a whole: organizational, process-wise, and also life cycle wise end-to-end from requirements to actually deployed variability at the customer ~\cite{Schwanninger_2009}. 
-This approach involves the development of a core platform of reusable components that can be easily customized to meet the specific needs of different products within a product line. 
+To find a balance between reuse and customization in software and systems development, software product line engineering (SPLE) has emerged as a viable solution. 
+SPLE is an approach to cost-efficiently deriving tailored products for markets and customers, utilizing common components and services in a planned manner~\cite{Runeson_2012}.
+The focus is shifted from building isolated products to building families of related products, while reuse is discussed not at an individual object level, e.g.~libraries or components, but as a whole: organizational, process-wise, and also lifecycle-wise end-to-end from requirements to actually deployed variability at the customer~\cite{Schwanninger_2009}. 
+This approach involves the development of a core platform as well as reusable components that can be easily customized to meet the specific needs of different products within a product line. 
 
-For example, software products that are being developed for the international market must be adapted for different legal or cultural environments, as well as for different languages, and so must provide adapted user interfaces ~\cite{Beuche_2007}. 
+For example, software products that are being developed for the international market must be adapted for different legal or cultural environments, as well as for different languages, and so must provide adapted user interfaces~\cite{Beuche_2007}. 
 To increase software reuse and streamline development processes, developers create a modular software framework that includes common functionalities. 
-These software modules can be reused across different product models and customized as needed to meet specific requirements for each market.
+The framework modules then can be reused across different product models and customized as needed to meet specific requirements for each individual market and customer.
 
 Originating in software development, SPLE principles have now spread far beyond the software domain. 
-Companies in many other industries, such as automotive, aerospace, consumer electronics, are taking advantage of reusability and variability management by reducing time-to-market, improving efficiency, and increasing customer satisfaction. 
-For instance, Lockheed Martin estimates that because of the approach it saves over \$47 million a year ~\cite{Gregg_2015}, while Hewlett-Packard reports that it builds products 10 times as complex, with 1/4 of the staff, in 1/3 of the time, and with 1/25 of the bugs of previous products ~\cite{Mebane_2007}.
-%Some of the many published examples of the improvements that have followed the implementation of PLE are as follows:
+Companies in many other industries, such as automotive, aerospace, and consumer electronics are taking advantage of reusability and variability management while reducing time-to-market, improving efficiency, and increasing customer satisfaction. 
+For instance, Lockheed Martin estimates that because of its SPLE-inspired approach it saves over \$47 million a year ~\cite{Gregg_2015}, while Hewlett-Packard reports that it builds products 10 times as complex, with 1/4 of the staff, in 1/3 of the time, and with 1/25 of the bugs of previous products ~\cite{Mebane_2007}.
 
-% •	Lockheed Martin has been employing Feature-based Product Line Engineering (PLE) for Amazon Web Services (AWS) since the mid-2000's and estimates that because of the approach, over \$47 million of cost is avoided each and every year ~\cite{Gregg_2015}.
-
-% •	Hewlett-Packard reports that with a product line approach, they were able to build products 10 times as complex, with 1/4 of the staff, in 1/3 of the time, and with 1/25 of the number of bugs of earlier products ~\cite{Mebane_2007}. 
-
-% •	A company from a railway domain reports, that the lead time of software changes has decreased significantly: “The time needed for implementing new functionality is about a month, whereas it was estimated to be about six months to a year”~\cite{Abbas_2020}. 
-
-However, when it comes to incorporating SPLE principles into the creation of technical systems, particularly when creating geometric representations of product lines of mechanical products, this approach has not yet become established. 
-% In this paper, we demonstrate the possibility of applying the PLE principles to designing physical products by developing an FPV drone product line in CAD software. Building FPV drones means meeting different customer requirements, which vary primarily in performance. These include:     
-
-% •	Ultralight drones, designed to comply with regulations by being exceptionally lightweight and compact.
-% •	Freestyle drones, optimized for agility, maneuverability, and creative flight in open environments with a focus on durability. 
-% •	Long-range drones, built for extended flight distances, featuring stable flight characteristics and efficient power consumption.
-% In the case study, we develop 3D models of the drones’ modules and assemblies, create a variability model and demonstrate a 3D drone product line using the LeoCAD software.
+However, when it comes to incorporating SPLE principles into the creation of technical systems, particularly when creating geometric representations of product lines of mechanical products, this approach has not yet become widely established. 
 
 \paragraph{Research objective}
 
-Translate ideas from software product line engineering to physical products.
-Improving product line engineering education for designers of phyiscal products.
+To overcome the current situation we work on translating established ideas and concepts from the software product line engineering community to the development of physical (and ultimately cyber-physical) products.
+Also, we want to help improving and more widely establishing product line engineering education for designers of physical products.
 
 \paragraph{Research question}
 
-Can we use digital LEGO for building interesting use cases for product line engineering that work well in engineering education?
-Can we see typical issues in product line engineering such as module incompatibility in these use cases?
-Can we use existing tools for digital LEGO modeling to build up relevant use cases already today?
+To reach our research objective, we tackle the following research questions here:
+Can we use digital LEGO for building interesting use cases for product line engineering?
+Can we see typical issues in product line engineering such as module (in-)compatibility in such use cases?
+Can we use existing digital LEGO tools for building these use cases already today?
 
 \paragraph{Contribution}
 
-Literature review (see Section~\ref{sec:related-work}). Case study (see Section~\ref{sec:case-study}).
+To answer these research questions, we first conduct a literature review on product line engineering in the software domain as well as other domains (see Section~\ref{sec:related-work}).
+And then, based on the results of our literature review we derive a digital LEGO case study consisting of atomic modules, various configuration options, and a 150\% model (see Section~\ref{sec:case-study}).
 
 \section{Related work}
 \label{sec:related-work}
@@ -112,7 +98,7 @@ Literature review (see Section~\ref{sec:related-work}). Case study (see Section~
 Subsequently, a literature review about PLE in software domain is provided in Section~\ref{sec:ple-software},
 and a literature review about PLE in other domains is provided in Section~\ref{sec:ple-other}.
 
-\subsection{PLE in software domain}
+\subsection{PLE in the software domain}
 \label{sec:ple-software}
 
 A software product line is a set of systems that share a common, managed set of features satisfying the specific needs of a particular market segment or mission and that are developed from a common set of core assets in a prescribed way ~\cite{Clements_2002}, where
@@ -147,7 +133,6 @@ Due to the complexity of dealing with physical dimensions and constraints in 3D 
 Currently, there is no proof of the existence of a 150\% 3D model, and it is not feasible to generate 3D product variants from such a model. 
 In the next section, we propose exploring the application of SPLE principles in designing product lines of physical products, particularly focusing on their geometric attributes.
 
-
 \section{Case study}
 \label{sec:case-study}
 
@@ -157,13 +142,11 @@ First, we provide an overview of the atomic modules of the product line, from wh
 Then, we explain the configuration options of the drone use case in the form of a feature tree model in Section~\ref{sec:configuration-options}.
 And finally, we introduce the 150\% model for the drone use case in Section~\ref{sec:150-model}.
 
-
 \subsection{Atomic modules}
 \label{sec:atomic-modules}
 
 Each drone is made up of four modules, that deliver a certain function. 
 Each module has its own variants, which makes it possible to offer a greater variety of products. 
-
 
 \subsubsection{Propellers}
 \label{sec:propellers}
@@ -226,7 +209,6 @@ A small frame is more maneuverable and agile, while a large frame offers more sp
     \subcaptionbox{Large frame\label{fig:frame-large}}{
         \includegraphics[height=2.1cm]{./LargeFrame.jpg}
     }
-
     \caption{Overview of the frame modules}
     \label{fig:frames}
 \end{figure}
@@ -237,7 +219,6 @@ A small frame is more maneuverable and agile, while a large frame offers more sp
 Covers shown in \cref{fig:atomic-modules} protect internal components of the drone, help to improve aerodynamics and serve an aesthetic purpose as well.
 
 \begin{figure}[htbp]
-    
     \subcaptionbox{Small cover\label{fig:cover-small}}{
         \includegraphics[height=1cm]{./Small Cover2.jpg}
     }
@@ -251,7 +232,6 @@ Covers shown in \cref{fig:atomic-modules} protect internal components of the dro
 
 \subsection{Configuration options}
 \label{sec:configuration-options}
-
 
 \begin{figure*}[htbp]
     \includegraphics[width=\textwidth]{./FeatureTreeWithLegend3.jpg}
@@ -269,22 +249,28 @@ Additionally, two types of constraint dependencies exist: require constraint and
 The require constraint means that when the small frame is selected, the small cover should be integrated to the system, and when the large frame is selected, the large cover should be integrated. 
 The excluding constraint means that when a large propeller is selected, the small frame can not be integrated to the design and this relationship goes the other way round as well.
 
-\subsubsection{Interface constraints}
+\subsection{Interface constraints}
 
 Physical interfaces between interacting modules enable their geometric connection. 
 A frame for the drone example has three interfaces: with the batteries, with the propellers and with the covers. 
 However, several geometrical constraints should be considered. These include:
 
-\begin{description}
-    \item[Size and shape constraints] Modules must be designed in such a way that they can physically fit together without interference. 
+\subsubsection*{Size and shape constraints}
+
+Modules must be designed in such a way that they can physically fit together without interference. 
 For the drone example, the large frame can accommodate all three types of batteries, while the small frame is limited to only small and medium batteries because of the size constraints.
-    \item[Alignment constraints] Modules must be aligned properly to ensure proper functioning when assembled together. 
+
+\subsubsection*{Alignment constraints}
+
+Modules must be aligned properly to ensure proper functioning when assembled together. 
 For example, covers must be oriented correctly relative to frames to serve the protective and aesthetic purposes. 
-    \item[Interference constraints] It is important to consider potential interferences between modules, such as conflicting shapes or components that may impede proper assembly or operation. 
+
+\subsubsection*{Interference constraints}
+
+It is important to consider potential interferences between modules, such as conflicting shapes or components that may impede proper assembly or operation. 
 It is technically feasible to install any propeller on any frame, but practical constraints come into play. 
 For instance, a large propeller cannot be mounted on a small frame without interference, as it would collide with the frame during rotation.
 \cref{fig:feature-tree} illustrates constraint dependencies caused by these geometric restrictions.
-\end{description}
 
 \subsection{150\% model}
 \label{sec:150-model}
@@ -302,10 +288,6 @@ These modules are essentially instances of the submodels, all organized within t
 The main model serves as the primary assembly, the three different drone variants are also categorized as assemblies. 
 Moreover, components such as modules (e.g., covers, frames, batteries, and propellers) are also classified as assemblies. 
 An assembly consists of children, where each child is linked to either a brick or another assembly. 
-% For instance, while a frame assembly is composed of numerous bricks, a freestyle drone assembly does not directly reference bricks. 
-% Instead, it refers to other assemblies within the hierarchy.
-
-
 
 \begin{figure}[htbp]
     \includegraphics[width=\columnwidth]{./ldraw-standard.png}
@@ -324,18 +306,11 @@ This abundance of information extends beyond the actual requirements of a specif
 % \end{figure}
 
 
-% \begin{figure*}[htbp]
-%     \includegraphics[width=\textwidth]{./150_MODEL_6.jpg}
-%     \caption{Overview of the 150\% model for the drone use case}
-%     \label{fig:150-model}
-% \end{figure*}
-
 \begin{figure*}[htbp]
-    \includegraphics[width=\textwidth]{./150_MODEL_7.jpg}
+    \includegraphics[width=\textwidth]{./150_MODEL_6.jpg}
     \caption{Overview of the 150\% model for the drone use case}
     \label{fig:150-model}
 \end{figure*}
-
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -350,8 +325,6 @@ In the next steps, we plan to explore geometric interfaces between components of
 One aspect to consider is the impact of a change to a single module on the entire product line. 
 By examining whether such changes are consistent across all products in the line, we can gain insight into issues related to interface compatibility and mechanical stability. 
 The use of digital LEGO is a very promising way to explore this area in an easy way.
-
-
 
 \bibliography{main}
 \bibliographystyle{ACM-Reference-Format}

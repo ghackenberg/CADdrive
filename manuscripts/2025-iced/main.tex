@@ -7,7 +7,7 @@
 \usepackage{amsthm}
 \usepackage[figuresright]{rotating}
 \usepackage{appendix}
-\usepackage[authoryear]{natbib}
+\usepackage[authoryear,round]{natbib}
 \usepackage{ifpdf}
 %\usepackage{newtxtext}
 %\usepackage{newtxmath}
@@ -16,8 +16,8 @@
 \usepackage{xcolor}
 \usepackage[colorlinks,allcolors=blue,bookmarks=false]{hyperref}
 
-\usepackage{caption}
-\usepackage{subcaption}
+%\usepackage{caption}
+%\usepackage{subcaption}
 
 \jyear{2025}
 \jdoi{https://doi.org/10.1017/pds.2025.xxx}
@@ -44,47 +44,47 @@ To overcome this situation, in this paper we present our experience from conduct
 We provide insights into the organization of the different formats, the various backgrounds and profiles of their participants, the work results produced by the individual teams, as well as the participants' learning experience.
 }
 
-\keywords{Design education, Collaborative design, Systems Engineering (SE)}
+\keywords{Design Education, Collaborative Design, Systems Engineering (SE)}
 
 \maketitle
 
 \section{Introduction}
 \label{sec:introduction}
 
-\cite{Luo_2017} argue based on official datasets from the U.S.\ patent office that the complexity of innovation processes and their outcomes has been growing steadily over the past 20 years.
-According to \cite{Trattner_2019} the growing complexity of our products and systems can be seen, for example, in the increased number of components, their interfaces, and their various ways of interaction.
-Futhermore, \cite{Thramboulidis_2008} explains that the interfaces between these components typically are not limited to one engineering discipline (e.g.\ mechanics, electrics, or software) anymore, but span several disciplines.
+\citet{Luo_2017} argue based on official datasets from the U.S.\ patent office that the complexity of innovation processes and their outcomes has been growing steadily over the past 20 years.
+According to \citet{Trattner_2019} the growing complexity of our products and systems can be seen, for example, in the increasing number of components, their interfaces, and their various ways of interaction.
+Futhermore, \citet{Thramboulidis_2008} explains that the interfaces between these components typically are not limited to one engineering discipline (e.g.\ mechanics, electrics, or software) anymore, but span several disciplines.
 Ultimately, when building modern products and systems we typically deal with a mutlitude of mechatronic components, which exhibit relevant mechanical, electrical, and software characteristics.
-For such mechatronic components, \cite{Youcef_Toumi_1996} already identified that they come with their very own integration issues, which are not considered in the classical engineering disciplines.
+For such mechatronic components, \citet{Youcef_Toumi_1996} already identified that they come with their very own integration issues, which are not considered in the classical engineering disciplines.
 
 In the past, the sole ability to engineer such complex systems might have been a sufficient success factor for societies and organizations across the globe.
-As \cite{Senescu_2014} argue, today due to rising global competition in many domains the engineering ability alone is not sufficient anymore, but the efficiency and effectiveness of the underlying engineering processes must be taken into account.
-According to \cite{Zidane2017}, different definitions exist for the terms \textit{efficiency} and \textit{effectiveness} in this context.
+As \citet{Senescu_2014} argue, today due to rising global competition in many domains the engineering ability alone is not sufficient anymore, but the efficiency and effectiveness of the underlying engineering processes must be taken into account.
+According to \citet{Zidane2017}, different definitions exist for the terms \textit{efficiency} and \textit{effectiveness} in this context.
 One possible definition of efficiency is that the overall engineering process can be executed as fast as possbile and the desired target system's time-to-market is minimized.
 In contrast, one possible definition of effectiveness is that the engineering process leading to the desired target system consumes as little resources as possible and, hence, the overall process costs are minimized.
 
-As \cite{Strauss_1985} already argued, one key to efficiency (i.e.\ high development speeds) is dividing the overall work into individual activities, which can be executed in parallel, but also might require synchronization of their work results.
-\cite{Hartmann_2022} explain that these activities must be scheduled carefully such that the work results of one activity are ready when they are needed by another acitivity, leading to the well-known project scheduling problem and the critical path.
+As \citet{Strauss_1985} already argued, one key to efficiency (i.e.\ high development speeds) is dividing the overall work into individual activities, which can be executed in parallel, but also might require synchronization of their work results.
+\citet{Hartmann_2022} explain that these activities must be scheduled carefully such that the work results of one activity are ready when they are needed by another acitivity, leading to the well-known project scheduling problem and the critical path.
 When required work results are not ready in time, you typically have two choices:
-Either you delay follow-up activities potentially causing a suboptimal utilization of project resources as \cite{Kumaraswamy_1998} explain for the construction industry.
-Or you start follow-up activities anyways and risk working with wrong assumptions causing unnecessary revisions of work results later in the process as \cite{Chapman_2006} argues from the viewpoint of project and risk management.
+Either you delay follow-up activities potentially causing a suboptimal utilization of project resources as \citet{Kumaraswamy_1998} explain for the construction industry.
+Or you start follow-up activities anyways and risk working with wrong assumptions causing unnecessary revisions of work results later in the process as \citet{Chapman_2006} argues from the viewpoint of project and risk management.
 
-In contrast, \cite{Maalem_2016} emphasize that one key to effectiveness is to understand stakeholder requirements and validate assumptions as early as possible in the engineering process.
-According to \cite{Mobin_2019} validation activities must be planned where applicable to ensure that such mistakes are uncovered and resolved quickly and to minimize their impact on the future course of the project.
-In this context, agile methodologies and frameworks have emerged over the past two decades ensuring stakeholder integration along the entire development process as \cite{Chan_2009} describe.
-In agile approaches, according to \cite{Deininger_2019} stakeholders have the obligation to review work results frequently and give their feedback to engineering team.
+In contrast, \citet{Maalem_2016} emphasize that one key to effectiveness is to understand stakeholder requirements and validate assumptions as early as possible in the engineering process.
+According to \citet{Mobin_2019} validation activities must be planned where applicable to ensure that such mistakes are uncovered and resolved quickly and to minimize their impact on the future course of the project.
+In this context, agile methodologies and frameworks have emerged over the past two decades ensuring stakeholder integration along the entire development process as \citet{Chan_2009} describe.
+In agile approaches, according to \citet{Deininger_2019} stakeholders have the obligation to review work results frequently and give their feedback to engineering team.
 
-Furthermore, \cite{Hackenberg_2023} argue that online collaboration platforms with vision management, issue tracking, and task scheduling support engineering teams in achieving high degrees of efficiency and effectiveness.
-\cite{Tony_Liu_2001} already explained that the idea behind such web-based platforms is to bundle all relevant project information in a central repository, to which all stakeholders have access from anywhere, anytime, and with any device.
-And \cite{Kraemer_1988} already noted that online collaboration platforms can improve the speed of information flow between the stakeholders significantly compared to traditional approaches.
-Higher speeds of information flow, in turn, reduce the risk of project delays as well as incorrect assumptions and unnecessary revisions of work results as \cite{Novak_2009} show, e.g., in the food industry.
+Furthermore, \citet{Hackenberg_2023} argue that online collaboration platforms with vision management, issue tracking, and task scheduling support engineering teams in achieving high degrees of efficiency and effectiveness.
+\citet{Tony_Liu_2001} already explained that the idea behind such web-based platforms is to bundle all relevant project information in a central repository, to which all stakeholders have access from anywhere, anytime, and with any device.
+And \citet{Kraemer_1988} already noted that online collaboration platforms can improve the speed of information flow between the stakeholders significantly compared to traditional approaches.
+Higher speeds of information flow, in turn, reduce the risk of project delays as well as incorrect assumptions and unnecessary revisions of work results as \citet{Novak_2009} show, e.g., in the food industry.
 
 Now, as academic teachers we need to prepare our students as good as possible for what they will face in practice.
 Ideally, our graduates quickly find their place in multi-disciplinary engineering teams and contribute reliably to the success of their projects.
-However, beyond the core technical skills they need a solid understanding of the overall engineering processes, the overarching efficiency and effectiveness objectives, as well as the employed collaboration principles as \cite{Deshpande_2011} argue.
-According to \cite{Meyer_2020} teaching such profound understanding of process, team, and collaboration dynamics still remains a major challenge for engineering education.
+However, beyond the core technical skills they need a solid understanding of the overall engineering processes, the overarching efficiency and effectiveness objectives, as well as the employed collaboration principles as \citet{Deshpande_2011} argue.
+According to \citet{Meyer_2020} teaching such profound understanding of process, team, and collaboration dynamics still remains a major challenge for engineering education.
 
-\textbf{We believe that one major obstacle to stimulating an understanding in these "soft" areas is the complexity of commercial-grade (CAD) software and their rather steep learning curves.}
+\textbf{We believe that one major obstacle to stimulating a solid understanding in these "soft" areas is the complexity of commercial-grade (CAD) software and their rather steep learning curves. Various industries require this level of complexity for their specific applications, but mastering this complexity not always represents the learning goals of academic programmes and courses.}
 
 \paragraph{Research question}
 
@@ -102,8 +102,7 @@ Finally, we draw our conclusions from the previous experiments and their data, d
 \section{Course experiments}
 \label{sec:contribution}
 
-For our experiements we used the open source software CADdrive\footnote{\url{https://github.com/ghackenberg/caddrive}} as the underlying online collaboration platform with basic version management, issue tracking, and task scheduling, as well as the open source software LeoCAD\footnote{\url{https://github.com/leozide/leocad}} for digital LEGO design.
-% and  Dassault Systèmes SolidWorks\footnote{\url{https://www.solidworks.com/}} for classical CAD.
+For our experiements we used the open source software CADdrive\footnote{\url{https://github.com/ghackenberg/caddrive}} as the underlying online collaboration platform with basic version management, issue tracking, and task scheduling functionality, as well as the open source software LeoCAD\footnote{\url{https://github.com/leozide/leocad}} for digital LEGO design based on the open LDraw\footnote{\url{https://ldraw.org/}} data format and parts library.
 Subsequently, we first describe our Master-level course formats that we conducted with students from University of Applied Sciences Upper Austria in Section~\ref{sec:master}, before explaining our workshop format with that we conducted high school children in Section~\ref{sec:school}.
 Both for the Master-level courses and the workshop we introduce the organizational settings and show the most interesting work results delivered by the individual teams.
 
@@ -129,26 +128,19 @@ Also, most students were already familiar with some CAD tool (e.g.\ PTC Creo, Au
 In this project-based course, the goal of the group was to design an energy-efficient glasshouse for growing sweet tomatos over the winter months in Alpine regions.
 The tasks included requirements analysis, modular architecture design, mechanical design, electrical design, and simulation-based verification of selected system properties.
 Figure~\ref{fig:glasshouse} shows the mechanical design developed by the group with digital LEGO bricks and LeoCAD.
-The mechanical design comprises a grow area for the plants with glass walls and windows as well as solar panels on the roof (see Figure~\ref{fig:glasshouse_2}), and a shed area for storing tools and batteries (see Figure~\ref{fig:glasshouse_3}).
+The mechanical design comprises a grow area for the plants with glass walls and windows as well as solar panels on the roof (see Figure~\ref{fig:glasshouse}-b), and a shed area for storing tools and batteries (see Figure~\ref{fig:glasshouse}-c).
 
 \begin{figure}[htbp]
-    \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{./figures/glasshouse_1.png}
-        \caption{Exterior design}
-        \label{fig:glasshouse_1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{./figures/glasshouse_2.png}
-        \caption{Interior design (grow area)}
-        \label{fig:glasshouse_2}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{./figures/glasshouse_3.png}
-        \caption{Interior design (shed area)}
-        \label{fig:glasshouse_3}
-    \end{subfigure}
+    \begin{center}
+        \begin{tabular}{ccc}
+            \includegraphics[width=0.3\textwidth]{./figures/glasshouse_1.png} &
+            \includegraphics[width=0.3\textwidth]{./figures/glasshouse_2.png} &
+            \includegraphics[width=0.3\textwidth]{./figures/glasshouse_3.png} \\
+            (a) Exterior design &
+            (b) Interior design (grow area) &
+            (c) Interior design (shed area)
+        \end{tabular}
+    \end{center}
     \caption{Mechanical design of the glasshouse with digital LEGO bricks.}
     \label{fig:glasshouse}
 \end{figure}
@@ -158,17 +150,14 @@ The group decided to apply finite element analysis for analyzing the stability o
 Furthermore, the group decided to employ multi-physics simulation with OpenModelica\footnote{\url{https://github.com/OpenModelica/OpenModelica}} for analyzing the electrical energy consumption caused by the automatic window opening and closing system as shown in Figure~\ref{fig:glasshouse-sim}.
 
 \begin{figure}[htbp]
-    \begin{subfigure}[b]{0.575\textwidth}
-        \includegraphics[width=\textwidth]{./figures/glasshouse_mechatronic_1.png}
-        \caption{OpenModelica component model}
-        \label{fig:glasshouse-sim-1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.41\textwidth}
-        \includegraphics[width=\textwidth]{./figures/glasshouse_mechatronic_2.png}
-        \caption{OpenModelica 3D visualization}
-        \label{fig:glasshouse-sim-2}
-    \end{subfigure}
+    \begin{center}
+        \begin{tabular}{cc}
+            \includegraphics[width=0.553\textwidth]{./figures/glasshouse_mechatronic_1.png} &
+            \includegraphics[width=0.395\textwidth]{./figures/glasshouse_mechatronic_2.png} \\
+            (a) OpenModelica component model &
+            (b) OpenModelica 3D visualization
+        \end{tabular}
+    \end{center}
     \caption{Multi-physics simulation of automatic window opening and closing system.}
     \label{fig:glasshouse-sim}
 \end{figure}
@@ -190,23 +179,16 @@ The tasks included requirements analysis, mechatronic systems architecture deriv
 Figure~\ref{fig:paper} shows three different mechanical designs proposed by the teams.
 
 \begin{figure}[htbp]
-    \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{./figures/paper_1.png}
-        \caption{First team}
-        \label{fig:paper_1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{./figures/paper_2.png}
-        \caption{Second team}
-        \label{fig:paper_2}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
-        \includegraphics[width=\textwidth]{./figures/paper_3.png}
-        \caption{Third team}
-        \label{fig:paper_3}
-    \end{subfigure}
+    \begin{center}
+        \begin{tabular}{ccc}
+            \includegraphics[width=0.305\textwidth]{./figures/paper_1.png} &
+            \includegraphics[width=0.305\textwidth]{./figures/paper_2.png} &
+            \includegraphics[width=0.305\textwidth]{./figures/paper_3.png} \\
+            (a) First team &
+            (b) Second team &
+            (c) Third team
+        \end{tabular}
+    \end{center}
     \caption{Different mechanical designs of the paper folding machine.}
     \label{fig:paper}
 \end{figure}
@@ -218,18 +200,14 @@ Furhtermore, note that the notation for the software design was not prescribed b
 Finally, as described previously the validation of the different designs was performed with manual review techniques across all teams.
 
 \begin{figure}[htbp]
-    \centering
-    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{./figures/paper_electric.png}
-        \caption{Electrical design}
-        \label{fig:paper-sub-1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{./figures/paper_control.png}
-        \caption{Logical design}
-        \label{fig:paper-sub-2}
-    \end{subfigure}
+    \begin{center}
+        \begin{tabular}{cc}
+            \includegraphics[width=0.45\textwidth]{./figures/paper_electric.png} &
+            \includegraphics[width=0.49\textwidth]{./figures/paper_control.png} \\
+            (a) Electrical design &
+            (b) Logical design
+        \end{tabular}
+    \end{center}
     \caption{Electrical and logical design of one paper folding machine.}
     \label{fig:paper-sub}
 \end{figure}
@@ -256,24 +234,16 @@ The goal of each team was to develop an idea for a new LEGO product, while the t
 Figure~\ref{fig:kinderuni} shows three product designs, which have been proposed by the teams.
 
 \begin{figure}[htbp]
-    \centering
-    \begin{subfigure}[b]{0.3\textwidth}
-        \includegraphics[width=\textwidth]{./figures/space.png}
-        \caption{Space station}
-        \label{fig:rocket}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
-        \includegraphics[width=\textwidth]{./figures/piano.png}
-        \caption{Animal piano}
-        \label{fig:piano}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
-        \includegraphics[width=\textwidth]{./figures/rapunzel.png}
-        \caption{Rapunzel tower}
-        \label{fig:rapunzel}
-    \end{subfigure}
+    \begin{center}
+        \begin{tabular}{ccc}
+            \includegraphics[width=0.305\textwidth]{./figures/space.png} &
+            \includegraphics[width=0.305\textwidth]{./figures/piano.png} &
+            \includegraphics[width=0.305\textwidth]{./figures/rapunzel.png} \\
+            (a) Space station &
+            (b) Animal piano &
+            (c) Rapunzel tower
+        \end{tabular}
+    \end{center}
     \caption{LEGO product designs proposed by the teams during the workshop.}
     \label{fig:kinderuni}
 \end{figure}
@@ -284,21 +254,16 @@ Three out of nine two-member teams managed to master this challenge (as, e.g., s
 The remaining three two-member teams failed integrating their work.
 
 \begin{figure}[htbp]
-    \centering
-    \begin{subfigure}[b]{0.25\textwidth}
-        \includegraphics[width=\textwidth]{./figures/space_rocket.png}
-        \caption{Rocket component}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{./figures/space_station.png}
-        \caption{Station component}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.25\textwidth}
-        \includegraphics[width=\textwidth]{./figures/space_assembly.png}
-        \caption{Component assembly}
-    \end{subfigure}
+    \begin{center}
+        \begin{tabular}{ccc}
+            \includegraphics[width=0.24\textwidth]{./figures/space_rocket.png} &
+            \includegraphics[width=0.44\textwidth]{./figures/space_station.png} &
+            \includegraphics[width=0.24\textwidth]{./figures/space_assembly.png} \\
+            (a) Rocket component &
+            (b) Station component &
+            (c) Component assembly
+        \end{tabular}
+    \end{center}
     \caption{Components of the space station LEGO product idea and their assembly.}
     \label{fig:school-sub}
 \end{figure}
@@ -383,15 +348,15 @@ Finally, the miscellaneous feedback mainly repeated the previous requests and in
 \section{Conclusions}
 \label{sec:conclusion}
 
-In the previous sections we first highlighted the need for innovation in engineering education with particular focus on stimulating a profound understanding of process, team, and collaboration dynamics in interdisciplinary settings.
-Then, we presented our experiences with two Master-level courses on product design and systems engineering as well as a one-day workshop with children from high school including both quantitative and qualitative feedback from the participants.
-In the following, we summarize our most important learnings from the previous experiments and sketch possible directions of future work in this field of research, development, and innovation.
+In this paper we first highlighted the need for innovation in engineering education with focus on stimulating a profound understanding of interdisciplinary process, team, and collaboration dynamics.
+Then, we presented our experiences with two Master-level courses on product design and systems engineering as well as a one-day workshop with children from high school including quantitative and qualitative participant feedback.
+In the following, we summarize our most important learnings from the experiments and sketch possible directions of future work in this field of research, development, and innovation.
 
 \paragraph{Learnings}
 
 While you possibly can learn many different things from the conducted experiments, here we concentrate on those learnings which we believe to be most generalizable and impactful for the product design and systems engineering community.
-Furthermore, we decided to number the individual learnings for future reference and to enable more efficient and effective discussios around the underlying principles and mechanisms of design and engineering education.
-Also, with each learning we include a short discussion of possible threats to validity, which are inherent with any scientific research study and the employed research methods.
+We decided to number the individual learnings for future reference and to enable more efficient and effective discussios around the underlying principles and mechanisms of design and engineering education.
+With each learning we include a short discussion of possible threats to validity, which are inherent with any scientific research study and the employed research methods.
 
 \begin{description}
     \item[Learning 1]
@@ -418,15 +383,60 @@ First we work on better CAD support for the digital LEGO framework to avoid the 
 Second we work on integrating classical mechanical and electrical CAD tools and their models into CADdrive to improve the learning experience of groups with stronger prior CAD knowledge.
 And third, we work on adding explicit support for requirements management, systems architecture (including decomposition and interfacing), and computer simulation to improve the learning experience in these domains as well.
 
-Beyond that we plan to extend the platform capabilities towards mechatronic product line engineering as explained by \cite{Michalek_2011}.
+Beyond that we plan to extend the platform capabilities towards mechatronic product line engineering as explained by \citet{Michalek_2011}.
 We believe that proper training concepts for product line engineering represent the next frontier, that we need to master in academic education so that our companies can benefit from these skills in the future and build larger varieties of products more efficiently and effectively.
 Consequently, we need to add concepts such as product platforms, module repositories, interface compatibilities, and configuration models to CADdrive.
 Furthermore, we need to redesign our courses to cover these topics in the course material as well as the cases considered during practical exercises.
 
 \begin{Backmatter}
 
-\bibliography{main}
-\bibliographystyle{plainnat}
+\begin{thebibliography}{21}
+    
+    \providecommand{\natexlab}[1]{#1} \providecommand{\url}[1]{\texttt{#1}} \expandafter\ifx\csname urlstyle\endcsname\relax \providecommand{\doi}[1]{doi: #1}\else \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+    \bibitem[Chan and Thong (2009)]{Chan_2009} Chan, F.~K.~Y. and Thong, J.~Y.~L. (2009). \newblock Acceptance of agile methodologies: A critical review and conceptual framework. \newblock \emph{Decision Support Systems}, 46\penalty0 (4):\penalty0 803--814.
+    
+    \bibitem[Chapman (2006)]{Chapman_2006} Chapman, C. (2006). \newblock Key points of contention in framing assumptions for risk and uncertainty management. \newblock \emph{International Journal of Project Management}, 24\penalty0 (4):\penalty0 303--313.
+    
+    \bibitem[Deininger et~al. (2019) Deininger, Daly, Lee, Seifert, and Sienko]{Deininger_2019} Deininger, M., Daly, S.~R., Lee, J.~C., Seifert, C.~M., and Sienko, K.-H. (2019). \newblock Prototyping for context: exploring stakeholder feedback based on prototype type, stakeholder group and question type. \newblock \emph{Research in Engineering Design}, 30\penalty0 (4):\penalty0 453--471.
+    
+    \bibitem[Deshpande and Huang (2011)]{Deshpande_2011} Deshpande, A.~A. and Huang, S.~H. (2011). \newblock Simulation games in engineering education: A state-of-the-art review. \newblock \emph{Computer Applications in Engineering Education}, 19\penalty0 (3):\penalty0 399--410.
+    
+    \bibitem[Hackenberg et~al. (2023) Hackenberg, Zehetner, and Frühwirth]{Hackenberg_2023} Hackenberg, G., Zehetner, C., and Frühwirth, D. (2023). \newblock Github for product development - how could that look like? \newblock \emph{Proceedings of the Design Society}, 3:\penalty0 2055–2064.
+    
+    \bibitem[Hartmann and Briskorn (2022)]{Hartmann_2022} Hartmann, S. and Briskorn, D. (2022). \newblock An updated survey of variants and extensions of the resource-constrained project scheduling problem. \newblock \emph{European Journal of Operational Research}, 297\penalty0 (1):\penalty0 1--14.
+    
+    \bibitem[Kraemer and King (1988)]{Kraemer_1988} Kraemer, K.~L. and King, J.~L. (1988). \newblock Computer-based systems for cooperative work and group decision making. \newblock \emph{ACM Computing Surveys}, 20\penalty0 (2):\penalty0 115–146.
+    
+    \bibitem[Kumaraswamy and Chan (1998)]{Kumaraswamy_1998} Kumaraswamy, M.~M. and Chan, D.~W.~M. (1998). \newblock Contributors to construction delays. \newblock \emph{Construction Management and Economics}, 16\penalty0 (1):\penalty0 17--29.
+    
+    \bibitem[Luo and Wood (2017)]{Luo_2017} Luo, J. and Wood, K.~L. (2017). \newblock The growing complexity in invention process. \newblock \emph{Research in Engineering Design}, 28\penalty0 (4):\penalty0 421--435.
+    
+    \bibitem[Maalem and Zarour (2016)]{Maalem_2016} Maalem, S. and Zarour, N. (2016). \newblock Challenge of validation in requirements engineering. \newblock \emph{Journal of Innovation in Digital Ecosystems}, 3\penalty0 (1):\penalty0 15--21.
+    
+    \bibitem[Meyer and Norman (2020)]{Meyer_2020} Meyer, M.~W. and Norman, D. (2020). \newblock Changing design education for the 21st century. \newblock \emph{She Ji: The Journal of Design, Economics, and Innovation}, 6\penalty0 (1):\penalty0 13--49.
+    
+    \bibitem[Michalek et~al. (2011) Michalek, Ebbes, Adigüzel, Feinberg, and Papalambros]{Michalek_2011} Michalek, J.~J., Ebbes, P., Adigüzel, F., Feinberg, F.~M., and Papalambros, P.~Y. (2011). \newblock Enhancing marketing with engineering: Optimal product line design for heterogeneous markets. \newblock \emph{International Journal of Research in Marketing}, 28\penalty0 (1):\penalty0 1--12.
+    
+    \bibitem[Mobin et~al. (2019) Mobin, Li, Cheraghi, and Wu]{Mobin_2019} Mobin, M., Li, U., Cheraghi, S.~H., and Wu, G. (2019). \newblock An approach for design verification and validation planning and optimization for new product reliability improvement. \newblock \emph{Reliability Engineering \& System Safety}, 190:\penalty0 106518.
+    
+    \bibitem[Novak and Sellnow (2009)]{Novak_2009} Novak, J.~M. and Sellnow, T.~L. (2009). \newblock Reducing organizational risk through participatory communication. \newblock \emph{Journal of Applied Communication Research}, 37\penalty0 (4):\penalty0 349--373.
+    
+    \bibitem[Senescu et~al. (2014) Senescu, Haymaker, Meža, and Fischer]{Senescu_2014} Senescu, R.~R., Haymaker, J.~R., Meža, S., and Fischer, M.~A. (2014). \newblock Design process communication methodology: Improving the effectiveness and efficiency of collaboration, sharing, and understanding. \newblock \emph{Journal of Architectural Engineering}, 20\penalty0 (1):\penalty0 05013001.
+    
+    \bibitem[Strauss (1985)]{Strauss_1985} Strauss, A. (1985). \newblock Work and the division of labor. \newblock \emph{The Sociological Quarterly}, 26\penalty0 (1):\penalty0 1--19.
+    
+    \bibitem[Thramboulidis (2008)]{Thramboulidis_2008} Thramboulidis, K. (2008). \newblock Challenges in the development of mechatronic systems: The mechatronic component. \newblock \emph{IEEE International Conference on Emerging Technologies and Factory Automation}, IEEE, 624--631.
+    
+    \bibitem[{Tony Liu} and {William Xu} (2001)]{Tony_Liu_2001} {Tony Liu}, D. and {William Xu}, X. (2001). \newblock A review of web-based product data management systems. \newblock \emph{Computers in Industry}, 44\penalty0 (3):\penalty0 251--262.
+    
+    \bibitem[Trattner et~al. (2019) Trattner, Hvam, Forza, and Herbert-Hansen]{Trattner_2019} Trattner, A., Hvam, L., Forza, C., and Herbert-Hansen, Z.~N.~L. (2019). \newblock Product complexity and operational performance: A systematic literature review. \newblock \emph{CIRP Journal of Manufacturing Science and Technology}, 25:\penalty0 69--83.
+    
+    \bibitem[Youcef-Toumi (1996)]{Youcef_Toumi_1996} Youcef-Toumi, K. (1996). \newblock Modeling, design, and control integration: a necessary step in mechatronics. \newblock \emph{IEEE/ASME Transactions on Mechatronics}, 1\penalty0 (1):\penalty0 29--38.
+    
+    \bibitem[Zidane and Olsson (2017)]{Zidane2017} Zidane, Y.~J.-T. and Olsson, N.~O.~E. (2017). \newblock Defining project efficiency, effectiveness and efficacy. \newblock \emph{International Journal of Managing Projects in Business}, 10\penalty0 (3):\penalty0 621--641.
+        
+\end{thebibliography}
 
 \end{Backmatter}
 

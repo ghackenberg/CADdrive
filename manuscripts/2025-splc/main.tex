@@ -145,72 +145,35 @@ Such superset representations of products lines and their variants have been app
 \section{Case study}
 \label{sec:case-study}
 
-In this third chapter we introduce the case study, which is prepared for testing the viability of digital LEGO for product line engineering education.
-The selected product line includes three first person view (FPV) drone variants: an ultralight drone, a freestyle drone and a long-range drone, which differ primarily in their performance characteristics.
-First, we provide an overview of the atomic modules of the product line, from which the individual variants have been assembled in Section~\ref{sec:atomic-modules}.
-Then, we explain the configuration options of the drone use case in the form of a feature tree model in Section~\ref{sec:configuration-options}.
-And finally, we introduce the 150\% model for the drone use case in Section~\ref{sec:150-model}.
+In this third section we introduce the case study, which we prepared for testing the applicability of digital LEGO based on the open LDraw\footnote{\url{https://ldraw.org}} data format and parts library for product line engineering education in a physical product design context.
+The selected product line includes three first person view (FPV) drone variants: an \textit{ultralight drone}, a \textit{freestyle drone} and a \textit{long-range drone}, which differ primarily in their performance characteristics.
 
-\subsection{Atomic modules}
-\label{sec:atomic-modules}
-
-Each drone is made up of four modules, that deliver a certain function. 
-Each module has its own variants, which makes it possible to offer a greater variety of products. 
-
-\subsubsection{Propellers}
-\label{sec:propellers}
-
-Propellers shown in \cref{fig:propeller} generate thrust by spinning rapidly, allowing a drone to move in all directions. 
-A two-blade propeller provides better efficiency and longer flight times, while a triblade propeller offers more stability and maneuverability. 
-Smaller propellers provide better agility, while bigger ones provide more thrust and efficiency, allowing the drone fly longer distances. 
-However, larger propellers also require more power to spin.
-
-\begin{figure}[htbp]
-    \subcaptionbox{Small size\label{fig:propellor-small}}{
+\begin{figure*}[tbp]
+    \subcaptionbox{Small propeller\label{fig:propellor-small}}{
         \includegraphics[height=1cm]{./drone-case-modules-propellor-2-small.jpg}
     }
     \hfill
-    \subcaptionbox{Medium size\label{fig:propellor-medium}}{
+    \subcaptionbox{Medium propeller\label{fig:propellor-medium}}{
         \includegraphics[height=1cm]{./drone-case-modules-propellor-3.jpg}
     }
     \hfill
-    \subcaptionbox{Large size\label{fig:propellor-large}}{
+    \subcaptionbox{Large propeller\label{fig:propellor-large}}{
         \includegraphics[height=1cm]{./drone-case-modules-propellor-2-large.jpg}
     }
-    \caption{Overview of the propeller modules}
-    \label{fig:propeller}
-\end{figure}
-
-\subsubsection{Batteries}
-\label{sec:batteries}
-
-Batteries shown in \cref{fig:batteries} provide power for the drone to operate. 
-A smaller capacity battery is lighter and more compact, which can improve the agility and maneuverability of the drone. 
-However, smaller batteries have shorter flight times, which means that for longer flights a higher capacity battery is more suitable.
-
-\begin{figure}[htbp]
-    \subcaptionbox{Small size\label{fig:battery-small}}{
+    \hfill
+    \subcaptionbox{Small battery\label{fig:battery-small}}{
         \includegraphics[height=1cm]{./drone-case-modules-battery-small.jpg}
     }
     \hfill
-    \subcaptionbox{Medium size\label{fig:battery-medium}}{
+    \subcaptionbox{Medium battery\label{fig:battery-medium}}{
         \includegraphics[height=1cm]{./drone-case-modules-battery-medium.jpg}
     }
     \hfill
-    \subcaptionbox{Large size\label{fig:battery-large}}{
+    \subcaptionbox{Large battery\label{fig:battery-large}}{
         \includegraphics[height=1cm]{./drone-case-modules-battery-large.jpg}
     }
-    \caption{Overview of the battery modules}
-    \label{fig:batteries}
-\end{figure}
 
-\subsubsection{Frames}
-\label{sec:frames}
-
-Frames shown in \cref{fig:frames} serve as the structure that holds all the other parts (legs and motors are pre-installed) together. 
-A small frame is more maneuverable and agile, while a large frame offers more space for additional components (e.g. larger batteries).
-
-\begin{figure}[htbp]
+    
     \subcaptionbox{Small frame\label{fig:frame-small}}{
         \includegraphics[height=2.1cm]{./SmallFrame.jpg}
     }
@@ -218,16 +181,7 @@ A small frame is more maneuverable and agile, while a large frame offers more sp
     \subcaptionbox{Large frame\label{fig:frame-large}}{
         \includegraphics[height=2.1cm]{./LargeFrame.jpg}
     }
-    \caption{Overview of the frame modules}
-    \label{fig:frames}
-\end{figure}
-
-\subsubsection{Covers}
-\label{sec:covers}
-
-Covers shown in \cref{fig:atomic-modules} protect internal components of the drone, help to improve aerodynamics and serve an aesthetic purpose as well.
-
-\begin{figure}[htbp]
+    \hfill
     \subcaptionbox{Small cover\label{fig:cover-small}}{
         \includegraphics[height=1cm]{./Small Cover2.jpg}
     }
@@ -235,30 +189,51 @@ Covers shown in \cref{fig:atomic-modules} protect internal components of the dro
     \subcaptionbox{Large cover\label{fig:cover-large}}{
         \includegraphics[height=1cm]{./LargeCover2.jpg}
     }
-    \caption{Overview of the cover modules}
+
+    \caption{Overview of the atomic (mechatronic) modules for the drone use case.}
     \label{fig:atomic-modules}
-\end{figure}
-
-\subsection{Configuration options}
-\label{sec:configuration-options}
-
-\begin{figure*}[htbp]
-    \includegraphics[width=\textwidth]{./FeatureTreeWithLegend3.jpg}
-    \caption{Overview of the configuration options for the drone use case}
-    \label{fig:feature-tree}
 \end{figure*}
 
-The modules can be combined to design customized end products.  
-For that purpose, the FPV drone variability model is developed. 
-When a customer wishes to design and buy a drone, multiple decisions have to be made before the final system can be build. 
-\cref{fig:feature-tree} shows that the variation points Propeller, Battery, Frame and Cover have a mandatory dependency with the FPV drone, which means that they have to be included in the final product. 
-For each of these variation points a variant has to be selected. 
-The variants are connected by an alternative choice dependency with a minimum and maximum equal to one, which means that only one variant has to be chosen to be included to the final product. 
-Additionally, two types of constraint dependencies exist: require constraint and exclude constraint. 
-The require constraint means that when the small frame is selected, the small cover should be integrated to the system, and when the large frame is selected, the large cover should be integrated. 
-The excluding constraint means that when a large propeller is selected, the small frame can not be integrated to the design and this relationship goes the other way round as well.
+Subsequently, we first provide an overview of the atomic (mechatronic) modules of the product line, from which the individual variants can been assembled in Section~\ref{sec:atomic-modules}.
+Then, we introduce a number of contact-based mechanical interface contraints governing the composition of the atomic modules in Section~\ref{sec:contraints}.
+Thereafter, we explain the configuration options of the drone use case in the form of an orthogonal variability model (OVM) in Section~\ref{sec:configuration-options}.
+And finally, we introduce the 150\% LDraw (or digital LEGO) model for the drone use case including all atomic modules as well as the assembly structures of the three different drone variants in Section~\ref{sec:150-model}.
+
+\subsection{Atomic modules}
+\label{sec:atomic-modules}
+
+The atomic modules (see \cref{fig:atomic-modules}) include propellers, batteries, frames, and covers each adding required system functionality and coming in different sizes with different physical and performance characteristics.
+In the following, we explain each class of atomic module as well as their functionality in the context of the drone use case and the available sizes in more detail.
+
+\subsubsection*{Propellers}
+\label{sec:propellers}
+
+The propellers (see \cref{fig:propellor-small}, \cref{fig:propellor-medium}, and \cref{fig:propellor-large}) generate thrust by spinning rapidly, allowing a drone to move in all directions. 
+The small and large two-blade propellers provide better efficiency and longer flight times, while the medium triblade propeller offers more stability and maneuverability. 
+Also note that in general smaller propellers provide better agility, while bigger ones provide more thrust and efficiency, allowing the drone fly longer distances.
+On the contrary, larger propellers also require more power to spin.
+
+\subsubsection*{Batteries}
+\label{sec:batteries}
+
+The batteries (see \cref{fig:battery-small}, \cref{fig:battery-medium}, and \cref{fig:battery-large}) provide power for the drone to operate. 
+The smaller capacity batteries are lighter and more compact, which can improve the agility and maneuverability of the drone. 
+However, smaller batteries typically also have shorter flight times, which means that for longer flights a higher capacity battery is more suitable.
+
+\subsubsection*{Frames}
+\label{sec:frames}
+
+The frames (see \cref{fig:frame-small} and \cref{fig:frame-large}) serve as the structure that holds all the other parts (legs and motors are pre-installed) together. 
+The small frame is more maneuverable and agile, while a large frame offers more space for additional components (e.g.~larger batteries and possibly other equipment such as cameras and infrared sensors).
+
+\subsubsection*{Covers}
+\label{sec:covers}
+
+The covers (see \cref{fig:cover-small} and \cref{fig:cover-large}) protect the internal components of the drone (i.e.~the batteries and other electronics), help to improve aerodynamics and serve an aesthetic purpose as well.
+In alignment with the frames two cover sizes are privided, a small cover fitting the small frame, and a large cover fitting the large frame.
 
 \subsection{Interface constraints}
+\label{sec:contraints}
 
 Physical interfaces between interacting modules enable their geometric connection. 
 A frame for the drone example has three interfaces: with the batteries, with the propellers and with the covers. 
@@ -281,7 +256,26 @@ It is technically feasible to install any propeller on any frame, but practical 
 For instance, a large propeller cannot be mounted on a small frame without interference, as it would collide with the frame during rotation.
 \cref{fig:feature-tree} illustrates constraint dependencies caused by these geometric restrictions.
 
-\subsection{150\% model}
+\subsection{Configuration options}
+\label{sec:configuration-options}
+
+\begin{figure*}[htbp]
+    \includegraphics[width=\textwidth]{./FeatureTreeWithLegend3.jpg}
+    \caption{Overview of the configuration options for the drone use case}
+    \label{fig:feature-tree}
+\end{figure*}
+
+The modules can be combined to design customized end products.  
+For that purpose, the FPV drone variability model is developed. 
+When a customer wishes to design and buy a drone, multiple decisions have to be made before the final system can be build. 
+\cref{fig:feature-tree} shows that the variation points Propeller, Battery, Frame and Cover have a mandatory dependency with the FPV drone, which means that they have to be included in the final product. 
+For each of these variation points a variant has to be selected. 
+The variants are connected by an alternative choice dependency with a minimum and maximum equal to one, which means that only one variant has to be chosen to be included to the final product. 
+Additionally, two types of constraint dependencies exist: require constraint and exclude constraint. 
+The require constraint means that when the small frame is selected, the small cover should be integrated to the system, and when the large frame is selected, the large cover should be integrated. 
+The excluding constraint means that when a large propeller is selected, the small frame can not be integrated to the design and this relationship goes the other way round as well.
+
+\subsection{Model representations}
 \label{sec:150-model}
 
 The case study demonstrates the utilization of digital LEGOs to create a 150\% model of a 3D drone architecture. 

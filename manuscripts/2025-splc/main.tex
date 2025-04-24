@@ -95,48 +95,52 @@ And then, based on the results of our literature review we derive a digital LEGO
 \section{Related work}
 \label{sec:related-work}
 
-Subsequently, we first summarize the relevant state-of-the-art of product line engineering (PLE) in the software domain (see Section~\ref{sec:ple-software}).
-Then, we provide our findings on the current state of product line eingineering in other domains dealing with physical rather than software products (see Section~\ref{sec:ple-other}).
+Subsequently, we first summarize the relevant state-of-the-art of product line engineering (PLE).
+First, we describe common principles and methodologies in the field of PLE in Section~\ref{sec:principles}.
+Then, we explain the concept of modules and non-contact as well as contact-based mechanical interfaces in Section~\ref{sec:modules}.
+Finally, we explore the representation of the product line and its individual variants in Section~\ref{sec:variants}.
 
-\subsection{PLE in the software domain}
-\label{sec:ple-software}
+\subsection{Principles and methodologies}
+\label{sec:principles}
 
-A software product line is a set of individual software products that share a common, managed set of features satisfying the specific needs of a particular market segment or mission and that are developed from a common set of core assets in a prescribed way~\cite{Clements_2002}.
-In this context, a feature is a characteristic of a member product in a product line that distinguishes it from other member products in the product line~\cite{ISO/IEC_26550}.
+A product line can be seen as a set of individual products that share a common, managed set of features addressing the specific needs of particular market segments or missions and that are derived from a common set of core assets in a systematic way~\cite{Clements_2002}.
+In this context, a feature denotes a characteristic of a member product in a product line that distinguishes it from other member products in the product line~\cite{ISO/IEC_26550}.
 Van der Linden et al.~\cite{Linden_2007} formulated several principles that are fundamental in PLE including, among others, the principle of the two-lifecycle approach, which comprises the domain engineering and the application engineering lifecycle, and the principle of variability management.
 
-Domain engineering is a reuse-based approach defining the scope (i.e., domain definition), specifying the structure (i.e., domain architecture), and building the assets (e.g., requirements, designs, software code, documentation) for a class of systems, subsystems, or member products~\cite{ISO/IEC_26550}.
-During domain analysis, developers determine the scope of the software product line and identify its common and variable features, which they then document in a variability model. 
+Domain engineering is a reuse-based approach defining the scope (i.e., domain definition), specifying the structure (i.e., domain architecture), and building the assets for a class of systems, subsystems, or member products~\cite{ISO/IEC_26550}.
+During domain analysis, developers determine the scope of the product line and identify its common and variable features, which they then document in a variability model. 
 A number of techniques have been developed to manage variability.
 For our case study, we use the orthogonal variability model (OVM) introduced by Pohl et al.~\cite{Pohl_2005}, which uses variants and variation points to denote variability, and dependencies to define relationships between variants and variation points.
 
-In contrast, application engineering is the process of deriving from a product line a single variant tailored to the requirements of a specific customer, based on the results of domain engineering~\cite{Kästner_2013}. 
-However, with the appearance of second-generation PLE, the importance of the application engineering process steadily decreases, while products are produced through the use of high-end industrial-strength automation that configures the shared assets appropriately for each product~\cite{Krueger_2013}.
+In contrast, application engineering represents the process of deriving a single product variant that is tailored to the requirements of a specific customer, based on the results of domain engineering~\cite{Kästner_2013}. 
+Note that with the appearance of second-generation PLE, the importance of the application engineering process steadily decreases, while products are derived through the use of high-end industrial-strength automation that configures the shared assets appropriately for each product~\cite{Krueger_2013}.
 
-Finally, it is worth mentioning that PLE goes hand in hand with the concept of modularity.
+\subsection{Modules and interfaces}
+\label{sec:modules}
+
+Next, it is worth mentioning that PLE goes hand in hand with the concept of modularity.
 While modularity enables the configuration of multiple end products from a limited number of modules, PLE manages and optimizes a company's product diversity in order to control complexity and to balance out too many variants and versions.
 Li et al.~\cite{Li_2019} explain modularity as a systematic approach where a product or system is composed of various modules, and these modules can be combined in different ways to form different products with individual characteristics.
+
 However, clear rules should be defined to reassure that all subsystems will be compatible and function correctly in the final design~\cite{Baldwin_2003}.
 Such rules concern, among other things, the syntactic and semantic module interfaces, which define how the modules can be connected and interact.
 The effects of a misspecified interface can go beyond module incompatibility to unexpected product behavior~\cite{Parslov_2015}. 
 
-\subsection{PLE in other domains}
-\label{sec:ple-other}
+When applying PLE principles to the development of physical products, it is important to consider the physical nature of module interfaces.
+Ulrich ~\cite{Ulrich_1995} states, that interfaces may involve mechanical, contact-based interactions between components in addition to non-contact interactions.
+Such contact-based interactions usually entail constraints on the contact points of the mechanical surfaces to guarantee the required function of the assembly.
+By specifying these constraints in computer-aided design (CAD) models, designers can ensure the proper arrangement and compatibility of parts within the products of the product line.
 
-When we come to physical products, the building blocks of the individual product variants in the product line can include, but are not limited to, requirements, design specifications, design models, source code, build files, test plans and test cases, user documentation, repair manuals and installation guides, project budgets, schedules and work plans, product calibration and configuration files, data models, parts lists, and more~\cite{Clements_2015}. 
-Typically, a product variant is instantiated from a common design representation that includes all the possible combinations of features for all the possible variants.
-This common design representation is called a 150\% model, or a superset model, because, as Clements~\cite{Clements_2015} states, it has the content necessary to describe any product in the product line. 
+\subsection{Variants and representations}
+\label{sec:variants}
 
-It is well-known that due to software intangibility, hardware engineering cannot be compared to software engineering. 
-While applying SPLE principles to the development of hardware, it is important to consider its physical nature, especially when it comes to module interfaces. 
-Ulrich ~\cite{Ulrich_1995} states, that interfaces may involve geometric connections between pairs of components or may involve non-contact interactions, and that a connection provides a constraint condition at the contact point of the mechanical unit to guarantee the required function of the composition of parts. 
-By specifying these geometric constraints in computer-aided design (CAD) models, designers can ensure the proper arrangement and compatibility of parts within the product.
+The digital representations of the individual products in a product line can include, but are not limited to, requirement and design specifications, system and computer-aided design (CAD) models, source code and build files, test plans and cases, user documentation, repair manuals and installation guides, project budgets, schedules and work plans, product calibration and configuration files, data models, parts lists, and more~\cite{Clements_2015}. 
 
-%Due to the complexity of dealing with physical dimensions and constraints in 3D modeling, it is not yet possible to apply SPLE principles to physical product models.
-%Currently, there is no proof of the existence of a 150\% 3D model, and it is not feasible to generate 3D product variants from such a model. 
-%In the next section, we propose exploring the application of SPLE principles in designing product lines of physical products, particularly focusing on their geometric attributes.
+A wide-spread technique for the digital representation of product lines and their product variants are so-called 150\% models~\cite{Clements_2015}.
+Such models combine all relevant features and characteristics of all product variants of the product line into a common superset model.
+Furthermore, such models include all possible configurations of features and characteristics for all the variants and, hence, provide a complete picture of the product line.
 
-TODO~\cite{Fadhlillah_2023}. TODO~\cite{Wagner_2024}. TODO~\cite{Zogopoulos_2024}.
+Such superset representations of products lines and their variants have been applied successfully not only to software systems, but also to cyber-physical production systems and their various interdisciplinary subsystems~\cite{Fadhlillah_2023}, digital twins of physical products with advanced simulation capabilities~\cite{Wagner_2024}, and assembly instructions for configurable physical products~\cite{Zogopoulos_2024}.
 
 \section{Case study}
 \label{sec:case-study}
@@ -294,11 +298,11 @@ The main model serves as the primary assembly, the three different drone variant
 Moreover, components such as modules (e.g., covers, frames, batteries, and propellers) are also classified as assemblies. 
 An assembly consists of children, where each child is linked to either a brick or another assembly. 
 
-\begin{figure}[htbp]
-    \includegraphics[width=\columnwidth]{./ldraw-standard.png}
-    \caption{LDraw standard}
-    \label{fig:ldraw-standard}
-\end{figure}
+%\begin{figure}[htbp]
+%    \includegraphics[width=\columnwidth]{./ldraw-standard.png}
+%    \caption{LDraw standard}
+%    \label{fig:ldraw-standard}
+%\end{figure}
 
 The approach enables to reuse the modules and submodels, promoting efficiency and versatility in design. 
 The 150\% model encompasses all feasible combinations of drone features across the different variants. 

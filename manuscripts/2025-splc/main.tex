@@ -235,39 +235,64 @@ Furthermore, the covers improve the aerodynamic efficiency of the drone due to s
 In alignment with the previous two frame sizes, the covers come in a small and a large size as well.
 The small size fits onto the small frame and typically can be produced and shipped at lower costs, while the large size fits onto the large frame and, hence, supports larger equipment.
 
-\subsection{Interface constraints}
-\label{sec:contraints}
+\subsection{Module interfaces}
+\label{sec:interfaces}
 
-Next, we discuss interface contraints imposed
-Physical interfaces between interacting modules enable their geometric connection. 
-A frame for the drone product line case has three interfaces: with the batteries, with the propellers and with the covers. 
-However, several geometrical constraints should be considered. These include:
+Next, we discuss the interfaces between the modules from the previous section.
+As stated before, the frame modules are responsible for holding the other modules together.
+Consequently, the frame modules interfaces with all the other modules, while the other modules do not interface with each other directly.
+In the following, we primarily describe the mechanical interfaces between the modules, but also highlight potential electrical and digital interfaces.
 
-\subsubsection*{Size and shape constraints}
+\subsubsection*{Frame-propeller interface}
 
-Modules must be designed in such a way that they can physically fit together without interference. 
-For the drone example, the large frame can accommodate all three types of batteries, while the small frame is limited to only small and medium batteries because of the size constraints.
+Both, the small and the large frame, provide standardized mechanical connectors for the propellers.
+These connectors are mounted onto the motors, which are implicitly included in the frames here.
+In principle, due to the standard connector geometry each propeller size (i.e.\ small, medium, and large) can be mounted onto each frame size (i.e.\ small and large).
+However, when mounting large propellers onto small frames, the propellers collide with these frames in certain rotational angles and, hence, yield undesirable system states.
 
-\subsubsection*{Alignment constraints}
+\subsubsection*{Frame-battery interface}
 
-Modules must be aligned properly to ensure proper functioning when assembled together. 
-For example, covers must be oriented correctly relative to frames to serve the protective and aesthetic purposes. 
+Again, the small and the large frames provide a standard interface for batteries represented by a standard sized hole in our digital LEGO models.
+Furthermore, all battery sizes (i.e.\ small, medium, and large) are compatible with this standard hole size.
+However, only the large frame can hold all battery sizes, while the small frame can only hold the small and the medium battery size due to space limitations.
+Finally, it is worth mentioning that in reality the frame-battery interface might include electrical pins for connecting batteries to motors and more via wires.
 
-\subsubsection*{Interference constraints}
+\subsubsection*{Frame-cover interface}
 
-It is important to consider potential interferences between modules, such as conflicting shapes or components that may impede proper assembly or operation. 
-It is technically feasible to install any propeller on any frame, but practical constraints come into play. 
-For instance, a large propeller cannot be mounted on a small frame without interference, as it would collide with the frame during rotation.
-\cref{fig:feature-tree} illustrates constraint dependencies caused by these geometric restrictions.
-
-\subsection{Configuration options}
-\label{sec:configuration-options}
-
-\begin{figure*}[htbp]
+\begin{figure*}[tbp]
     \includegraphics[width=\textwidth]{./FeatureTreeWithLegend3.jpg}
     \caption{Overview of the configuration options for the drone use case}
     \label{fig:feature-tree}
 \end{figure*}
+
+Finally, the small and the large frames also provide an interface for the small and the large cover represented by studs of certain LEGO bricks.
+Here, the small cover only fits onto the small frame, which can be verified through checking the stud connections after mounting.
+In contrast, the small cover does not fit onto the large frame, because certain studs remain unconnected after mounting.
+Similarly, the large cover only fits onto the large frame, while not fitting the connector interface of the small frame as required.
+
+%\subsection{Interface constraints}
+%\label{sec:contraints}
+
+%Physical interfaces between interacting modules enable their geometric connection. 
+%A frame for the drone product line case has three interfaces: with the batteries, with the propellers and with the covers. 
+%However, several geometrical constraints should be considered. These include:
+
+%\subsubsection*{Alignment constraints}
+
+%Modules must be aligned properly to ensure proper functioning when assembled together. 
+%For example, covers must be oriented correctly relative to frames to serve the protective and aesthetic purposes.
+
+%\subsubsection*{Interference constraints}
+
+%Modules must be designed in such a way that they can physically fit together without interference. 
+%For the drone example, the large frame can accommodate all three types of batteries, while the small frame is limited to only small and medium batteries because of the size constraints.
+%It is important to consider potential interferences between modules, such as conflicting shapes or components that may impede proper assembly or operation. 
+%It is technically feasible to install any propeller on any frame, but practical constraints come into play. 
+%For instance, a large propeller cannot be mounted on a small frame without interference, as it would collide with the frame during rotation.
+%\cref{fig:feature-tree} illustrates constraint dependencies caused by these geometric restrictions.
+
+\subsection{Configuration options}
+\label{sec:configuration-options}
 
 The modules can be combined to design customized end products.  
 For that purpose, the FPV drone variability model is developed. 
@@ -278,6 +303,12 @@ The variants are connected by an alternative choice dependency with a minimum an
 Additionally, two types of constraint dependencies exist: require constraint and exclude constraint. 
 The require constraint means that when the small frame is selected, the small cover should be integrated to the system, and when the large frame is selected, the large cover should be integrated. 
 The excluding constraint means that when a large propeller is selected, the small frame can not be integrated to the design and this relationship goes the other way round as well.
+
+\begin{figure*}[tbp]
+    \includegraphics[width=\textwidth]{./150_MODEL_11.jpg}
+    \caption{Overview of the 150\% model for the drone use case}
+    \label{fig:150-model}
+\end{figure*}
 
 \subsection{Model representations}
 \label{sec:150-model}
@@ -299,12 +330,6 @@ An assembly consists of children, where each child is linked to either a brick o
 The approach enables to reuse the modules and submodels, promoting efficiency and versatility in design. 
 The 150\% model encompasses all feasible combinations of drone features across the different variants. 
 This abundance of information extends beyond the actual requirements of a specific drone type; for instance, showcasing three distinct battery sizes even though a practical FPV drone would only utilize one.
-
-\begin{figure*}[htbp]
-    \includegraphics[width=\textwidth]{./150_MODEL_12.jpg}
-    \caption{Overview of the 150\% model for the drone use case}
-    \label{fig:150-model}
-\end{figure*}
 
 \section{Conclusion}
 \label{sec:conclusion}

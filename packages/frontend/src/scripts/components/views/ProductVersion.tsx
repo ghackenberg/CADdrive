@@ -64,6 +64,10 @@ export const ProductVersionView = () => {
 
     const ref = useRef<HTMLDivElement>()
 
+    // STATE
+
+    const [mergeIds,setMergeIds] = React.useState<string[]>([])
+
     // CONSTANTS
 
     const color = computeColor(versions)
@@ -107,6 +111,11 @@ export const ProductVersionView = () => {
                                             <NavLink to={`/products/${productId}/versions/new/editor`} className='button green stroke'>
                                                 <strong>Create</strong> version (beta)
                                             </NavLink>
+                                            {mergeIds.length > 1 && (
+                                                <NavLink to={`/products/${productId}/versions/${mergeIds.join('+')}/merge`} className='button red stroke'>
+                                                    <strong>Merge</strong> versions (under development)
+                                                </NavLink>
+                                            )}
                                         </>
                                     ) : (
                                         <a className='button green fill'>
@@ -251,10 +260,20 @@ export const ProductVersionView = () => {
                                                     <div className="text">
                                                         <div>
                                                             <span className='actions'>
+                                                                <a title='Select for Merge' className={mergeIds.includes(curVers.versionId) ? 'selected' : ''} onClick={(event:React.MouseEvent<HTMLAnchorElement>) => {
+                                                                    event.preventDefault()
+                                                                    if (mergeIds.includes(curVers.versionId)) {
+                                                                        setMergeIds(mergeIds.filter(versId => versId != curVers.versionId))
+                                                                    } else {
+                                                                        setMergeIds([...mergeIds, curVers.versionId])
+                                                                    }
+                                                                }}>
+                                                                    <img src={ForkIcon}/>
+                                                                </a>
                                                                 <NavLink title="Edit settings" to={`/products/${productId}/versions/${curVers.versionId}/settings`}>
                                                                     <img src={EditIcon}/>
                                                                 </NavLink>
-                                                                {curVers.modelType == 'ldr' && (
+                                                                {(curVers.modelType == 'ldr' || curVers.modelType == 'ldraw-model') && (
                                                                     <NavLink title="Edit model" to={`/products/${productId}/versions/${curVers.versionId}/editor`}>
                                                                         <img src={ForkIcon}/>
                                                                     </NavLink>

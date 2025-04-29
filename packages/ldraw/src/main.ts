@@ -1,23 +1,152 @@
-import { Group } from 'three'
+import shortid from 'shortid'
+import { Box3, BoxGeometry, BoxHelper, Euler, EulerOrder, GridHelper, Group, Mesh, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { LDrawLoader } from 'three/examples/jsm/loaders/LDrawLoader'
 
+import { CustomLDrawModel } from './custom'
+import { AbstractOperation, ColorOperation, DeleteOperation, InsertOperation, MoveOperation, RotateOperation, SelectOperation } from './operation'
+
+export * from './custom'
+export * from './operation'
 export * from './model'
 export * from './parser'
 
-export interface CustomLDrawModelPart {
-    id: string
-    name: string
-    color: string
-    position: { x: number, y: number, z: number }
-    orientation: number[]
+export function selectbyId(model: Group, id: string[]){
+    for (const partId of id) {
+        model.children.find(child => child.userData['id'] == partId)?.traverse(object => {
+            if (object instanceof Mesh) {
+                if (object.material instanceof MeshStandardMaterial) {
+                    object.material = object.material.clone()
+                    object.material.emissive.setScalar(0.1)
+                }
+            }
+        })
+    }
 }
 
-export type CustomLDrawModel = CustomLDrawModelPart[]
-
-class Operation {
-
+export function unselectbyId(model: Group, id: string[]){
+    for (const partId of id) {
+        model.children.find(child => child.userData['id'] == partId)?.traverse(object => {
+            if (object instanceof Mesh) {
+                if (object.material instanceof MeshStandardMaterial) {
+                    object.material.emissive.setScalar(0)
+                }
+            }
+        })
+    }
 }
-// TODO Move operations here
+
+export function updateHelper(model: Group, id: string[], movement: Vector3 = new Vector3(0,0,0)) {
+    model.children.find(obj => obj.name == 'manipulator')?.position.add(movement)
+    const parts = model.children.filter(obj => id.includes(obj.userData['id']))
+    const part = parts[0]
+    updateBox({ part, parts }, model.children.find(obj => obj.name == 'box') as BoxHelper)
+    updateGrid(model)
+}
+
+export function updateBox(selection: { part: Object3D, parts: Object3D[] }, box: BoxHelper) {
+    if (selection.parts.length > 0) {
+        const bbox = new Box3()
+        for (const part of selection.parts) {
+            bbox.expandByObject(part, true)
+        }
+
+        bbox.max.y -= 4
+
+        const pad = 4
+
+        bbox.min.x -= pad
+        bbox.min.y -= pad
+        bbox.min.z -= pad
+
+        bbox.max.x += pad
+        bbox.max.y += pad
+        bbox.max.z += pad
+
+        const sx = bbox.max.x - bbox.min.x
+        const sy = bbox.max.y - bbox.min.y
+        const sz = bbox.max.z - bbox.min.z
+
+        const cx = (bbox.min.x + bbox.max.x) / 2
+        const cy = (bbox.min.y + bbox.max.y) / 2
+        const cz = (bbox.min.z + bbox.max.z) / 2
+
+        const geometry = new BoxGeometry(sx, sy, sz)
+
+        const mesh = new Mesh(geometry)
+        mesh.position.set(cx, -cy, -cz)
+
+        box.setFromObject(mesh)
+        box.visible = true        
+    } else {
+        box.visible = false
+    }
+}
+
+export function updateGrid(model: Group) {
+    // remove grid
+    for (let i = 0; i < model.children.length; i++) {
+        const child = model.children[i]
+        if (child instanceof GridHelper) {
+            model.remove(child)
+        }
+    }
+    // bounding box
+    const bboxModel = new Box3()
+    if (model.children.length > 2) {
+        for (const child of model.children) {
+            if (child.name.endsWith('.dat')) {
+                bboxModel.expandByObject(child, true)
+            }
+        }
+    } else {
+        bboxModel.expandByObject(model)
+    }
+    // calculate bounds
+    const x = Math.max(Math.abs(bboxModel.min.x), Math.abs(bboxModel.max.x))
+    const z = Math.max(Math.abs(bboxModel.min.z), Math.abs(bboxModel.max.z))
+    const s = Math.max(x, z) * 2
+    // add grid
+    const size = (Math.ceil(s / 20) + (Math.ceil(s / 20) % 2 ? 1 : 0) + 2) * 20
+    const divisions = size / 20
+    const grid = new GridHelper(size, divisions, '#000', '#333')
+    model.add(grid)
+}
+
+export function selectCleanup(operationlist: AbstractOperation[]) {
+    const result: AbstractOperation[] = []
+    let usedIds:  string[] = []
+    for (const operation of operationlist) {
+        const currentIds = operation.getIds()
+        switch (operation.type) {
+            case 'select':
+                continue
+            case 'move':
+            case 'rotate':
+            case 'color change':
+                if (currentIds.length != usedIds.length || !currentIds.every(id => usedIds.includes(id))) {
+                    result.push(new SelectOperation(shortid(),currentIds,usedIds))
+                    usedIds = currentIds
+                }
+                break
+            case 'delete':
+                if (currentIds.length != usedIds.length || !currentIds.every(id => usedIds.includes(id))) {
+                    result.push(new SelectOperation(shortid(),currentIds,usedIds))
+                }
+                usedIds = []
+                break
+            case 'insert':
+                if (usedIds.length != 0) {
+                    result.push(new SelectOperation(shortid(),[],usedIds))
+                }
+                usedIds = currentIds
+                break
+            default:
+                throw 'Unknown operation detected'
+        }
+        result.push(operation)
+    }
+    return result
+}
 
 export async function parseCustomLDrawModel(LDRAW_LOADER: LDrawLoader, MATERIAL_LOADING: Promise<void>, data: string): Promise<Group> {
     await MATERIAL_LOADING
@@ -27,6 +156,8 @@ export async function parseCustomLDrawModel(LDRAW_LOADER: LDrawLoader, MATERIAL_
     const model = JSON.parse(data) as CustomLDrawModel
 
     for (const child of model) {
+        const id = child.id
+
         const color = child.color
 
         const x = child.position.x
@@ -51,7 +182,9 @@ export async function parseCustomLDrawModel(LDRAW_LOADER: LDrawLoader, MATERIAL_
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (LDRAW_LOADER as any).parse(ldraw, (subgroup: Group) => {
                 for (const part of subgroup.children) {
-                    group.add(part.clone(true))
+                    const copy = part.clone(true)
+                    copy.userData['id'] = id
+                    group.add(copy)
                 }
                 resolve()
             })
@@ -63,8 +196,51 @@ export async function parseCustomLDrawModel(LDRAW_LOADER: LDrawLoader, MATERIAL_
     return group
 }
 
-export async function parseCustomLDrawDelta(data: string): Promise<Operation> {
-    console.log(data)
-    // TODO
-    return null
+export async function parseCustomLDrawDelta(data: string): Promise<AbstractOperation[]> {
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const parsedData = JSON.parse(data) as any[] // TODO
+
+    const correctedData : AbstractOperation[] = parsedData.map(obj => {
+        switch (obj.type) {
+            case "insert":
+                //console.log("insert")
+                return new InsertOperation(
+                    obj.uuid,
+                    obj.id, 
+                    obj.part, 
+                    obj.color, 
+                    obj.position.map((obj: {x:number, y:number, z:number}) => new Vector3(obj.x, obj.y, obj.z)), 
+                    obj.rotation.map((obj: {x:number, y:number, z:number, order:EulerOrder}) => new Euler(obj.x, obj.y, obj.z, obj.order))
+                )
+            case "select":
+                //console.log("select")
+                return new SelectOperation(obj.uuid, obj.after, obj.before)
+            case "move":
+                //console.log("move")
+                return new MoveOperation(obj.uuid, obj.id, new Vector3(obj.movement.x, obj.movement.y, obj.movement.z))
+            case "rotate":
+                //console.log("rotate")
+                return new RotateOperation(obj.uuid, obj.id, obj.selId, obj.rotation as number)
+            case "delete":
+                //console.log("delete")
+                return new DeleteOperation(
+                    obj.uuid,
+                    obj.id, 
+                    obj.part, 
+                    obj.color, 
+                    obj.position.map((obj: {x:number, y:number, z:number}) => new Vector3(obj.x, obj.y, obj.z)), 
+                    obj.rotation.map((obj: {x:number, y:number, z:number, order:EulerOrder}) => new Euler(obj.x, obj.y, obj.z, obj.order))
+                )
+            case "color change":
+                //console.log("color change")
+                return new ColorOperation(obj.uuid, obj.id, obj.oldcolor, obj.newcolor)
+            default:
+                return obj
+        }
+    })
+
+    //console.log("Result: ", correctedData)
+    
+    return correctedData
 }

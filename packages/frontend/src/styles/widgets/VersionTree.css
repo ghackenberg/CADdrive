@@ -185,6 +185,9 @@ div.widget.version_tree > div.version > div.text > div > span.actions > a > img 
 
     padding: 1em;
 }
+div.widget.version_tree > div.version > div.text > div > span.actions > a.selected {
+    background-color: red;
+}
 div.widget.version_tree > div.version > div.text > div > span.label {
     display: inline-block;
 

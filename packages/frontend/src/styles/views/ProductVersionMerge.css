@@ -1,0 +1,108 @@
+main.view.product-version.sidebar div.save {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: rgba(255, 255, 255, 0.75);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+main.view.product-version.sidebar div.save div.form {
+    background-color: white;
+
+    padding: 1em;
+
+    width: 30em;
+
+    max-width: calc(100% - 2em);
+
+    border-radius: 1em;
+
+    box-shadow: 0.25em 0.25em 1em rgba(0, 0, 0, 0.5);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1em;
+}
+main.view.product-version.sidebar div.save div.form div.text input {
+    width: 100%;
+}
+main.view.product-version.sidebar div.save div.form div.number {
+    text-align: center;
+}
+main.view.product-version.sidebar div.save div.form div.action {
+    display: flex;
+
+    gap: 1em;
+
+    justify-content: center;
+}
+main.view.product-version.sidebar div.ConflictSolver {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: rgba(255, 255, 255, 0.75);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+main.view.product-version.sidebar div.ConflictSolver div.form {
+    background-color: white;
+
+    padding: 1em;
+
+    width: 30em;
+
+    max-width: calc(100% - 2em);
+
+    border-radius: 1em;
+
+    box-shadow: 0.25em 0.25em 1em rgba(0, 0, 0, 0.5);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1em;
+}
+main.view.product-version.sidebar div.ConflictSolver div.form div.text input {
+    width: 100%;
+}
+main.view.product-version.sidebar div.ConflictSolver div.form div.decision {
+    text-align: center;
+}
+main.view.product-version.sidebar div.ConflictSolver div.form div.action {
+    display: flex;
+
+    gap: 1em;
+
+    justify-content: center;
+}
+main.view.product-version.sidebar div.ConflictSolver div.form div.previewModel {
+    display: flex;
+
+    height: 20em;
+    
+    gap: 1em;
+
+    justify-content: center;
+}
+main.view.product-version.sidebar div.ConflictSolver div.form div.operation.selection li.selected {
+    background-color: lightblue;
+}

@@ -202,7 +202,7 @@ And finally, we introduce the 150\% LDraw (or digital LEGO) model for the drone 
 \subsection{Atomic modules}
 \label{sec:atomic-modules}
 
-The atomic modules of our drone product line case study are shown in \cref{fig:atomic-modules} and include propellers, batteries, frames, and covers each adding required system functionality and coming in different sizes with different physical and performance characteristics.
+The atomic modules of our drone product line case are shown in \cref{fig:atomic-modules} and include propellers, batteries, frames, and covers each adding required system functionality and coming in different sizes with different physical and performance characteristics.
 In the following, we explain each class of atomic module as well as their functionality in the context of the drone use case and the available sizes in more detail.
 
 \subsubsection*{Propellers}
@@ -216,27 +216,31 @@ On the contrary, larger propellers also require more power to spin.
 \subsubsection*{Batteries}
 \label{sec:batteries}
 
-The batteries (see \cref{fig:battery-small}, \cref{fig:battery-medium}, and \cref{fig:battery-large}) provide power for the drone to operate. 
-The smaller capacity batteries are lighter and more compact, which can improve the agility and maneuverability of the drone. 
-However, smaller batteries typically also have shorter flight times, which means that for longer flights a higher capacity battery is more suitable.
+The batteries (see \cref{fig:battery-small}, \cref{fig:battery-medium}, and \cref{fig:battery-large}) provide power for the drone and its equipment to operate. 
+The smaller capacity batteries are lighter and more compact, which can improve the agility and maneuverability of the drone and typically comes with lower material, production, and shipping costs.
+However, smaller batteries typically also have shorter flight times, which means that for longer flights a higher capacity battery is required, which potentially can power additional equipment, but usually also comes with higher costs.
 
 \subsubsection*{Frames}
 \label{sec:frames}
 
-The frames (see \cref{fig:frame-small} and \cref{fig:frame-large}) serve as the structure that holds all the other parts (legs and motors are pre-installed) together. 
-The small frame is more maneuverable and agile, while a large frame offers more space for additional components (e.g.~larger batteries and possibly other equipment such as cameras and infrared sensors).
+The frames (see \cref{fig:frame-small} and \cref{fig:frame-large}), which in our case study implicitly include the legs and the motors, serve as the mechanical structures that hold the previous components (i.e.\ propellers and batteries) together.
+The small frame is more maneuverable and agile due to its lower weight and air resistance, and tpyically can be shipped at lower costs.
+In contrast, the large frame offers more space for additional components such as the larger batteries and possibly other equipment typically mounted on drones (e.g.\ cameras and infrared sensors).
 
 \subsubsection*{Covers}
 \label{sec:covers}
 
-The covers (see \cref{fig:cover-small} and \cref{fig:cover-large}) protect the internal components of the drone (i.e.~the batteries and other electronics), help to improve aerodynamics and serve an aesthetic purpose as well.
-In alignment with the frames two cover sizes are provided, a small cover fitting the small frame, and a large cover fitting the large frame.
+The covers (see \cref{fig:cover-small} and \cref{fig:cover-large}) mainly protect the internal components of the drone (i.e.\ batteries and possibly other equipment) from external influences such as humidity.
+Furthermore, the covers improve the aerodynamic efficiency of the drone due to smoothening the drone surface.
+In alignment with the previous two frame sizes, the covers come in a small and a large size as well.
+The small size fits onto the small frame and typically can be produced and shipped at lower costs, while the large size fits onto the large frame and, hence, supports larger equipment.
 
 \subsection{Interface constraints}
 \label{sec:contraints}
 
+Next, we discuss interface contraints imposed
 Physical interfaces between interacting modules enable their geometric connection. 
-A frame for the drone example has three interfaces: with the batteries, with the propellers and with the covers. 
+A frame for the drone product line case has three interfaces: with the batteries, with the propellers and with the covers. 
 However, several geometrical constraints should be considered. These include:
 
 \subsubsection*{Size and shape constraints}
@@ -290,24 +294,11 @@ Each variant is further segmented into submodels, which consist of modular compo
 These modules are essentially instances of the submodels, all organized within the same file.
 The main model serves as the primary assembly, the three different drone variants are also categorized as assemblies. 
 Moreover, components such as modules (e.g., covers, frames, batteries, and propellers) are also classified as assemblies. 
-An assembly consists of children, where each child is linked to either a brick or another assembly. 
-
-%\begin{figure}[htbp]
-%    \includegraphics[width=\columnwidth]{./ldraw-standard.png}
-%    \caption{LDraw standard}
-%    \label{fig:ldraw-standard}
-%\end{figure}
+An assembly consists of children, where each child is linked to either a brick or another assembly.
 
 The approach enables to reuse the modules and submodels, promoting efficiency and versatility in design. 
 The 150\% model encompasses all feasible combinations of drone features across the different variants. 
 This abundance of information extends beyond the actual requirements of a specific drone type; for instance, showcasing three distinct battery sizes even though a practical FPV drone would only utilize one.
-
-% \begin{figure}[htbp]
-%     \includegraphics[width=\columnwidth]{./ldraw-model.png}
-%     \caption{LDraw model}
-%     \label{fig:ldraw-model}
-% \end{figure}
-
 
 \begin{figure*}[htbp]
     \includegraphics[width=\textwidth]{./150_MODEL_8.jpg}

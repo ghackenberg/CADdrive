@@ -311,39 +311,36 @@ However, during drone operateion other rotational angles are possible, while cau
 \subsection{Model representations}
 \label{sec:150-model}
 
-The case study demonstrates the utilization of digital LEGOs to create a 150\% model of a 3D drone architecture. 
-The model is built in LeoCAD\footnote{Official LeoCAD website: \url{https://leocad.org}}, which, thanks to its intuitive user interface, is a useful tool for the teaching of various engineering concepts. 
-LeoCAD adheres to the LDraw standard\footnote{Official LDraw website: \url{https:/ldraw.org}}. 
-\cref{fig:ldraw-standard} demonstrates a meta-model of the LDraw file. The file contains multiple assemblies. 
-Each assembly contains multiple references, which point to either a model (which itself can contain sub-assemblies) or bricks (which are standardized and belong to a brick catalog). 
-The reference includes transformation data (position, orientation) and optional appearance data (color).
+Finally, we consider the practical representation of the drone product line as 150\% model using the LDraw data format and parts library.
+The LDraw data format represents digital LEGO models as hierarchical (i.e.\ tree) structures with reusable assemblies as root and internal nodes, and bricks as leaf nodes.
+Furthermore, the root node defines a world coordinate system, while the child nodes down to the leaf nodes define their local coordinate systems, which are relative to their parent coordinate systems.
+Consequently, the digital LEGO bricks (i.e.\ the leaf nodes) as well as assemblies (i.e.\ the internal nodes) can be positioned and oriented within the local coordinate system of their parent assembly node.
 
-Within the structure of the LDraw file, a main model shown in \cref{fig:150-model} serves as the foundation where all three variants of the drone are instantiated. 
-Each variant is further segmented into submodels, which consist of modular components. 
-These modules are essentially instances of the submodels, all organized within the same file.
-The main model serves as the primary assembly, the three different drone variants are also categorized as assemblies. 
-Moreover, components such as modules (e.g., covers, frames, batteries, and propellers) are also classified as assemblies. 
-An assembly consists of children, where each child is linked to either a brick or another assembly.
+Based on the capabilities of the LDraw data format, we developed a 150\% model for the drone product line case, which is shown in \cref{fig:150-model}.
+The root node of the 150\% LDraw model (i.e.\ the \textit{main model}) instantiates the assemblies of the three product configurations (i.e.\ the ultralight, the freestyle, and the long-range drone).
+Each product configuration assembly (i.e.\ \textit{submodel}) instantiates four propeller assemblies, one battery assembly, one frame assembly, and one cover assembly and defines their desired positions and orientations.
+Finally, the propeller, battery, frame, and cover assemblies (i.e.\ \textit{module}) instantiate the desired bricks and, again, define their desired position and orientation.
 
-The approach enables to reuse the modules and submodels, promoting efficiency and versatility in design. 
-The 150\% model encompasses all feasible combinations of drone features across the different variants. 
-This abundance of information extends beyond the actual requirements of a specific drone type; for instance, showcasing three distinct battery sizes even though a practical FPV drone would only utilize one.
+Now, when changing the atomic module assembly (i.e.\ adding, moving, removing digital LEGO bricks), these changes are reflected automatically in each product configuration assembly.
+Obviously such changes to atomic module assembly can have undesired consequences, especially when changing the spatial properties at their interfaces.
+Such changes can introduce incompatibilities between previously compatible modules, or make previously incompatible modukles suddenly compatible.
+Due to representation of the product line the 150\% LDraw model, the changes are visible instantaneously in each product configuration and, therefore, can be validated quickly.
+Also, automatic validation of spatial constraints can be implemented on top of this infrastructure, but are not implemented in current LDraw modeling tools.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-The knowledge acquired from the literature review coupled with the case study have provided a comprehensive demonstration of how SPLE principles can be effectively applied to the development of physical products with the usage of digital Lego. 
-The first step was to create atomic drone modules, which could then be assembled into individual variants. 
-Then, a robust variability model and a comprehensive 150\% model were developed. 
-By utilizing these methodologies, we were able to derive a product line comprising three distinct drone variants from the model. 
-This allowed us to demonstrate how well digital LEGO is suited to the 150\% modelling and reuse of modules across the entire product line.
+The knowledge acquired from the literature review coupled with the case study have provided a comprehensive demonstration of how PLE principles can be effectively applied to the development of physical products with the usage of digital LEGO. 
+The first step in our study was to create atomic modules, which could then be assembled into individual variants. 
+Then, we derived a robust orthogonal variability model (OVM) as well as a comprehensive 150\% LDraw model representing feasible product configurations. 
+By utilizing these methodologies, we were able to derive a product line comprising three distinct drone configuration with several spatial constraint dependencies among the atomic modules.
 
 In the next steps, we plan to explore geometric interfaces between components of physical products in a product line. Unlike software engineering, the realm of interfacing in this context remains relatively uncharted, making it an interesting area for exploration. 
 One aspect to consider is the impact of a change to a single module on the entire product line. 
-By examining whether such changes are consistent across all products in the line, we can gain insight into issues related to interface compatibility and mechanical stability. 
+By examining whether such changes are consistent across all products in the line, we can gain insight into issues related to interface compatibility and other mechanical properties. 
 The use of digital LEGO is a very promising way to explore this area in an easy way.
 
-\cite{Hackenberg_2023} \cite{Hackenberg_2025}
+Also, to promote PLE education in fields other than computer science, we plan to integrate dedicated PLE tooling for digital LEGO into an open platform for product design~\cite{Hackenberg_2023}, which has been used successfully in the past for product design and systems engineering education at high school and university level~\cite{Hackenberg_2025}.
 
 \bibliography{main}
 \bibliographystyle{ACM-Reference-Format}

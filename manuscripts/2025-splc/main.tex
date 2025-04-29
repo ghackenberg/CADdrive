@@ -195,7 +195,7 @@ The selected product line includes three first person view (FPV) drone variants:
 \end{figure*}
 
 Subsequently, we first provide an overview of the atomic (mechatronic) modules of the product line, from which the individual variants can been assembled in Section~\ref{sec:atomic-modules}.
-Then, we introduce a number of contact-based mechanical interface contraints governing the composition of the atomic modules in Section~\ref{sec:contraints}.
+Then, we introduce the interfaces between the individual modules and possible interface constraints in Section~\ref{sec:interfaces}.
 Thereafter, we explain the configuration options of the drone use case in the form of an orthogonal variability model (OVM) in Section~\ref{sec:configuration-options}.
 And finally, we introduce the 150\% LDraw (or digital LEGO) model for the drone use case including all atomic modules as well as the assembly structures of the three different drone variants in Section~\ref{sec:150-model}.
 
@@ -261,7 +261,7 @@ Finally, it is worth mentioning that in reality the frame-battery interface migh
 
 \begin{figure*}[tbp]
     \includegraphics[width=\textwidth]{./FeatureTreeWithLegend3.jpg}
-    \caption{Overview of the configuration options for the drone use case}
+    \caption{Orthogonal varialibility model consisting of one root and four child variation points, and the variants.}
     \label{fig:feature-tree}
 \end{figure*}
 
@@ -270,45 +270,43 @@ Here, the small cover only fits onto the small frame, which can be verified thro
 In contrast, the small cover does not fit onto the large frame, because certain studs remain unconnected after mounting.
 Similarly, the large cover only fits onto the large frame, while not fitting the connector interface of the small frame as required.
 
-%\subsection{Interface constraints}
-%\label{sec:contraints}
-
-%Physical interfaces between interacting modules enable their geometric connection. 
-%A frame for the drone product line case has three interfaces: with the batteries, with the propellers and with the covers. 
-%However, several geometrical constraints should be considered. These include:
-
-%\subsubsection*{Alignment constraints}
-
-%Modules must be aligned properly to ensure proper functioning when assembled together. 
-%For example, covers must be oriented correctly relative to frames to serve the protective and aesthetic purposes.
-
-%\subsubsection*{Interference constraints}
-
-%Modules must be designed in such a way that they can physically fit together without interference. 
-%For the drone example, the large frame can accommodate all three types of batteries, while the small frame is limited to only small and medium batteries because of the size constraints.
-%It is important to consider potential interferences between modules, such as conflicting shapes or components that may impede proper assembly or operation. 
-%It is technically feasible to install any propeller on any frame, but practical constraints come into play. 
-%For instance, a large propeller cannot be mounted on a small frame without interference, as it would collide with the frame during rotation.
-%\cref{fig:feature-tree} illustrates constraint dependencies caused by these geometric restrictions.
-
-\subsection{Configuration options}
+\subsection{Product configurations}
 \label{sec:configuration-options}
 
-The modules can be combined to design customized end products.  
-For that purpose, the FPV drone variability model is developed. 
-When a customer wishes to design and buy a drone, multiple decisions have to be made before the final system can be build. 
-\cref{fig:feature-tree} shows that the variation points Propeller, Battery, Frame and Cover have a mandatory dependency with the FPV drone, which means that they have to be included in the final product. 
-For each of these variation points a variant has to be selected. 
-The variants are connected by an alternative choice dependency with a minimum and maximum equal to one, which means that only one variant has to be chosen to be included to the final product. 
-Additionally, two types of constraint dependencies exist: require constraint and exclude constraint. 
-The require constraint means that when the small frame is selected, the small cover should be integrated to the system, and when the large frame is selected, the large cover should be integrated. 
-The excluding constraint means that when a large propeller is selected, the small frame can not be integrated to the design and this relationship goes the other way round as well.
+As stated before, the atomic modules from Section~\ref{sec:atomic-modules} can be assembled according to the interfaces from Section~\ref{sec:interfaces} to build customized end products with various different performance characteristics.
+However, not all combinations of atomic modules are feasible due to geometric and functional constraints.
+We describe the set of feasible configurations for our drone case study in the form of an orthogonal variabilty model (OVM) in \cref{fig:feature-tree}.
+
+At its root, the OVM defines a variability point for the entire drone, which includes four mandatory variability dependencies (solid black lines).
+These four mandatory variability dependencies point to four independent variability points for the propeller, the battery, the frame, and the cover, which all must be present in a feasible product configuration.
+Each of these four variability points finally includes between two and three alternative variability dependencies (dashed black lines).
+The alternative variability dependencies of the propeller, the battery, the frame, and the cover variability points finally reference the small, medium, and large propellor modules, the small, medium, and large battery modules, the small and large frame modules, as well as the small and large cover modules, from which one and only one must be present per variability point in a feasible product configuration.
+
+Furthermore, the OVM includes so-called \textit{requires} and \textit{excludes} constraint dependencies for modeling the relationships between the atomic modules (dashed red and blue arrows).
+The \textit{requires} constraint dependencies state that the small frame together with the large propeller and/or the large battery do not form a feasible product configuration.
+Also, the \textit{excludes} constraint dependencies state that the small frame only together with the small cover, and the large frame only together with the large cover form a feasible product configuration.
+Note that in our drone case the constraint dependencies encode the (in-)compatibilities of atomic modules due to their spatial properties.
+In the following, we distinguish static and dynamic space constraints:
 
 \begin{figure*}[tbp]
-    \includegraphics[width=\textwidth]{./150_MODEL_11.jpg}
-    \caption{Overview of the 150\% model for the drone use case}
+    \includegraphics[width=\textwidth]{./150_MODEL.png}
+    \caption{Superset LDraw model consisting of one main model with three submodels and the atomic modules.}
     \label{fig:150-model}
 \end{figure*}
+
+\subsubsection*{Static space constraint}
+
+Static space constraints concern the static (i.e.\ invariant) spatial properties of modules.
+In our drone case, this type of constraint applies to the frames and their covers, where only the small frame is compatible with the small cover and the large frame with the large cover due to the relative location of the studs.
+Furthermore, this type of constraint applies to the frames and the batteries, where only the small and the medium batteries are compabile with the small frame, but not the large battery due to space limitations.
+
+\subsubsection*{Dynamic space constraint}
+
+Dynamic space constraints concern the dynamic (i.e.\ variable) spatial proeprties of modules.
+In our drone case, this type of constraint applies to the small frame and the large propellers.
+In general, also the large propellers can be mounted into small frames due to standard connector geometries.
+Also, in certain rotational angles, the large propellers do not collide with the small frame.
+However, during drone operateion other rotational angles are possible, while cause such collisions, impair system functionality, and potentially cause damage.
 
 \subsection{Model representations}
 \label{sec:150-model}

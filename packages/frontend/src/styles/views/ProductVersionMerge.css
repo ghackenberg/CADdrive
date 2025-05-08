@@ -1,3 +1,24 @@
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations{
+    list-style-position: inside;
+}
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li{
+    display: grid;
+
+    grid-template-columns: 25em auto;
+
+    align-items: center;
+
+    margin: 1em 0;
+}
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li.selected{
+    background-color: lightblue;
+}
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li.disabled{
+    color: gray;
+}
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li button{
+    margin-left: 1em;
+}
 main.view.product-version.sidebar div.save {
     position: absolute;
 

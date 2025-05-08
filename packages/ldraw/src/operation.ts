@@ -33,25 +33,6 @@ export class InsertOperation extends AbstractOperation {
         unselectbyId(model, this.id)
 
         for (const index in this.id) {
-            /*await parseLDrawModel(this.part[index], `1 ${this.color[index]} 0 0 0 1 0 0 0 1 0 0 0 1 ${this.part[index]}`, null, false).then(part => {
-                part.children[0].userData['id'] = this.id[index]
-                
-                // Calculate offset
-                const bbox = new Box3()
-                const offset = new Vector3()
-                bbox.setFromObject(part.children[0])
-
-                bbox.getSize(offset)
-                offset.x = Math.round(100 * (offset.x % 40) / 2) / 100
-                offset.z = Math.round(100 * (offset.z % 40) / 2) / 100
-                offset.y = Math.round(100 * (offset.y - 4 + ((offset.y - 4) % 8) / 2)) / 100
-                
-                part.children[0].position.set(this.position[index].x,this.position[index].y,this.position[index].z)
-                part.children[0].rotation.set(this.rotation[index].x, this.rotation[index].y, this.rotation[index].z)
-                model.add(part.children[0])
-                //updateGrid(model)
-                //updateBox(selection, box)
-            })*/
             await new Promise<void>(resolve => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (LDRAW_LOADER as any).parse(`1 ${this.color[index]} 0 0 0 1 0 0 0 1 0 0 0 1 ${this.part[index]}`, (subgroup: Group) => {
@@ -94,9 +75,7 @@ export class SelectOperation extends AbstractOperation {
         
         if (this.before.length > 0)  {
             selectbyId(model, this.before)
-            //selection.part = selection.parts[selection.parts.length-1]
             const focusPart = model.children.find(child => child.userData['id'] == this.before[this.before.length-1])
-            //console.log("Part: ", focusPart, "Pos: ", focusPart.position, "Manipulator: ", manipulator)
             if(focusPart) {
                 manipulator.visible = true
                 manipulator.position.set(focusPart.position.x, focusPart.position.y, focusPart.position.z) 
@@ -112,7 +91,6 @@ export class SelectOperation extends AbstractOperation {
         const parts = model.children.filter(child => this.before.includes(child.userData['id']))
         const part = parts[0]
         updateBox({ parts, part }, model.children.find(obj => obj.name == 'box') as BoxHelper)
-        //console.log("new", model.children.filter(obj => this.before.includes(obj.userData['id'])), "old", model.children.filter(obj => this.after.includes(obj.userData['id'])))
     }
     override async redo(model: Group): Promise<void> {
         unselectbyId(model,this.before)
@@ -138,7 +116,6 @@ export class SelectOperation extends AbstractOperation {
         const parts = model.children.filter(child => this.after.includes(child.userData['id']))
         const part = parts[0]
         updateBox({ parts, part }, model.children.find(obj => obj.name == 'box') as BoxHelper)
-        //console.log("new", model.children.filter(obj => this.after.includes(obj.userData['id'])), "old", model.children.filter(obj => this.before.includes(obj.userData['id'])))
     }
     override operatesWithId(id: string): boolean {
         return this.after.includes(id) || this.before.includes(id)

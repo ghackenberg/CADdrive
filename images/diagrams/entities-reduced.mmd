@@ -1,0 +1,66 @@
+classDiagram
+    direction TB
+
+    class User {
+    }
+    class Product {
+    }
+    class Member {
+    }
+    class Version {
+    }
+    class Model {
+    }
+    class Node {
+    }
+    class Assembly {
+    }
+    class Part {
+    }
+    class Reference {
+    }
+    class Issue {
+    }
+    class Comment {
+    }
+    class Milestone {
+    }
+
+    Product "1" *-- "*" Issue : contains
+
+    User "1" <.. "*" Version : created by
+    User <.. Member : references
+    User "1" <.. "*" Product : created by
+    User "1" <.. "*" Issue : created by
+    
+    Member --* Product : contains
+    
+    Node <|-- Assembly
+    Node "*" ..* "1" Assembly: contains
+    Node <|-- Part
+    Node "1" <.. "*" Reference : references
+    
+    Version "1" *-- "1" Model : contains
+
+    Model "1" *-- "*" Node : contains
+
+    User "1" <.. "*" Comment : created by
+
+    Issue "1" *-- "*" Comment : contains
+    Issue "*" ..> "0..1" User : assigned to
+
+    Product "1" *-- "*" Version : contains
+
+    Comment "*" *-- "*" Reference : contains
+    
+    Issue "*" ..> "0..1" Milestone : assigned to
+
+    Product "1" *-- "*" Milestone : contains
+
+    User "1" <.. "*" Milestone : created by
+
+    style Model fill:white
+    style Node fill:white
+    style Assembly fill:white
+    style Part fill:white
+    style Reference fill:white

@@ -1,7 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-
-import shortid from 'shortid'
+import { nanoid } from 'nanoid'
 
 const ldrawPath = 'assets/ldraw'
 const materialsFileName = 'LDConfig.ldr'
@@ -11,7 +10,7 @@ const materialsFilePath = path.join(ldrawPath, materialsFileName)
 let materialsContent: string = null // Set upon first pack call
 
 export function packLDrawText(text: string) {
-    const fileName = `${shortid()}.ldr`
+    const fileName = `${nanoid()}.ldr`
     const absoluteObjectPath = path.join(ldrawPath, 'models/', fileName)
     
     fs.writeFileSync(absoluteObjectPath, text)

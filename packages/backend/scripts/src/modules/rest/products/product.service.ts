@@ -1,7 +1,7 @@
 import { Inject, Injectable, Scope } from '@nestjs/common'
 import { REQUEST } from '@nestjs/core'
 
-import shortid from 'shortid'
+import { nanoid } from 'nanoid'
 import { FindOptionsWhere, IsNull } from 'typeorm'
 
 import { ProductCreate, ProductREST, ProductRead, ProductUpdate } from 'productboard-common'
@@ -57,13 +57,13 @@ export class ProductService implements ProductREST {
     
     async addProduct(data: ProductCreate): Promise<ProductRead> {
         // Create product
-        const productId = shortid()
+        const productId = nanoid()
         const created = Date.now()
         const updated = created
         const userId = this.request.user.userId
         const product = await Database.get().productRepository.save({ productId, created, updated, userId, ...data })
         // Create member
-        const memberId = shortid()
+        const memberId = nanoid()
         const role = 'manager'
         const member = await Database.get().memberRepository.save({ productId, memberId, created, updated, userId, role })
         // Emit changes

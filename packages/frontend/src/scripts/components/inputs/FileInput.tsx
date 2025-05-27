@@ -25,7 +25,8 @@ export const FileInput = (props: {class?: string, label: string, change: (value:
         props.change(event.currentTarget.files.length > 0 ? event.currentTarget.files[0] : undefined)
         setFileName(event.currentTarget.files.length > 0 ? event.currentTarget.files[0].name : '')
     }
-    function onClick(event: React.MouseEvent<HTMLInputElement>) {
+
+    function onClick(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault()
         fileInput.current.click()
     }

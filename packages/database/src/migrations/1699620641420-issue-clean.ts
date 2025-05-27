@@ -1,4 +1,4 @@
-import shortid from "shortid"
+import { nanoid } from "nanoid"
 import { MigrationInterface, QueryRunner, TableColumn } from "typeorm"
 
 export class IssueClean1699620641420 implements MigrationInterface {
@@ -13,7 +13,7 @@ export class IssueClean1699620641420 implements MigrationInterface {
             const userId = issue.userId
             const productId = issue.productId
             const issueId = issue.issueId
-            const commentId = shortid()
+            const commentId = nanoid()
             const audioId: string = null
             const created = issue.created
             const updated = issue.updated

@@ -3,7 +3,7 @@ import { REQUEST } from '@nestjs/core'
 
 import 'multer'
 import Jimp from 'jimp'
-import shortid from 'shortid'
+import { nanoid } from 'nanoid'
 import { FindOptionsWhere, IsNull, Raw } from 'typeorm'
 
 import { UserREST, UserRead, UserUpdate } from 'productboard-common'
@@ -64,7 +64,7 @@ export class UserService implements UserREST<UserUpdate, Express.Multer.File> {
             // Resize
             const resized = cropped.resize(128, 128)
             // Write
-            const pictureId = shortid()
+            const pictureId = nanoid()
             await resized.writeAsync(`./uploads/${pictureId}.jpg`)
             user.pictureId = pictureId
         }

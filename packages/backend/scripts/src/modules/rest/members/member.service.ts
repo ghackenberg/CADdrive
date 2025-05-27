@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { REQUEST } from '@nestjs/core'
 
 import { getTestMessageUrl } from 'nodemailer'
-import shortid from 'shortid'
+import { nanoid } from 'nanoid'
 import { IsNull } from 'typeorm'
 
 import { MemberCreate, MemberREST, MemberRead, MemberUpdate, ProductRead } from 'productboard-common'
@@ -30,7 +30,7 @@ export class MemberService implements MemberREST {
 
     async addMember(productId: string, data: MemberCreate): Promise<MemberRead> {
         // Create member
-        const memberId = shortid()
+        const memberId = nanoid()
         const created = Date.now()
         const updated = created
         const member = await Database.get().memberRepository.save({ productId, memberId, created, updated, ...data })

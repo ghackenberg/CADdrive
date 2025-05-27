@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { REQUEST } from '@nestjs/core'
 
 import { getTestMessageUrl } from 'nodemailer'
-import shortid from 'shortid'
+import { nanoid } from 'nanoid'
 import { IsNull } from 'typeorm'
 
 import { IssueCreate, IssueREST, IssueRead, IssueUpdate, ProductRead } from 'productboard-common'
@@ -30,7 +30,7 @@ export class IssueService implements IssueREST {
   
     async addIssue(productId: string, data: IssueCreate): Promise<IssueRead> {
         // Add issue
-        const issueId = shortid()
+        const issueId = nanoid()
         const created = Date.now()
         const updated = created
         const userId = this.request.user.userId

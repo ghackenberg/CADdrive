@@ -6,7 +6,7 @@ import { getTestMessageUrl } from 'nodemailer'
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
-import shortid from 'shortid'
+import { nanoid } from 'nanoid'
 import { IsNull } from 'typeorm'
 import { unified } from 'unified'
 
@@ -35,7 +35,7 @@ export class CommentService implements CommentREST {
 
     async addComment(productId: string, issueId: string, data: CommentCreate): Promise<CommentRead> {
         // Create comment
-        const commentId = shortid()
+        const commentId = nanoid()
         const created = Date.now()
         const updated = created
         const userId = this.request.user.userId

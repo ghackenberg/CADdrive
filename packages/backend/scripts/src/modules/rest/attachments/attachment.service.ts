@@ -3,7 +3,7 @@ import { createReadStream, writeFileSync } from 'fs'
 import { Inject, StreamableFile } from '@nestjs/common'
 import { REQUEST } from '@nestjs/core'
 
-import shortid from 'shortid'
+import { nanoid } from 'nanoid'
 import { IsNull } from 'typeorm'
 
 import { AttachmentCreate, AttachmentREST, AttachmentRead, AttachmentUpdate } from 'productboard-common'
@@ -29,7 +29,7 @@ export class AttachmentService implements AttachmentREST<AttachmentCreate, Attac
     }
 
     async addAttachment(productId: string, data: AttachmentCreate, file: Express.Multer.File): Promise<AttachmentRead> {
-        const attachmentId = shortid()
+        const attachmentId = nanoid()
         // Save file
         writeFileSync(`./uploads/${attachmentId}`, file.buffer)
         // Add attachment

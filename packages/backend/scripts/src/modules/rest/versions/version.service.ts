@@ -10,7 +10,7 @@ import { getTestMessageUrl } from 'nodemailer'
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
-import shortid from 'shortid'
+import { nanoid } from 'nanoid'
 import { IsNull } from 'typeorm'
 import { unified } from 'unified'
 
@@ -41,7 +41,7 @@ export class VersionService implements VersionREST<VersionCreate, VersionUpdate,
  
     async addVersion(productId: string, data: VersionCreate, files: {model: Express.Multer.File[], image: Express.Multer.File[]}): Promise<VersionRead> {
         // Create version
-        const versionId = shortid()
+        const versionId = nanoid()
         const created = Date.now()
         const updated = created
         const userId = this.request.user.userId

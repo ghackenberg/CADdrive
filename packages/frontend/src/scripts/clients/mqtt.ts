@@ -1,6 +1,6 @@
 import { connect, MqttClient } from 'mqtt'
-import { matches } from 'mqtt-pattern'
-import shortid from 'shortid'
+import matches from 'mqtt-match'
+import { nanoid } from 'nanoid'
 
 import { ProductMessage, UserMessage } from 'productboard-common'
 
@@ -14,7 +14,7 @@ const protocol = location.protocol == 'http:' ? 'ws' : 'wss'
 const hostname = location.hostname
 const port = parseInt(location.port)
 const path = '/mqtt'
-const clientId = `productboard-frontend-${shortid()}`
+const clientId = `productboard-frontend-${nanoid()}`
 
 function init() {
     const username = localStorage.getItem('jwt')

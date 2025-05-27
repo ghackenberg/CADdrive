@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { REQUEST } from '@nestjs/core'
 
-import shortid from 'shortid'
+import { nanoid } from 'nanoid'
 import { IsNull } from 'typeorm'
 
 import { MilestoneCreate, MilestoneREST, MilestoneRead, MilestoneUpdate } from 'productboard-common'
@@ -28,7 +28,7 @@ export class MilestoneService implements MilestoneREST {
 
     async addMilestone(productId: string, data: MilestoneCreate): Promise<MilestoneRead> {
         // Create milestone
-        const milestoneId = shortid()
+        const milestoneId = nanoid()
         const created = Date.now()
         const updated = created
         const userId = this.request.user.userId

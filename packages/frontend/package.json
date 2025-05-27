@@ -44,6 +44,7 @@
         "buffer": "^5.7.1",
         "deep-equal": "^2.2.1",
         "http-server": "^14.1.0",
+        "mqtt-match": "^3.0.0",
         "plausible-tracker": "^0.3.8",
         "process": "^0.11.10",
         "productboard-brep": "^0.0.1",

@@ -3,7 +3,7 @@ import { REQUEST } from "@nestjs/core"
 
 import { SignJWT } from 'jose'
 import { getTestMessageUrl } from "nodemailer"
-import shortid from "shortid"
+import { nanoid } from "nanoid"
 
 import { TokenActivateRequest, TokenActivateResponse, TokenCreateRequest, TokenCreateResponse, TokenREST, TokenRefreshResponse, UserRead } from "productboard-common"
 import { Database, getTokenOrFail, getUserOrFail } from "productboard-database"
@@ -29,7 +29,7 @@ export class TokenService implements TokenREST {
     ) {}
 
     async createToken(request: TokenCreateRequest): Promise<TokenCreateResponse> {
-        const tokenId = shortid()
+        const tokenId = nanoid()
         const created = Date.now()
         const updated = created
         const email = request.email
@@ -76,7 +76,7 @@ export class TokenService implements TokenREST {
             return createJWT(user)
         } catch (e) {
             // ... for new user
-            const userId = shortid()
+            const userId = nanoid()
             const created = token.updated
             const updated = token.updated
             const email = token.email

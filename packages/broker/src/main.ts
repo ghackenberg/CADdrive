@@ -4,7 +4,6 @@ import net from 'net'
 import Aedes from 'aedes'
 import axios from "axios"
 import { importJWK, jwtVerify, JWK, KeyLike } from 'jose'
-import { exec } from 'mqtt-pattern'
 import { IsNull } from 'typeorm'
 import ws from 'ws'
 
@@ -117,10 +116,11 @@ async function boot() {
             console.log(new Date(), 'authorizeSubscribe', client.id, subscription.topic)
 
             // User topics do not require any further action
-            const userMatch = exec('/users/+userId', subscription.topic)
+            const userMatch = subscription.topic.match(/\/users\/(.*)/)
+
             if (userMatch) {
                 // Parse topic
-                const userId = userMatch.userId
+                const userId = userMatch[1]
 
                 // Schedule initialization
                 setTimeout(async () => {
@@ -145,10 +145,11 @@ async function boot() {
             }
 
             // For product topics, the product data has to be loaded
-            const productMatch = exec('/products/+productId', subscription.topic)
+            const productMatch = subscription.topic.match(/\/products\/(.*)/)
+
             if (productMatch) {
                 // Parse topic
-                const productId = productMatch.productId
+                const productId = productMatch[1]
 
                 // Load product public
                 if (!(productId in PRODUCT_PUBLIC)) {
@@ -217,10 +218,11 @@ async function boot() {
             callback(null)
 
             // Update user admin
-            const userMatch = exec('/users/+userId', packet.topic)
+            const userMatch = packet.topic.match(/\/users\/(.*)/)
+
             if (userMatch) {
                 // Parse topic and payload
-                const userId = userMatch.userId
+                const userId = userMatch[1]
                 const userMessage = JSON.parse(packet.payload.toString()) as UserMessage
 
                 // Update user asdmin
@@ -231,10 +233,11 @@ async function boot() {
             }
 
             // Update product public
-            const productMatch = exec('/products/+productId', packet.topic)
+            const productMatch = packet.topic.match(/\/products\/(.*)/)
+
             if (productMatch) {
                 // Parse topic and payload
-                const productId = productMatch.productId
+                const productId = productMatch[1]
                 const productMessage = JSON.parse(packet.payload.toString()) as ProductMessage
 
                 // Update product public
@@ -262,18 +265,20 @@ async function boot() {
         console.log(new Date(), 'authorizeForward', client.id, packet.topic)
 
         // User topics can be forwarded without further checks
-        const userMatch = exec('/users/+userId', packet.topic)
+        const userMatch = packet.topic.match(/\/users\/(.*)/)
+
         if (userMatch) {
             // Allow forward
             return packet
         }
 
         // Product topics have to be checked more carefully
-        const productMatch = exec('/products/+productId', packet.topic)
+        const productMatch = packet.topic.match(/\/products\/(.*)/)
+
         if (productMatch) {
             // Get IDs
             const userId = CLIENT_USER_IDS[client.id]
-            const productId = productMatch.productId
+            const productId = productMatch[1]
 
             // Check user admin
             if (USER_ADMINS[userId]) {

@@ -1,13 +1,10 @@
 {
     "extends": [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:import/recommended",
-        "plugin:import/typescript"
+        "plugin:@typescript-eslint/recommended"
     ],
     "plugins": [
-        "@typescript-eslint",
-        "import"
+        "@typescript-eslint"
     ],
     "rules": {
         "no-multiple-empty-lines": [
@@ -15,26 +12,6 @@
         ],
         "import/no-unresolved": [
             "error", { "ignore": ["\\.png", "\\.css"] }
-        ],
-        "import/order": [
-            "error", {
-                "groups": ["builtin", "external", "internal", ["sibling", "parent"], "index", "unknown"],
-                "newlines-between": "always",
-                "alphabetize": {
-                    "order": "asc",
-                    "caseInsensitive": true
-                },
-                "pathGroups": [
-                    { "pattern": "@nestjs/*", "group": "external", "position": "before" },
-                    { "pattern": "react*", "group": "external", "position": "before" },
-                    { "pattern": "productboard-*", "group": "external", "position": "after" }
-                ],
-                "pathGroupsExcludedImportTypes": [
-                    "@nestjs/common", "@nestjs/core", "@nestjs/passport", "@nestjs/platform-express", "@nestjs/swagger",
-                    "react", "react-dom", "react-router", "react-router-dom", "react-helmet",
-                    "productboard-common", "productboard-database"
-                ]
-            }
         ]
     },
     "parser": "@typescript-eslint/parser",

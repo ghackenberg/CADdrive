@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Route, Switch, Redirect, useLocation } from 'react-router-dom'
 
-import { importJWK, JWK, jwtVerify, JWTVerifyResult, KeyLike } from 'jose'
+import { importJWK, JWK, jwtVerify, JWTVerifyResult } from 'jose'
 
 import { CommentRead, IssueRead, MemberRead, MilestoneRead, ProductRead, UserRead, VersionRead } from 'productboard-common'
 
@@ -35,7 +35,7 @@ const Root = () => {
     // STATES
 
     const [publicJWK, setPublicJWK] = React.useState<JWK>()
-    const [publicKey, setPublicKey] = React.useState<KeyLike | Uint8Array>()
+    const [publicKey, setPublicKey] = React.useState<CryptoKey | Uint8Array>()
     const [jwt] = React.useState<string>(localStorage.getItem('jwt'))
     const [jwtVerifyResult, setJWTVerifyResult] = React.useState<JWTVerifyResult>()
     const [payload, setPayload] = React.useState<{ userId: string }>()

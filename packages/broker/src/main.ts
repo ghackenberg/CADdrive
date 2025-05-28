@@ -3,7 +3,7 @@ import net from 'net'
 
 import Aedes from 'aedes'
 import axios from "axios"
-import { importJWK, jwtVerify, JWK, KeyLike } from 'jose'
+import { importJWK, jwtVerify, JWK } from 'jose'
 import { IsNull } from 'typeorm'
 import ws from 'ws'
 
@@ -14,7 +14,7 @@ type Index<T> = { [key: string]: T }
 
 // Variables
 
-let JWK_PUBLIC_KEY: KeyLike | Uint8Array // Load JWT public key from Nest.js backend later!
+let JWK_PUBLIC_KEY: CryptoKey | Uint8Array // Load JWT public key from Nest.js backend later!
 
 // Constants
 

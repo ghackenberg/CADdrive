@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { JWK, JWTVerifyResult, KeyLike, importJWK, jwtVerify } from 'jose'
+import { JWK, JWTVerifyResult, importJWK, jwtVerify } from 'jose'
 
 import { auth } from '../../clients/auth'
 import { CacheAPI } from '../../clients/cache'
@@ -29,7 +29,7 @@ export const AuthCodeView = () => {
     // STATES
 
     const [publicJWK, setPublicJWK] = React.useState<JWK>()
-    const [publicKey, setPublicKey] = React.useState<KeyLike | Uint8Array>()
+    const [publicKey, setPublicKey] = React.useState<CryptoKey | Uint8Array>()
     const [jwtVerifyResult, setJWTVerifyResult] = React.useState<JWTVerifyResult>()
     const [payload, setPayload] = React.useState<{ userId: string }>()
     const [userId, setUserId] = React.useState<string>()

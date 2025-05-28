@@ -83,7 +83,7 @@ export const ProductMilestoneSettingView = () => {
         function updateActualBurndown() {
             setActualBurndown(milestone && issues && comments && calculateActual(start.getTime(), end.getTime(), issues, comments))
         }
-        let interval: NodeJS.Timer
+        let interval: NodeJS.Timeout
         const timeout = setTimeout(() => {
             interval = setInterval(updateActualBurndown, 1000)
             updateActualBurndown()

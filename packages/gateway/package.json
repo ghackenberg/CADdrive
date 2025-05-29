@@ -13,13 +13,16 @@
         {
             "name": "Georg Hackenberg",
             "email": "georg.hackenberg@fh-wels.at"
-        },{
+        },
+        {
             "name": "Christian Zehetner",
             "email": "christian.zehetner@fh-wels.at"
-        },{
+        },
+        {
             "name": "Jürgen Humenberger",
             "email": "juergen.humenberger@fh-wels.at"
-        },{
+        },
+        {
             "name": "Dominik Frühwirth",
             "email": "dominik.fruewirth@fh-wels.at"
         }
@@ -38,7 +41,6 @@
         "start": "node --loader ts-node/esm --experimental-specifier-resolution=node src/main.ts"
     },
     "dependencies": {
-        "express": "^4.17.1",
-        "http-proxy-middleware": "^2.0.9"
+        "http-proxy-middleware": "^3.0.5"
     }
 }

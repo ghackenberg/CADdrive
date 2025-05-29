@@ -15,13 +15,16 @@
         {
             "name": "Georg Hackenberg",
             "email": "georg.hackenberg@fh-wels.at"
-        },{
+        },
+        {
             "name": "Christian Zehetner",
             "email": "christian.zehetner@fh-wels.at"
-        },{
+        },
+        {
             "name": "Jürgen Humenberger",
             "email": "juergen.humenberger@fh-wels.at"
-        },{
+        },
+        {
             "name": "Dominik Frühwirth",
             "email": "dominik.fruewirth@fh-wels.at"
         }
@@ -44,11 +47,11 @@
         "migration:show": "npm run typeorm -- migration:show -d src/config.ts"
     },
     "dependencies": {
-        "pg": "^8.9.0",
+        "pg": "^8.16.0",
         "productboard-common": "^0.0.1",
-        "typeorm": "^0.3.11"
+        "typeorm": "^0.3.24"
     },
     "devDependencies": {
-        "sqlite3": "^5.1.4"
+        "sqlite3": "^5.1.7"
     }
 }

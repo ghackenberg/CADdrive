@@ -41,7 +41,7 @@
         "start": "xvfb-run node --loader ts-node/esm --experimental-specifier-resolution=node scripts/src/main.ts"
     },
     "dependencies": {
-        "@nestjs/platform-express": "^8.1.2",
+        "@nestjs/platform-express": "^11.1.2",
         "@types/compression": "^1.7.5",
         "@types/gl": "^6.0.2",
         "@types/html-minifier": "^4.0.2",

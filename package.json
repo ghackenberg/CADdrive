@@ -66,7 +66,7 @@
         "@zip.js/zip.js": "^2.7.52",
         "axios": "^1.9.0",
         "jose": "^6.0.11",
-        "mqtt": "^4.3.7",
+        "mqtt": "^5.13.0",
         "nanoid": "^5.1.5",
         "opencascade.js": "^2.0.0-beta.b5ff984",
         "reflect-metadata": "^0.1.14",

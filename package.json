@@ -44,17 +44,17 @@
         "packages/gateway"
     ],
     "scripts": {
-        "clean": "workspaces-run -- npm run clean",
-        "build": "workspaces-run -- npm run build",
-        "lint": "workspaces-run -- npm run lint",
-        "loc": "workspaces-run -- npm run loc",
-        "dev": "workspaces-run --parallel --ignore=\"productboard-{ldraw,brep,freecad,codeaster,common,database}\" -- npm run dev",
-        "start": "workspaces-run --parallel --ignore=\"productboard-{ldraw,brep,freecad,codeaster,common,database}\" -- npm run start",
-        "migration:generate": "workspaces-run --only=\"productboard-database\" -- npm run migration:generate",
-        "migration:create": "workspaces-run --only=\"productboard-database\" -- npm run migration:create",
-        "migration:run": "workspaces-run --only=\"productboard-database\" -- npm run migration:run",
-        "migration:revert": "workspaces-run --only=\"productboard-database\" -- npm run migration:revert",
-        "migration:show": "workspaces-run --only=\"productboard-database\" -- npm run migration:show"
+        "clean": "npm run clean --workspaces",
+        "build": "npm run build --workspaces",
+        "lint": "npm run lint --workspaces",
+        "loc": "npm run loc --workspaces",
+        "dev": "concurrently --names backend,broker,frontend,worker,gateway --pad-prefix \"npm run dev -w packages/backend\" \"npm run dev -w packages/broker\" \"npm run dev -w packages/frontend\" \"npm run dev -w packages/worker\" \"npm run dev -w packages/gateway\"",
+        "start": "concurrently --names backend,broker --pad-prefix \"npm run start -w packages/backend\" \"npm run start -w packages/broker\"",
+        "migration:generate": "npm run migration:generate -w packages/database",
+        "migration:create": "npm run migration:create -w packages/database",
+        "migration:run": "npm run migration:run -w packages/database",
+        "migration:revert": "npm run migration:revert -w packages/database",
+        "migration:show": "npm run migration:show -w packages/database"
     },
     "dependencies": {
         "@nestjs/common": "^8.1.2",
@@ -65,22 +65,31 @@
         "@types/three": "^0.150.2",
         "@zip.js/zip.js": "^2.7.52",
         "axios": "^1.9.0",
+        "concurrently": "^9.1.2",
         "jose": "^6.0.11",
         "mqtt": "^5.13.0",
         "nanoid": "^5.1.5",
         "opencascade.js": "^2.0.0-beta.b5ff984",
         "reflect-metadata": "^0.1.14",
+        "rehype-mermaid": "^2.0.1",
+        "remark-parse": "^11.0.0",
+        "remark-rehype": "^11.0.0",
         "three": "^0.151.3",
         "ts-node": "^10.9.2",
         "typescript": "^5.8.3",
-        "workspaces-run": "^1.0.2"
+        "unified": "^11.0.4"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^8.32.1",
         "@typescript-eslint/parser": "^8.32.1",
         "eslint": "^9.27.0",
         "nodemon": "^3.1.10",
-        "sloc": "^0.3.2"
+        "sloc": "^0.3.2",
+        "ts-loader": "^9.4.1",
+        "webpack": "^5.38.1",
+        "webpack-cli": "^4.7.2",
+        "webpack-dev-server": "^4.8.1",
+        "webpack-merge": "^5.8.0"
     },
     "engines": {
         "node": "^22",

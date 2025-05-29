@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, Relation } from 'typeorm'
 
 import { IssueEntity } from './issue'
 import { ProductEntity } from './product'
@@ -15,10 +15,10 @@ export class MilestoneEntity {
 
     @ManyToOne(() => ProductEntity)
     @JoinColumn({ name: 'productId' })
-    product: ProductEntity
+    product: Relation<ProductEntity>
     @ManyToOne(() => UserEntity)
     @JoinColumn({ name: 'userId' })
-    user: UserEntity
+    user: Relation<UserEntity>
 
     @Column({ nullable: false })
     created: number
@@ -35,5 +35,5 @@ export class MilestoneEntity {
     label: string
 
     @OneToMany(() => IssueEntity, issue => issue.milestone)
-    issues: IssueEntity[]
+    issues: Relation<IssueEntity>[]
 }

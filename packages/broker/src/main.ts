@@ -5,7 +5,7 @@ import Aedes from 'aedes'
 import axios from "axios"
 import { importJWK, jwtVerify, JWK } from 'jose'
 import { IsNull } from 'typeorm'
-import ws from 'ws'
+import { WebSocketServer, createWebSocketStream } from 'ws'
 
 import { ProductMessage, UserMessage } from 'productboard-common'
 import { Database, compileProductMessage, compileUserMessage } from 'productboard-database'
@@ -348,9 +348,9 @@ async function boot() {
 
     // WebSocket server
 
-    const wsServer = new ws.Server({ server: httpServer })
+    const wsServer = new WebSocketServer({ server: httpServer })
     wsServer.on('connection', (socket, request) => {
-        const stream = ws.createWebSocketStream(socket)
+        const stream = createWebSocketStream(socket)
         aedes.handle(stream, request)
     })
 }

@@ -38,10 +38,10 @@
         "start": "node --loader ts-node/esm --experimental-specifier-resolution=node src/main.ts"
     },
     "dependencies": {
-        "@types/ws": "^7.4.7",
+        "@types/ws": "^8.18.1",
         "aedes": "^0.49.0",
         "productboard-common": "0.0.1",
         "productboard-database": "0.0.1",
-        "ws": "^7.5.9"
+        "ws": "^8.18.2"
     }
 }

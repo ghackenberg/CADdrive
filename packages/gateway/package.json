@@ -38,8 +38,7 @@
         "start": "node --loader ts-node/esm --experimental-specifier-resolution=node src/main.ts"
     },
     "dependencies": {
-        "@types/http-proxy-middleware": "^0.19.1",
         "express": "^4.17.1",
-        "http-proxy-middleware": "^0.19.1"
+        "http-proxy-middleware": "^2.0.9"
     }
 }

@@ -1,4 +1,4 @@
-import { connect, MqttClient } from 'mqtt'
+import mqtt from 'mqtt'
 import matches from 'mqtt-match'
 import { nanoid } from 'nanoid'
 
@@ -8,7 +8,7 @@ type handler = (topic: string, object: unknown) => void
 
 const handlers: { [topic: string]: handler[] } = {}
 
-let client: MqttClient
+let client: mqtt.MqttClient
 
 const protocol = location.protocol == 'http:' ? 'ws' : 'wss'
 const hostname = location.hostname
@@ -20,7 +20,7 @@ function init() {
     const username = localStorage.getItem('jwt')
     
     // Connect client
-    client = connect({ protocol, hostname, port, path, clientId, username })
+    client = mqtt.connect({ protocol, hostname, port, path, clientId, username })
 
     // Subscribe after connecting
     client.on('connect', () => {

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, Relation } from 'typeorm'
 
 import { CommentEntity } from './comment'
 import { MilestoneEntity } from './milestone'
@@ -20,16 +20,16 @@ export class IssueEntity {
 
     @ManyToOne(() => UserEntity)
     @JoinColumn({ name: 'userId' })
-    user: UserEntity
+    user: Relation<UserEntity>
     @ManyToOne(() => ProductEntity)
     @JoinColumn({ name: 'productId' })
-    product: ProductEntity
+    product: Relation<ProductEntity>
     @ManyToOne(() => MilestoneEntity)
     @JoinColumn({ name: 'milestoneId' })
-    milestone: MilestoneEntity
+    milestone: Relation<MilestoneEntity>
     
     @OneToMany(() => CommentEntity, comment => comment.issue)
-    comments: CommentEntity[]
+    comments: Relation<CommentEntity>[]
 
     @Column({ nullable: false })
     created: number

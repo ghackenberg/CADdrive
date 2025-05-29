@@ -39,12 +39,5 @@
         "loc": "sloc src",
         "dev": "webpack serve --config webpack.dev.js",
         "start": "http-server -p 3005 -s"
-    },
-    "devDependencies": {
-        "ts-loader": "^9.4.1",
-        "webpack": "^5.38.1",
-        "webpack-cli": "^4.7.2",
-        "webpack-dev-server": "^4.8.1",
-        "webpack-merge": "^5.8.0"
     }
 }

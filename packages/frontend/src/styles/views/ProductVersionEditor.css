@@ -1,5 +1,12 @@
 main.view.product-version-editor {
-    position: relative;
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background: white;
 }
 
 main.view.product-version-editor div.editor {
@@ -14,10 +21,10 @@ main.view.product-version-editor div.editor {
 main.view.product-version-editor div.model {
     position: absolute;
 
-    top: 0;
+    top: 3.5em;
     left: 10em;
     right: 18em;
-    bottom: 0;
+    bottom: 1.5em;
 
     padding: 0 !important;
 }
@@ -67,16 +74,181 @@ main.view.product-version-editor div.model div.progress div.text {
     text-align: center;
 }
 
-main.view.product-version-editor div.model div.buttons {
-    position: absolute;
+main.view.product-version-editor div.buttons {
+    position: fixed;
 
-    top: 1em;
-    left: 1em;
+    top: 0em;
+    left: 10em;
+    right: 18em;
+    height: 3.5em;
 
     display: flex;
+    align-items: center;
 
     gap: 1em;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+
+    z-index: 2;
 }
+
+main.view.product-version-editor div.buttons button {
+    padding: 0em;
+}
+main.view.product-version-editor div.buttons button:not(.button.fill.white) img {
+    filter: brightness(0) invert(1);
+}
+
+main.view.product-version-editor div.buttons img {
+    display: block;
+    height: 2em;
+    width: 2em;
+    padding: 0.5em
+}
+
+main.view.product-version-editor div.buttons label input {
+    width: 3em;
+}
+
+main.view.product-version-editor div.History {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: 10em;
+
+    padding: 0 !important;
+}
+
+main.view.product-version-editor div.History div.history.tabs {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 10em;
+    height: 3em;
+
+    display: flex;
+    align-items: center;
+}
+
+main.view.product-version-editor div.History div.history.tabs a {
+    display: table;
+
+    width: 5em;
+    height: 1em;
+
+    padding: 1em;
+
+    text-align: center;
+}
+
+main.view.product-version-editor div.History div.history.tabs a.selected {
+    background-color: lightblue;
+}
+
+main.view.product-version-editor div.History div.history.tabs a span {
+    color: black;
+}
+
+main.view.product-version-editor div.History ul.OperationList {
+    position: absolute;
+
+    top: 3em;
+    left: 0;
+    bottom: 0;
+
+    width: 10em;
+
+    display: flex;
+    flex-direction: column-reverse;
+
+    list-style-type: none;
+
+    overflow: scroll;
+
+    padding-left: 0em;
+
+    margin: 0;
+}
+
+main.view.product-version-editor div.History ul.OperationList li {
+    cursor: pointer;
+}
+
+main.view.product-version-editor div.History ul.OperationList li.Version.Element {
+    display: flex;
+    justify-content: center;
+}
+
+main.view.product-version-editor div.History ul.OperationList li.selected {
+    background-color: lightblue;
+}
+
+main.view.product-version-editor div.History ul.OperationList li:is(.selected, :hover) img {
+    background: none;
+}
+
+main.view.product-version-editor div.History ul.OperationList li div {
+    position: relative;
+
+    top: 0;
+    left: 0;
+    width: 10em;
+    height: 10em;
+}
+
+main.view.product-version-editor div.History ul.OperationList li img {
+    width: 10em;
+
+    background: rgb(215,215,215);
+    border-radius: 1em;
+    display: block;
+}
+
+main.view.product-version-editor div.History ul.OperationList li img.operation.icon {
+    position: relative;
+
+    left: 0.5em;
+    top: -9.5em;
+    height: 1.5em;
+    width: 1.5em;
+
+    z-index: 1;
+
+    background: none;
+}
+
+main.view.product-version-editor div.History ul.OperationList li img.user.picture {
+    position: relative;
+
+    left: calc(100% - 2em);
+    top: -11em;
+    height: 1.5em;
+    width: 1.5em;
+
+    z-index: 1;
+
+    background: none;
+}
+
+main.view.product-version-editor div.History div.widget.model_graph {
+    position: absolute;
+
+    top: 3em;
+    left: 0;
+    bottom: 0;
+
+    width: 10em;
+    
+    padding: 0;
+}
+
 
 main.view.product-version-editor div.palette {
     position: absolute;
@@ -88,43 +260,6 @@ main.view.product-version-editor div.palette {
     width: 18em;
 
     padding: 0 !important;
-}
-
-main.view.product-version-editor div.OperationHistory {
-    position: absolute;
-
-    top: 0;
-    left: 0;
-    bottom: 0;
-
-    width: 10em;
-
-    overflow: scroll;
-
-    padding: 0 !important;
-}
-
-main.view.product-version-editor div.OperationHistory ol {
-    display: flex;
-
-    flex-direction: column-reverse;
-}
-
-main.view.product-version-editor div.OperationHistory li{
-    cursor: pointer;
-}
-
-main.view.product-version-editor div.OperationHistory li.selected{
-    background-color: lightblue;
-}
-
-main.view.product-version-editor div.parts {
-    position: absolute;
-
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 12em;
 
     display: flex;
 
@@ -133,31 +268,108 @@ main.view.product-version-editor div.parts {
     overflow: auto;
 }
 
-main.view.product-version-editor div.parts img {
-    display: block;
-
-    width: calc(100% / 3);
-}
-
-main.view.product-version-editor div.colors {
+main.view.product-version-editor div.palette div.palette.tabs {
     position: absolute;
 
+    top: 0;
+    left: 0;
+
+    width: 18em;
+    height: 3em;
+
+    display: flex;
+    align-items: center;
+}
+
+main.view.product-version-editor div.palette div.palette.tabs a {
+    display: table;
+
+    width: 16em;
+    height: 1em;
+
+    text-align: center;
+
+    padding: 1em;
+}
+
+main.view.product-version-editor div.palette div.palette.tabs a span {
+    color: black;
+}
+
+main.view.product-version-editor div.palette div.parts {
+    position: absolute;
+
+    top: 3em;
     left: 0;
     right: 0;
     bottom: 0;
 
-    height: 12em;
-
     display: flex;
 
     flex-wrap: wrap;
+
+    overflow: scroll;
+}
+
+main.view.product-version-editor div.parts div {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    overflow: auto
+}
+
+main.view.product-version-editor div.parts div img {
+    display: block;
+    
+    margin: 2px;
+
+    background-color: lightgray;
+
+    width: calc((100% / 3) - 4px);
+}
+
+main.view.product-version-editor div.parts div span {
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+main.view.product-version-editor div.parts img.selected {
+    background-color: lightblue;
+}
+
+main.view.product-version-editor div.parts img:not(.selected):hover {
+    background-color: white;
+}
+
+main.view.product-version-editor div.colors {
+    position: fixed;
+
+    left: 10em;
+    right: 18em;
+    bottom: 0;
+
+    height: 2.5em;
+
+    padding: 0;
+
+    display: flex;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+
+    z-index: 2;
 }
 
 main.view.product-version-editor div.colors a {
     display: block;
 
-    width: 1em;
-    height: 1em;
+    width: 2em;
+    height: 2em;
+
+    flex: 0 0 auto;
 
     box-sizing: border-box;
 }

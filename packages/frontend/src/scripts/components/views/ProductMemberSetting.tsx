@@ -124,7 +124,7 @@ export const ProductMemberSettingView = () => {
 
     const selectedUserColumns: Column<UserRead>[] = [
         { label: '👤', class: 'center', content: user => (
-            <UserPictureWidget user={user} class='icon medium round'/>
+            <UserPictureWidget userId={user.userId} class='icon medium round'/>
         ) },
         { label: 'Name', class: 'left fill', content: user => (
             user ? user.name : '?'
@@ -140,7 +140,7 @@ export const ProductMemberSettingView = () => {
 
     const queriedUserColumns: Column<UserRead>[] = [
         { label: '👤', class: 'center', content: user => (
-            <UserPictureWidget user={user} class='icon medium round'/>
+            <UserPictureWidget userId={user.userId} class='icon medium round'/>
         ) },
         { label: 'Name', class: 'left fill', content: (_, index) => (
             names ? names[index] : '?'

@@ -25,6 +25,7 @@ import ForkIcon from '/src/images/app.png'
 import DownloadIcon from '/src/images/download.png'
 import VersionIcon from '/src/images/version.png'
 import PartIcon from '/src/images/part.png'
+import MergeIcon from '/src/images/merge.png'
 
 const SVG_HEIGHT = 33
 
@@ -268,7 +269,7 @@ export const ProductVersionView = () => {
                                                                         setMergeIds([...mergeIds, curVers.versionId])
                                                                     }
                                                                 }}>
-                                                                    <img src={ForkIcon}/>
+                                                                    <img src={MergeIcon}/>
                                                                 </a>
                                                                 <NavLink title="Edit settings" to={`/products/${productId}/versions/${curVers.versionId}/settings`}>
                                                                     <img src={EditIcon}/>

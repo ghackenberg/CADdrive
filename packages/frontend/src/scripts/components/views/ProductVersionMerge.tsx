@@ -7,17 +7,13 @@ import { AbstractOperation, CustomLDrawModel, parseCustomLDrawDelta, parseCustom
 
 import { FileClient } from '../../clients/rest/file'
 import { VersionClient } from '../../clients/rest/version'
+import { UserContext } from '../../contexts/User'
 import { VersionContext } from '../../contexts/Version'
 import { createScene } from '../../functions/editor'
 import { useAsyncHistory } from '../../hooks/history'
 import { useVersions } from '../../hooks/list'
 import { getObjectMaterialCode, LDRAW_LOADER, MATERIAL_LOADING } from '../../loaders/ldraw'
 import { ModelView3D } from '../widgets/ModelView3D'
-
-// TODO unselect all after every movement and solve rotation errror that lets the operation be stuck
-//      IDEA: during conflict merging undo in merged operations until removed operation occures an then redo all except the deleted op
-//      Move merger into main window where deltas and models currently are
-//      allow operation switching and show operations that were cut out by a conflict withgray letters
 
 /*async function correctModel(model: Group, operation: AbstractOperation[], removeOperations: AbstractOperation[]) {
     const remove = removeOperations.slice()
@@ -100,6 +96,7 @@ export function ProductVersionMergeView() {
     // CONTEXTS
 
     const { setContextVersion } = React.useContext(VersionContext)
+    const { contextUser } = React.useContext(UserContext)
 
     // REFS
     const inputRef = React.createRef<HTMLInputElement>()
@@ -110,7 +107,7 @@ export function ProductVersionMergeView() {
 
     const [mergedModel, setMergedModel] = React.useState<Group>(new Group())
     const [mergedOperations, setMergedOperations] = React.useState<AbstractOperation[]>([])
-    const [disabledOperations, setDisabledOperations] = React.useState<AbstractOperation[]>([])//TODO implement the disabling
+    const [disabledOperations, setDisabledOperations] = React.useState<AbstractOperation[]>([])
 
     const [basicScene, setBasicScene] = React.useState<Group>(new Group())
 
@@ -223,7 +220,7 @@ export function ProductVersionMergeView() {
                 if (op.type == 'select') {
                     continue
                 }
-                if (!mergedOperations.some(operation => operation.uuid == op.uuid)) {
+                if (!mergedOperations.some(operation => operation.operationId == op.operationId)) {
                     if (['move', 'rotate', 'delete'].includes(op.type)) {//op instanceof MoveOperation || op instanceof RotateOperation || op instanceof DeleteOperation) {
                         //Conflict detection
                         const currentIds = op.getIds()
@@ -252,9 +249,9 @@ export function ProductVersionMergeView() {
                     }
                     await op.redo(mergedModel, LDRAW_LOADER)
                     mergedOperations.push(op)
-                } else if (possibleConflicts.local.some(obj => obj.uuid == op.uuid)) {
-                    console.log("Splice", possibleConflicts.local,possibleConflicts.local.findIndex(obj => obj.uuid == op.uuid), "\n Operation causing splice\n", op, mergedOperations.filter(a => a.uuid == op.uuid))
-                    possibleConflicts.local.splice(possibleConflicts.local.findIndex(obj => obj.uuid == op.uuid),1)
+                } else if (possibleConflicts.local.some(obj => obj.operationId == op.operationId)) {
+                    console.log("Splice", possibleConflicts.local,possibleConflicts.local.findIndex(obj => obj.operationId == op.operationId), "\n Operation causing splice\n", op, mergedOperations.filter(a => a.operationId == op.operationId))
+                    possibleConflicts.local.splice(possibleConflicts.local.findIndex(obj => obj.operationId == op.operationId),1)
                 }
             }
             possibleConflicts.local = []
@@ -346,7 +343,7 @@ export function ProductVersionMergeView() {
                 //const element = event.currentTarget
                 //console.log(event, element)
                 //element.disabled = true
-                console.log("error", mergedOperations[index].uuid, error)
+                console.log("error", mergedOperations[index].operationId, error)
                 if(operation != undefined) {
                     // error occured during redo and splice operations will be undone
                     mergedOperations.splice(index - 1,1)
@@ -379,7 +376,7 @@ export function ProductVersionMergeView() {
                 //const element = event.currentTarget
                 //console.log(event, element)
                 //element.disabled = true
-                console.log("error", mergedOperations[index].uuid, error)
+                console.log("error", mergedOperations[index].operationId, error)
                 if(operation != undefined) {
                     // error occured during redo and splice operations will be undone
                     mergedOperations.splice(index + 1,1)
@@ -490,7 +487,14 @@ export function ProductVersionMergeView() {
             }
         })
 
-        const ldrawDelta: AbstractOperation[] = selectCleanup(mergedOperations)
+        const ldrawDelta: AbstractOperation[] = [] // = selectCleanup
+        const cleanUpOperation = selectCleanup(mergedOperations, contextUser.userId, String(major + "." + minor + "." + patch))
+        for (const op of cleanUpOperation) {
+            if (op.versionId == null) {
+                op.versionId = String(major + "." + minor + "." + patch)
+            }
+            ldrawDelta.push(op)
+        }
         const ldrawModelS = JSON.stringify(ldrawModel)
         const ldrawDeltaS = JSON.stringify(ldrawDelta)
 
@@ -540,7 +544,7 @@ export function ProductVersionMergeView() {
                     <ol className='mergedOperations'>
                         {mergedOperations.map((op, i) => {
                             return <li key={i} className={(currentOperation==i ? 'selected' : '') + (disabledOperations.includes(op) ? ' disabled' : '')} onClick={() => onClick(i, op.getIds())}>
-                                {"OperationType:" + op.type + " uuid: " + op.uuid}
+                                {"OperationType:" + op.type + " uuid: " + op.operationId}
                                 {currentOperation == i && (
                                     <div className='buttons'>
                                         <button onClick={event => onMove(event, i,true)}>

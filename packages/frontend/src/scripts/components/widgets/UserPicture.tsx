@@ -1,19 +1,23 @@
 import * as React from 'react'
 
-import { UserRead } from 'productboard-common'
+import { useUser } from '../../hooks/entity'
 
 import PixelIcon from '/src/images/pixel.png'
 import UserIcon from '/src/images/user.png'
 
-export const UserPictureWidget = (props: { user: UserRead, background?: string, class?: string }) => {
-    const isDeleted = props.user.deleted
+export const UserPictureWidget = (props: { userId: string, background?: string, class?: string }) => {
+    //TODO use useUser hook
+    //const loadedUser = useUser(typeof props.user == 'string' ? props.user : null)
+    //const user = typeof props.user == 'string' ? loadedUser : props.user as UserRead
+    const user = useUser(props.userId)
 
-    const src = isDeleted ? UserIcon : PixelIcon
-    const title =  props.user.email
+    const src = user && !user.deleted ? UserIcon : PixelIcon
+
+    const title =  user ? user.name : 'Loading user information...'
 
     const className = props.class
 
-    const backgroundImage = `url(${props.user.pictureId ? `/rest/files/${props.user.pictureId}.jpg` : UserIcon})`
+    const backgroundImage = `url(${user && user.pictureId ? `/rest/files/${user.pictureId}.jpg` : UserIcon})`
     const backgroundSize = 'cover'
     const backgroundPosition = 'center'
     const backgroundColor = props.background || 'lightgray'

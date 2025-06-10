@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Scene, PerspectiveCamera, WebGLRenderer, Group, Object3D, Raycaster, Vector2, Mesh, Material, MeshStandardMaterial, Vector3, Intersection, Event } from 'three'
+import { Scene, PerspectiveCamera, WebGLRenderer, Group, Object3D, Raycaster, Vector2, Mesh, Material, MeshStandardMaterial, Vector3, Intersection, Event, GridHelper } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import { comparePath } from '../../functions/path'
@@ -445,21 +445,24 @@ export class ModelView3D extends React.Component<Props> {
     private handleDragEnter(e: React.DragEvent) {
         e.preventDefault()
         if (this.props.onNewPartDragEnter) {
-            this.props.onNewPartDragEnter(this.unprojectXZ(e.clientX, e.clientY))
+            const grid = this.props.model.children.find(child => child instanceof GridHelper)
+            this.props.onNewPartDragEnter(this.unprojectXZ(e.clientX, e.clientY, grid ? grid.position.y : 0))       
         }
     }
 
     private handleDragOver(e: React.DragEvent) {
         e.preventDefault()
         if (this.props.onNewPartDrag) {
-            this.props.onNewPartDrag(this.unprojectXZ(e.clientX,e.clientY))
+            const grid = this.props.model.children.find(child => child instanceof GridHelper)
+            this.props.onNewPartDrag(this.unprojectXZ(e.clientX,e.clientY, grid ? grid.position.y : 0))
         }
     }
 
     private handleDrop(e: React.DragEvent) {
         e.preventDefault()
         if (this.props.onNewPartDrop) {
-            this.props.onNewPartDrop(this.unprojectXZ(e.clientX, e.clientY))
+            const grid = this.props.model.children.find(child => child instanceof GridHelper)
+            this.props.onNewPartDrop(this.unprojectXZ(e.clientX, e.clientY, grid ? grid.position.y : 0))
         }
     }
 

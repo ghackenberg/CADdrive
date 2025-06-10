@@ -3,27 +3,53 @@ import { useContext } from 'react'
 import { useParams } from 'react-router'
 
 import shortid from 'shortid'
-import { Box3, Group, Mesh, Object3D, Vector3, Material, LineSegments, MeshStandardMaterial, LineBasicMaterial, Intersection, Event, BoxHelper, Euler } from 'three'
+import { Box3, Group, Mesh, Object3D, Vector3, Material, LineSegments, MeshStandardMaterial, LineBasicMaterial, Intersection, Event, BoxHelper, Euler, GridHelper, BoxGeometry } from 'three'
 
-import { CustomLDrawModel, parseCustomLDrawDelta, parseCustomLDrawModel, AbstractOperation, InsertOperation, SelectOperation, DeleteOperation, MoveOperation, RotateOperation, ColorOperation, updateGrid, updateBox, selectbyId, updateHelper } from 'productboard-ldraw'
+import { CustomLDrawModel, parseCustomLDrawDelta, parseCustomLDrawModel, AbstractOperation, InsertOperation, SelectOperation, DeleteOperation, MoveOperation, RotateOperation, ColorOperation, updateGrid as updateGrid, updateBox, updateHelper, selectbyId } from 'productboard-ldraw'
 
+import { LoadingView } from './Loading'
 import { FileClient } from '../../clients/rest/file'
 import { VersionClient } from '../../clients/rest/version'
+import { UserContext } from '../../contexts/User'
 import { VersionContext } from '../../contexts/Version'
 import { COLOR_S, COLOR_X, COLOR_Y, COLOR_Z, createScene } from '../../functions/editor'
+import { render } from '../../functions/render'
 import { useVersion } from '../../hooks/entity'
 import { useAsyncHistory } from '../../hooks/history'
 import { useVersions } from '../../hooks/list'
 import { getMaterialColor, getMaterials, getObjectMaterialCode, LDRAW_LOADER, loadLDrawModel, MATERIAL_LOADING, parseLDrawModel } from '../../loaders/ldraw'
+import { ModelGraph } from '../widgets/ModelGraph'
 import { ModelView3D } from '../widgets/ModelView3D'
-import { LoadingView } from './Loading'
+import { UserPictureWidget } from '../widgets/UserPicture'
 
+import SaveIcon from '/src/images/save.png'
+import CopyIcon from '/src/images/copy.png'
+import DeleteIcon from '/src/images/delete_bucket.png'
+import AbbortIcon from '/src/images/delete.png'
+import BackIcon from '/src/images/back.png'
+import JumpDownIcon from '/src/images/jump_down.png'
+import JumpUpIcon from '/src/images/jump_up.png'
 import BlankIcon from '/src/images/blank.png'
+import PlusIcon from '/src/images/plus.png'
+import MinusIcon from '/src/images/minus.png'
+import ColorChangeIcon from '/src/images/color_change.png'
+import MoveIcon from '/src/images/crosshair.png'
+import RotateIcon from '/src/images/reopen.png'
 
 const BLANK = new Image()
 BLANK.src = BlankIcon
 
-const BLOCKS = ['3005', '3004', '3622', '3010', '3009', '3008', '6111', '6112', '2465', '3003', '3002', '3001', '2456', '3007', '3006', '2356', '6212', '4202', '4201', '4204', '30072']
+const BLOCKS:{group: string, items: string[]}[] = [
+    {group: 'brick', items: ['3005', '3004', '3622', '3010', '3009', '3008', '6111', '6112', '2465', '3003', '3002', '3001', '2456', '3007', '3006', '2356', '6212', '4202', '4201', '4204', '30072']},
+    {group: 'round', items: ['3062b', '6141', '6177', '3942b', '3943b', '4150']},
+    {group: 'flat', items: ['3024', '3023b', '3021', '3020', '3070a', '3069b']}    
+    ]
+const GRIDLOCK = new Vector3(20, 8, 20)
+
+const OPERATIONICONS: {[key: string]: "*.png"} = {'insert': PlusIcon, 'delete': MinusIcon, 'color change': ColorChangeIcon, 'move': MoveIcon, 'rotate': RotateIcon}
+
+// TODO find better buttons at uxwing
+//      Modify user widget with useuser hook so that it can load the image from the id
 
 export const ProductVersionEditorView = () => {
 
@@ -38,6 +64,7 @@ export const ProductVersionEditorView = () => {
     // CONTEXTS
 
     const { setContextVersion } = useContext(VersionContext)
+    const { contextUser } = useContext(UserContext)
 
     // HOOKS
 
@@ -71,6 +98,9 @@ export const ProductVersionEditorView = () => {
 
     const [operations, setOperations] = React.useState<AbstractOperation[]>([])
     const [operationIndex, setOperationIndex] = React.useState<number>()
+    const [dataUrl, setDataUrl] = React.useState<string[]>([])
+
+    const [gridHeight, setGridHeight] = React.useState<number>(0)
 
     const [isPartCreate, setIsPartCreate] = React.useState<boolean>()
     const [isPartInserted, setIsPartInserted] = React.useState<boolean>()
@@ -85,6 +115,8 @@ export const ProductVersionEditorView = () => {
     const [save, setSave] = React.useState<boolean>()
     const [description, setDescription] = React.useState<string>()
     const [number, setNumber] = React.useState<string>()
+
+    const [showOperations, setShowOperations] = React.useState<boolean>(true)
 
     // EFFECTS
 
@@ -128,7 +160,7 @@ export const ProductVersionEditorView = () => {
                                     for (const child of group.children) {
                                         model.add(child)
                                     }
-                                    updateGrid(model)
+                                    updateEditorGrid(model)
                                 }
                             }
                         })
@@ -145,13 +177,23 @@ export const ProductVersionEditorView = () => {
                             for (const child of group.children) {
                                 model.add(child.clone(true))
                             }
-                            updateGrid(model)
+                            updateEditorGrid(model)
                         } 
 
                         const deltadata = await FileClient.getFile(`${version.versionId}.ldraw-delta`)
                         const deltatext = new TextDecoder().decode(deltadata)
                         const ops = await parseCustomLDrawDelta(deltatext)
                         console.log(ops)
+
+                        /*const screenshotModel = model.clone()
+                        screenshotModel.remove(...screenshotModel.children.filter(child => child.name.endsWith('.dat')))
+                        for (const operation of ops) {
+                            await operation.redo(screenshotModel, LDRAW_LOADER)
+                            const renderModel = await renderPreperation(operation, screenshotModel.clone())
+                            await render(renderModel,150,150).then(result => {
+                                dataUrl.push(result.dataUrl)
+                            })
+                        }*/
                         setOperations(ops)
                         setOperationIndex(ops.length-1)
                         
@@ -163,12 +205,14 @@ export const ProductVersionEditorView = () => {
                                 if (selectOp.after.length > 0) {
                                     selectionParts.push(...model.children.filter(child => selectOp.after.includes(child.userData['id'])))
                                     selectionPart = selectionParts[0]
+                                    console.log("SELECT\n",selectionPart,selectionParts)
                                 }
                                 break
                             } else if (ops[index].type == "insert") {
                                 const insertOp = ops[index] as InsertOperation
                                 selectbyId(model, insertOp.id)
                                 updateHelper(model, insertOp.id, model.children.find(child => child.userData['id'] == insertOp.id[0]).position)
+                                updateGridHeight()
                                 if (insertOp.id.length > 0) {
                                     selectionParts.push(...model.children.filter(child => insertOp.id.includes(child.userData['id'])))
                                     selectionPart = selectionParts[0]
@@ -180,6 +224,21 @@ export const ProductVersionEditorView = () => {
                                 break
                             }
                         }
+                        setSelection({part: selectionPart, parts: selectionParts})
+                        selectionPart && selectionPart.traverse(object => {
+                            if (object instanceof Mesh) {
+                                if (object.material instanceof MeshStandardMaterial) {
+                                    setSelectedMaterial(object.material)
+                                } else {
+                                    throw 'Material type not supported'
+                                }
+                            }
+                        })
+                        
+                        /*const select = ops.reverse().find(op => op.type == 'select') as SelectOperation
+                        console.log(select)
+                        selectionParts.push(...model.children.filter(child => select.after.includes(child.userData['id'])))
+                        selectionPart = selectionParts[0]*/
                     }
                     process()
                 }
@@ -214,12 +273,37 @@ export const ProductVersionEditorView = () => {
     }, [versionId, version])
 
     React.useEffect(() => {
-        model && updateGrid(model)
+        model && updateEditorGrid()
     }, [model])
 
     React.useEffect(() => {
         inputRef.current && inputRef.current.focus()
     }, [inputRef])
+
+    React.useEffect(() => {
+       updateGridHeight()
+    }, [gridHeight])
+
+    React.useEffect(() => {
+        if (dataUrl.length > 0) {
+            return
+        }
+        if (model && availableMaterials && operations.length > 0) {
+            (async() => {
+                const screenshotModel = createScene().model
+                const urls: string[] = []
+                //screenshotModel.remove(...screenshotModel.children.filter(child => child.name.endsWith('.dat')))
+                for (const operation of operations) {
+                    await operation.redo(screenshotModel, LDRAW_LOADER)
+                    const renderModel = await renderPreperation(operation, screenshotModel.clone())
+                    await render(renderModel,150,150).then(result => {
+                        urls.push(result.dataUrl)
+                    })
+                }
+                setDataUrl(urls)
+            })()
+        }
+    },[model, operations, availableMaterials])
 
     // FUNCTIONS
 
@@ -242,6 +326,18 @@ export const ProductVersionEditorView = () => {
         offset.x = Math.round(100 * (offset.x % 40) / 2) / 100
         offset.z = Math.round(100 * (offset.z % 40) / 2) / 100
         offset.y = Math.round(100 * (offset.y - 4 + ((offset.y - 4) % 8) / 2)) / 100
+    }
+
+    function updateEditorGrid(updatingModel: Group = model) {
+        updateGrid(updatingModel)
+        updateGridHeight(updatingModel)
+    }
+
+    function updateGridHeight(updatingModel: Group = model, height = gridHeight) {
+         if (updatingModel != undefined) {
+            const grid = updatingModel.children.find(child => child instanceof GridHelper)
+            grid.position.y = - height * GRIDLOCK.y
+        }
     }
 
     // Move
@@ -268,17 +364,17 @@ export const ProductVersionEditorView = () => {
             const position = manipulator.position
             switch (axis) {
                 case "x": {
-                    const xcoord = Math.round(pos.x / 20) * 20 - position.x + position.x % 20
+                    const xcoord = Math.round(pos.x / GRIDLOCK.x) * GRIDLOCK.x - position.x + position.x % GRIDLOCK.x
                     moveBy(xcoord, 0, 0)
                     break
                 }
                 case "y": {
-                    const ycoord = Math.round(-pos.y / 24) * 24 - position.y
+                    const ycoord = Math.round(-pos.y / GRIDLOCK.y) * GRIDLOCK.y - position.y
                     moveBy(0, ycoord, 0)
                     break
                 }
                 case "z": {
-                    const zcoord = Math.round(-pos.z / 20) * 20 - position.z + position.z % 20
+                    const zcoord = Math.round(-pos.z / GRIDLOCK.z) * GRIDLOCK.z - position.z + position.z % GRIDLOCK.z
                     moveBy(0, 0, zcoord)
                     break
                 }
@@ -347,7 +443,7 @@ export const ProductVersionEditorView = () => {
                 }
             })
             if (idsbefore.length != 1 || idsbefore[0] != part.userData['id']) {
-                addOperations([new SelectOperation(shortid(),[part.userData['id']], idsbefore)])
+                addOperations([new SelectOperation(shortid(), contextUser.userId, null, Date.now(),[part.userData['id']], idsbefore)])
             }
         }
 
@@ -377,13 +473,13 @@ export const ProductVersionEditorView = () => {
         const y = 0
         const z = Math.round((-pos.z + offset.z) / 20) * 20 - offset.z
 
-        /*moveBy(x, y, z)*/
+        moveBy(x, y, z)*/
         
         // Move manipulator to dreged part
         manipulator.position.set(part.position.x, part.position.y, part.position.z)
         manipulator.visible = true
 
-        updateGrid(model)
+        updateEditorGrid()
     }
 
     // Move selected parts
@@ -391,14 +487,13 @@ export const ProductVersionEditorView = () => {
         //console.log('onPartDrag', pos)
 
         if (selection.parts.length > 0) {
-            const x = Math.round((pos.x - offset.x) / 20) * 20 + offset.x - selection.part.position.x
+            const x = Math.round((pos.x - offset.x) / GRIDLOCK.x) * GRIDLOCK.x + offset.x - selection.part.position.x
             const y = 0
-            const z = Math.round((-pos.z - offset.z) / 20) * 20 + offset.z - selection.part.position.z
+            const z = Math.round((-pos.z - offset.z) / GRIDLOCK.z) * GRIDLOCK.z + offset.z - selection.part.position.z
 
-            console.log(x,y,z)
             moveBy(x, y, z)
 
-            updateGrid(model)
+            updateEditorGrid()
 
             updateBox(selection, box)
         }
@@ -409,17 +504,17 @@ export const ProductVersionEditorView = () => {
         //console.log('onPartDrop', pos)
 
         if (selection.parts.length > 0) {
-            const x = Math.round((pos.x - offset.x) / 20) * 20 + offset.x - selection.part.position.x
+            const x = Math.round((pos.x - offset.x) / GRIDLOCK.x) * GRIDLOCK.x + offset.x - selection.part.position.x
             const y = 0
-            const z = Math.round((-pos.z - offset.z) / 20) * 20 + offset.z - selection.part.position.z
+            const z = Math.round((-pos.z - offset.z) / GRIDLOCK.z) * GRIDLOCK.z + offset.z - selection.part.position.z
 
             moveBy(x, y, z)
 
-            updateGrid(model)
+            updateEditorGrid()
 
             updateBox(selection, box)
 
-            movement.length() != 0 && addOperations([new MoveOperation(shortid(), selection.parts.map(part => part.userData['id']), movement.clone())])
+            movement.length() != 0 && addOperations([new MoveOperation(shortid(), contextUser.userId, null, Date.now(), selection.parts.map(part => part.userData['id']), movement.clone())])
         }
     }
 
@@ -438,7 +533,7 @@ export const ProductVersionEditorView = () => {
             idsBefore.push(element.userData['id'])
         }
 
-        idsBefore.length != 0 &&addOperations([new SelectOperation(shortid(),[], idsBefore)])
+        idsBefore.length != 0 &&addOperations([new SelectOperation(shortid(), contextUser.userId, null, Date.now(),[], idsBefore)])
         unselect()
 
         event.dataTransfer.setDragImage(BLANK, 0, 0)
@@ -486,13 +581,13 @@ export const ProductVersionEditorView = () => {
             }
 
             // Move part around the scene
-            const x = Math.round((pos.x - offset.x) / 20) * 20 + offset.x
-            const y = Math.round(-pos.y / 8) * 8 - offset.y
-            const z = Math.round((-pos.z + offset.z) / 20) * 20 - offset.z
+            const x = Math.round((pos.x - offset.x) / GRIDLOCK.x) * GRIDLOCK.x + offset.x
+            const y = -gridHeight * GRIDLOCK.y - offset.y//Math.round(-pos.y / 8) * 8 - offset.y
+            const z = Math.round((-pos.z + offset.z) / GRIDLOCK.z) * GRIDLOCK.z - offset.z
 
             moveTo(x, y, z)
 
-            updateGrid(model)
+            updateEditorGrid()
 
             updateBox(selection, box)
         }
@@ -513,13 +608,13 @@ export const ProductVersionEditorView = () => {
             }
 
             // Move part around the scene
-            const x = Math.round((pos.x - offset.x) / 20) * 20 + offset.x
-            const y = Math.round(-pos.y / 8) * 8 - offset.y
-            const z = Math.round((-pos.z + offset.z) / 20) * 20 - offset.z
+            const x = Math.round((pos.x - offset.x) / GRIDLOCK.x) * GRIDLOCK.x + offset.x
+            const y = -gridHeight * GRIDLOCK.y - offset.y//Math.round(-pos.y / 8) * 8 - offset.y
+            const z = Math.round((-pos.z + offset.z) / GRIDLOCK.z) * GRIDLOCK.z - offset.z
 
             moveTo(x, y, z)
 
-            updateGrid(model)
+            updateEditorGrid()
 
             updateBox(selection, box)
         }
@@ -539,13 +634,13 @@ export const ProductVersionEditorView = () => {
             }
 
             // Move part around the scene
-            const x = Math.round((pos.x - offset.x) / 20) * 20 + offset.x
-            const y = Math.round(-pos.y / 8) * 8 - offset.y
-            const z = Math.round((-pos.z + offset.z) / 20) * 20 - offset.z
+            const x = Math.round((pos.x - offset.x) / GRIDLOCK.x) * GRIDLOCK.x + offset.x
+            const y = -gridHeight * GRIDLOCK.y -offset.y//Math.round(-pos.y / 8) * 8 - offset.y
+            const z = Math.round((-pos.z + offset.z) / GRIDLOCK.z) * GRIDLOCK.z - offset.z
 
             moveTo(x, y, z)
 
-            updateGrid(model)
+            updateEditorGrid()
 
             updateBox(selection, box)
 
@@ -554,7 +649,7 @@ export const ProductVersionEditorView = () => {
             // Update operations
             const ops: AbstractOperation[] = []
             for (const part of selection.parts) {
-                ops.push(new InsertOperation(shortid(), [part.userData['id']], [part.name], [getObjectMaterialCode(part)], [new Vector3(x, y, z)], [new Euler(0, 0, 0)]))
+                ops.push(new InsertOperation(shortid(), contextUser.userId, null, Date.now(), [part.userData['id']], [part.name], [getObjectMaterialCode(part)], [new Vector3(x, y, z)], [new Euler(0, 0, 0)]))
             }
             addOperations(ops)
 
@@ -579,7 +674,7 @@ export const ProductVersionEditorView = () => {
             setIsPartCreate(false)
             setIsPartInserted(true)
 
-            updateGrid(model)
+            updateEditorGrid()
 
             updateBox(selection, box)
         }
@@ -591,7 +686,7 @@ export const ProductVersionEditorView = () => {
         if (selection.parts.length > 0) {
             moveByAxis(axis, pos)
 
-            updateGrid(model)
+            updateEditorGrid()
 
             updateBox(selection, box)
         }
@@ -604,15 +699,15 @@ export const ProductVersionEditorView = () => {
             moveByAxis(axis, pos)
 
             if (axis == 'rotation y') {
-                rotationAngle != 0 && addOperations([new RotateOperation(shortid(), selection.parts.map(part => part.userData['id']), selection.part && selection.part.userData['id'], rotationAngle)])
+                rotationAngle != 0 && addOperations([new RotateOperation(shortid(), contextUser.userId, null, Date.now(), selection.parts.map(part => part.userData['id']), selection.part && selection.part.userData['id'], rotationAngle)])
             } else {
-                movement.length() != 0 && addOperations([new MoveOperation(shortid(), selection.parts.map(part => part.userData['id']), movement.clone())])
+                movement.length() != 0 && addOperations([new MoveOperation(shortid(), contextUser.userId, null, Date.now(), selection.parts.map(part => part.userData['id']), movement.clone())])
             }
     
             setRotationStart(undefined)
             setRotationAngle(undefined)
 
-            updateGrid(model)
+            updateEditorGrid()
 
             updateBox(selection, box)
         }
@@ -770,7 +865,7 @@ export const ProductVersionEditorView = () => {
         }
         
         if((part != null || !isCtrlPressed) && (IDsBeforeSelection.length > 0 || IDsAfterSelection.length > 0) && (IDsBeforeSelection.length != IDsAfterSelection.length || IDsAfterSelection[0] != IDsBeforeSelection[0])){
-            addOperations([new SelectOperation(shortid(), IDsAfterSelection, IDsBeforeSelection)])
+            addOperations([new SelectOperation(shortid(), contextUser.userId, null, Date.now(), IDsAfterSelection, IDsBeforeSelection)])
         }
         updateBox(selection, box)
     }
@@ -781,140 +876,100 @@ export const ProductVersionEditorView = () => {
         //console.log('onKeyDown', key.key)
 
         if (key.key == "Delete") {
-            const id = []
-            const partName = []
-            const color = []
-            const position = []
-            const rotation = []
-            let didDelete = false
-
-            while (selection.parts.length > 0) {
-                const part = selection.parts.pop()
-                model.remove(part)
-                id.push(part.userData['id'])
-                partName.push(part.name)
-                color.push(getObjectMaterialCode(part))
-                position.push(part.position)
-                rotation.push(part.rotation)
-                didDelete = true
-            }
-            
-            selection.part = undefined
-
-            manipulator.visible = false
-
-            updateGrid(model)
-
-            updateBox(selection, box)
-
-            didDelete && addOperations([new DeleteOperation(shortid(), id, partName, color, position, rotation)])
+            deleteParts()
         } else if (key.ctrlKey && key.key == "c") {
-            if (selection.parts.length == 0) {
-                return
-            }
-            copiedParts.length = 0
-
-            for (const obj of selection.parts) {
-                const part = obj.clone()
-                part.userData['id'] = shortid()
-                copiedParts.push(part)
-            }
+            copy()
         } else if (key.ctrlKey && key.key == "v") {
-            unselect()
-
-            const id = []
-            const part = []
-            const color = []
-            const position = []
-            const  rotation = []
-
-            for (const obj of copiedParts) {
-                const copy = obj.clone()
-                model.add(copy)
-                selection.parts.push(copy)
-                id.push(copy.userData['id'])
-                part.push(copy.name)
-                color.push(getObjectMaterialCode(copy))
-                position.push(copy.position)
-                rotation.push(copy.rotation)
-                copy.traverse(object => {
-                    if (object instanceof Mesh) {
-                        // Update part material
-                        if (object.material instanceof MeshStandardMaterial) {
-                            object.material = object.material.clone()
-                            object.material.emissive.setScalar(0.1)
-                        } else {
-                            throw 'Material type not supported'
-                        }
-                    }
-                })
-                obj.userData['id'] = shortid()
-            }
-            selection.part = selection.parts[selection.parts.length-1]
-            selection.part.traverse(object => {object instanceof Mesh ? setSelectedMaterial(object.material) : null})
-
-            manipulator.position.set(selection.part.position.x,selection.part.position.y, selection.part.position.z)
-            manipulator.visible = true
-
-            updateBox(selection, box)
-
-            addOperations([new InsertOperation(shortid(), id, part, color, position, rotation)])
+            paste()
         }
     }
 
     // Operation management
 
-    function updateOperations(undo:boolean) {
+    async function updateOperations(undo:boolean) {
         //undo: true --> undo is used, false --> redo is used
         if(undo) {
-            operationIndex != undefined ? setOperationIndex(operationIndex-1) : setOperationIndex(-1)
-        } else {
-            if (operationIndex != undefined) {
-                setOperationIndex(operationIndex+1)
-            } else {
-                setOperationIndex(0)
+            if (operationIndex >= 0) {
+                await operations[operationIndex].undo(model,LDRAW_LOADER)
+                let index = operationIndex - 1
+                for (index ;index >= 0 && operations[index].type == 'select'; index--) {
+                    await operations[index].undo(model, LDRAW_LOADER)
+                    //console.log("local index", index)
+                }
+                //console.log("stored index", index)
+                setOperationIndex(index)
+                updateStates()
             }
+            //operationIndex != undefined ? setOperationIndex(operationIndex-1) : setOperationIndex(-1)
+        } else {
+            if (operationIndex != undefined && operationIndex < operations.length - 1) {
+                await operations[operationIndex + 1].redo(model, LDRAW_LOADER)
+                let index = operationIndex + 1
+                console.log(operations, index, operationIndex)
+                for (index; index < operations.length && operations[index].type == 'select'; index++) {
+                    await operations[index + 1].redo(model, LDRAW_LOADER)
+                }
+                setOperationIndex(index)
+                updateStates()
+                //setOperationIndex(operationIndex+1)
+            } /*else {
+                setOperationIndex(0)
+                console.log("ERROR")
+            }*/
         }
     }
 
     function updateStates() {
         // clear selection
-        selection.parts = []
-        selection.part = undefined
+        const selectParts: Object3D[] = []
+        let selectPart: Object3D = undefined
 
         // update selection
-        for (const part of model.children) {
+        for (const part of model.children.filter(child => child.name.endsWith('.dat'))) {
             // Adding selectedd parts to the selection.parts array
-            part.name.endsWith('.dat') && part.traverse(object => {
+            part.traverse(object => {
                 if (object instanceof Mesh) {
                     if (object.material instanceof MeshStandardMaterial) {
                         if (object.material.emissive.r == 0.1) {
-                            selection.parts.push(part)
+                            selectParts.push(part)
                         }
                     } else {
                         throw 'Material type not supported'
                     }
                 }
             })
-
             // Sets the selected part
-            if (part.position == manipulator.position) {
-                selection.part = part
+            if (part.position.equals(manipulator.position) && manipulator.visible) {
+                selectPart = part
             }
         }
+        setSelection({part: selectPart, parts: selectParts})
+        updateGridHeight()
     }
 
-    function addOperations(newOperations: AbstractOperation[]) {
+    async function addOperations(newOperations: AbstractOperation[]) {
         if (operations.length-1 > operationIndex || (operationIndex == undefined && operations.length > 0)) {
-            operations.splice(operationIndex+1)
+            operations.splice(operationIndex + 1)
+            dataUrl.splice(operationIndex + 1)
         }
+        let newIndex: number
         if (operationIndex != undefined) {
-            setOperationIndex(operationIndex+1)
+            newIndex = operationIndex + newOperations.length
         } else {
-            setOperationIndex(0)
+            newIndex = newOperations.length - 1
         }
-
-        setOperations([...operations, ...newOperations])
+        //console.log("rendering operations",newOperations)
+        for (const ops of newOperations) {
+            const renderModel = await renderPreperation(ops)
+            await render(renderModel, 150, 150).then(result => {
+                dataUrl.push(result.dataUrl)
+            }) 
+        }
+        //console.log("operation saving", newOperations)
+        operations.push(...newOperations)
+        //setOperations([...operations, ...newOperations])
+        console.log(newOperations, operationIndex, newIndex)
+        setOperationIndex(newIndex)
     }
 
     async function onSelectedOperation(_event: React.MouseEvent,index: number) {
@@ -946,6 +1001,10 @@ export const ProductVersionEditorView = () => {
         // Remember material
         setSelectedMaterial(material)
 
+        if (selection.parts.length == 0) {
+            return
+        }
+
         const oldMaterial : string[] = []
         const id : string[] = []
 
@@ -968,7 +1027,12 @@ export const ProductVersionEditorView = () => {
                 }
             })  
         }
-        addOperations([new ColorOperation(shortid(), id,oldMaterial,material.userData.code)])
+        console.log("color change: ", oldMaterial, material.userData.code)
+        if (!oldMaterial.every(color => color == material.userData.code)) {
+            console.log("Duplicate")
+            addOperations([new ColorOperation(shortid(), contextUser.userId, null, Date.now(), id, oldMaterial, material.userData.code)])
+
+        }
     }
 
     async function onSave() {
@@ -1037,6 +1101,9 @@ export const ProductVersionEditorView = () => {
 
         const ldrawDelta: AbstractOperation[] = []
         for (let index = 0; index <= operationIndex; index++) {
+            if (operations[index].versionId == null) {
+                operations[index].versionId = String(major + "." + minor + "." + patch)
+            }
             ldrawDelta.push(operations[index])
         }
 
@@ -1075,7 +1142,202 @@ export const ProductVersionEditorView = () => {
         manipulator.visible = false
     }
 
-    console.log(operations, operationIndex,  model)
+    function copy() {
+        if (selection.parts.length == 0) {
+            return
+        }
+        copiedParts.length = 0
+
+        for (const obj of selection.parts) {
+            const part = obj.clone()
+            part.userData['id'] = shortid()
+            copiedParts.push(part)
+        }
+    }
+
+    function paste() {
+        if (copiedParts.length == 0) {
+            return
+        }
+
+        const selectedBefore: string[] = []
+        for (const part of selection.parts) {
+            selectedBefore.push(part.userData['id'])
+        }
+
+        unselect()
+        const unselectOp = new SelectOperation(shortid(), contextUser.userId, null, Date.now(), [], selectedBefore)
+
+        const id = []
+        const part = []
+        const color = []
+        const position = []
+        const  rotation = []
+
+        for (const obj of copiedParts) {
+            const copy = obj.clone()
+            model.add(copy)
+            selection.parts.push(copy)
+            id.push(copy.userData['id'])
+            part.push(copy.name)
+            color.push(getObjectMaterialCode(copy))
+            position.push(copy.position)
+            rotation.push(copy.rotation)
+            copy.traverse(object => {
+                if (object instanceof Mesh) {
+                    // Update part material
+                    if (object.material instanceof MeshStandardMaterial) {
+                        object.material = object.material.clone()
+                        object.material.emissive.setScalar(0.1)
+                    } else {
+                        throw 'Material type not supported'
+                    }
+                }
+            })
+            obj.userData['id'] = shortid()
+        }
+        selection.part = selection.parts[selection.parts.length-1]
+        selection.part.traverse(object => {object instanceof Mesh ? setSelectedMaterial(object.material) : null})
+
+        manipulator.position.set(selection.part.position.x,selection.part.position.y, selection.part.position.z)
+        manipulator.visible = true
+
+        updateBox(selection, box)
+
+        addOperations([unselectOp, new InsertOperation(shortid(), contextUser.userId, null, Date.now(), id, part, color, position, rotation)])
+    }
+
+    function deleteParts() {
+        if (selection.parts.length == 0) {
+            return
+        }
+
+        const id = []
+        const partName = []
+        const color = []
+        const position = []
+        const rotation = []
+        let didDelete = false
+
+        while (selection.parts.length > 0) {
+            const part = selection.parts.pop()
+            model.remove(part)
+            id.push(part.userData['id'])
+            partName.push(part.name)
+            color.push(getObjectMaterialCode(part))
+            position.push(part.position)
+            rotation.push(part.rotation)
+            didDelete = true
+        }
+        
+        selection.part = undefined
+
+        manipulator.visible = false
+
+        updateEditorGrid()
+
+        updateBox(selection, box)
+
+        didDelete && addOperations([new DeleteOperation(shortid(), contextUser.userId, null, Date.now(), id, partName, color, position, rotation)])
+    }
+
+    async function renderPreperation(currentOperation: AbstractOperation = operations[operations.length - 1],renderModel: Group = model.clone()) {
+        renderModel.remove(...renderModel.children.filter(child => !child.name.endsWith('.dat')))
+        
+        //console.log("Render Preperations", currentOperation)
+        let brickMaterial: Material
+        const transparentMaterial = availableMaterials.find(mat => mat.name == ' Trans_Clear')
+        const coloredParts = currentOperation.getIds()
+        if (currentOperation instanceof InsertOperation) {
+            // color new parts green
+            brickMaterial = availableMaterials.find(mat => mat.name == ' Green')
+        } else if (currentOperation instanceof DeleteOperation) {
+            // undo operation and color those parts red
+            brickMaterial = availableMaterials.find(mat => mat.name == ' Red')
+
+            const box = new BoxHelper(new Mesh(new BoxGeometry()))
+            box.name = 'box'
+            renderModel.add(box)
+
+            //console.log("model", renderModel)
+            await currentOperation.undo(renderModel, LDRAW_LOADER)
+            renderModel.remove(...renderModel.children.filter(child => !child.name.endsWith('.dat')))
+        } else if (currentOperation instanceof SelectOperation) {
+            brickMaterial = availableMaterials.find(mat => mat.name == ' Yellow')
+        } else {
+            // color affected parts blue
+            brickMaterial = availableMaterials.find(mat => mat.name == ' Blue')
+        }
+        for (const child of renderModel.children) {
+            const isColorPart = coloredParts.includes(child.userData['id'])
+            child.traverse(object => {
+                if (object instanceof Mesh) {
+                    if (object.material instanceof MeshStandardMaterial) {
+                        if (isColorPart) {
+                            object.material = brickMaterial
+                        } else {
+                            object.material = transparentMaterial.clone()
+                            object.material.emissive.setScalar(0.1)
+                        }               
+                    } else {
+                        throw 'Material type not supported'
+                    }
+                } else if (object instanceof LineSegments) {
+                    if (object.material instanceof LineBasicMaterial) {
+                        if (isColorPart) {
+                            object.material = brickMaterial.userData.edgeMaterial
+                        } else {
+                            object.material = transparentMaterial.userData.edgeMaterial
+                        }
+                       
+                    }
+                }
+            })
+        }
+        return renderModel
+    }
+
+    function jumpGrid(up: boolean) {
+        // up = true: move on top up = false: move to the lowest part
+        let usedPart: Object3D
+        let height: number
+        let partList: Object3D[]
+
+        // use selected parts if some items are selected otherwise use all parts of the model
+        if (selection.parts.length > 0) {
+            partList = selection.parts
+        } else {
+            partList = model.children.filter(child => child.name.endsWith('.dat'))
+        }
+
+        for (const part of partList) {
+            if (!height) {
+                height = part.position.y
+                usedPart = part
+            } else if (up && part.position.y < height) {
+                // jump up and a higher located part is found
+                height = part.position.y
+                usedPart = part
+            } else if (!up && part.position.y > height) {
+                // jump down and a lower located part is found
+                height = part.position.y
+                usedPart = part
+            }
+        }
+        //calculate height for compensation
+        const bbox = new Box3()
+        const dimensions = new Vector3
+        bbox.setFromObject(usedPart)
+        bbox.getSize(dimensions)
+
+        //console.log("Grid",height, gridHeight)
+        //updateGridHeight(model, gridHeight)
+        setGridHeight(-height/GRIDLOCK.y - (dimensions.y-4)/GRIDLOCK.y)
+    }
+
+    //console.log(operations, operationIndex,  model)
+    //console.log(operations.length,dataUrl ? dataUrl.length : 'undef', operations)
+    //console.log(model && manipulator, model && model.clone().children.filter(obj => (obj.name == manipulator.name || obj.name == box.name)))
 
     return (
         versionId == 'new' || (version && (version.modelType == 'ldr' || version.modelType == 'ldraw-model')) ? (
@@ -1091,45 +1353,103 @@ export const ProductVersionEditorView = () => {
                                 <div className='text'>{loaded} / {total}</div>
                             </div>
                         )}
-                        <div className='buttons'>
-                            <button className='button fill green' onClick={() => setSave(true)}>
-                                Save
-                            </button>
-                            <button className='button fill gray' onClick={() => {
-                                if (operationIndex != -1 && operationIndex != undefined) {
-                                    operations[operationIndex].undo(model, LDRAW_LOADER).then(()=>{
-                                        updateOperations(true)
-                                        updateStates()
-                                    })
+                    </div>
+                    <div className='buttons' onWheel={e => {e.currentTarget.scrollLeft += e.deltaY}}>
+                        <button className='button fill green' title='Save model' onClick={() => setSave(true)}>
+                            <img src={SaveIcon}/>
+                        </button>
+                        <button className='button fill red' title='Abbort editing and leave editor without saving' onClick={() => goBack()}>
+                            <img src={AbbortIcon}/>
+                        </button>
+                        <button className='button fill gray' title='Undo current operation' onClick={() => {
+                            /*if (operationIndex != -1 && operationIndex != undefined) {
+                                operations[operationIndex].undo(model, LDRAW_LOADER).then(()=>{
+                                    updateOperations(true)
+                                    updateStates()
+                                })
+                            }*/
+                            updateOperations(true)
+                        }}>
+                            <img src={BackIcon}/>
+                        </button>
+                        <button className='button fill gray' title='Redo following operation (if possible)' onClick={() => {
+                            /*if (operations.length > 0 && operationIndex == -1) {
+                                operations[0].redo(model, LDRAW_LOADER).then(()=>{
+                                    updateOperations(false)
+                                    updateStates() 
+                                })
+                            } else if (operations.length - 1 > operationIndex) {
+                                operations[operationIndex+1].redo(model, LDRAW_LOADER).then(()=>{
+                                    updateOperations(false)
+                                    updateStates()
+                                })  
+                            }*/
+                            updateOperations(false)
+                        }}>
+                            <img src={BackIcon} style={{transform:'rotate(180deg)'}}/>
+                        </button>
+                        <button className='button fill blue' onClick={() => {
+                            copy()
+                            paste()
+                        }}>
+                            <img src={CopyIcon}/>
+                        </button>
+                        <button className='button fill red' title='Delete selected Parts' onClick={deleteParts}>
+                            <img src={DeleteIcon}/>
+                        </button>
+                        {/*<label>
+                            Insertion height:
+                            <input type='number' value={gridHeight} min={-99} max={99} onChange={event => {
+                                const number = Number(event.currentTarget.value)
+                                if(number > -100 && number < 100) {
+                                    setGridHeight(number)
                                 }
-                                
-                                }}>
-                                Undo
-                            </button>
-                            <button className='button fill gray' onClick={() => {
-                                if (operations.length > 0 && operationIndex == -1) {
-                                    operations[0].redo(model, LDRAW_LOADER).then(()=>{
-                                        updateOperations(false)
-                                        updateStates() 
-                                    })
-                                } else if (operations.length - 1 > operationIndex) {
-                                    operations[operationIndex+1].redo(model, LDRAW_LOADER).then(()=>{
-                                        updateOperations(false)
-                                        updateStates()
-                                    })  
-                                }
-                                }}>
-                                Redo
-                            </button>
-                        </div>
+                            }}/>
+                        </label>*/}
+                        <span>Insertion level:</span>
+                        <button className='button fill white' title='Move grid upwards' onClick={() => {
+                            setGridHeight(gridHeight + 1)
+                            //updateGridHeight(model, gridHeight + 1)
+                        }}>
+                            <img src={BackIcon} style={{transform:'rotate(90deg)'}}/>
+                        </button>
+                        <button className='button fill white' title='Move grid downwards' onClick={() => {
+                            setGridHeight(gridHeight - 1)
+                            //updateGridHeight(model, gridHeight - 1)
+                        }}>
+                            <img src={BackIcon} style={{transform:'rotate(-90deg)'}}/>
+                        </button>
+                        <button className='button fill white' title='Move grid to the highest located brick of selected parts or model' onClick={() => jumpGrid(true)}>
+                            <img src={JumpUpIcon}/>
+                        </button>
+                        <button className='button fill white' title='Move grid to the lowest located brick of selected parts or model' onClick={() => jumpGrid(false)}>
+                            <img src={JumpDownIcon}/>
+                        </button>
                     </div>
                     <div className="palette">
-                        <div className="parts">
-                            {BLOCKS.map(block => (
-                                <img key={block} src={`/rest/parts/${block}.png`} onDragStart={event => onNewPartDragStart(event, `${block}.dat`)}/>
-                            ))}
+                        <div className='palette tabs'>
+                            <a>
+                                <span>Parts</span>
+                            </a>
                         </div>
-                        <div className="colors">
+                        <div className="parts">
+                            {BLOCKS.map(bricklist => (
+                                <div className={bricklist.group} key={bricklist.group}>
+                                    <span className='title'>{bricklist.group}</span>
+                                    {bricklist.items.map(block => (
+                                        <img key={block} src={`/rest/parts/${block}.png`} className={selection && selection.part && selection.part.name.split('.')[0] == block ? 'selected' : ''} onDragStart={event => onNewPartDragStart(event, `${block}.dat`)}/>
+                                    ))}
+                                </div>
+                            ))}
+                            {/*<div className='brick'>
+                                <span className='title'>Brick</span>
+                                {BLOCKS.map(block => (
+                                <img key={block} src={`/rest/parts/${block}.png`} className={selection && selection.part && selection.part.name.split('.')[0] == block ? 'selected' : ''} onDragStart={event => onNewPartDragStart(event, `${block}.dat`)}/>
+                            ))}
+                            </div>*/}
+                        </div>
+                    </div>
+                    <div className="colors" onWheel={e => {e.currentTarget.scrollLeft += e.deltaY}}>
                             {availableMaterials ? (
                                 availableMaterials.map(mat => {
                                     const key = mat.userData.code
@@ -1144,18 +1464,46 @@ export const ProductVersionEditorView = () => {
                                 <span>Loading materials</span>
                             )}
                         </div>
-                    </div>
-                    <div className='OperationHistory'>
-                        <ol>
-                            {operations && operations.length > 0 ? (
-                                operations.map(op => {
-                                    const index = operations.indexOf(op)
-                                    return <li key={index} className={operationIndex==index ? 'selected' : ''} onClick={event => onSelectedOperation(event,index)}>{op.type}</li>
-                                })
-                            ):(
-                                <span>No operations recorded</span>
-                            )}
-                        </ol>
+                    <div className='History'>
+                        <div className='history tabs'>
+                            <a className={showOperations ? 'selected' : ''} onClick={() => setShowOperations(true)}>
+                                <span>History</span>
+                            </a>
+                            <a className={!showOperations ? 'selected' : ''} onClick={()  => setShowOperations(false)}>
+                                <span>Tree</span>
+                            </a>
+                        </div>
+                        {showOperations ? (
+                            <ul className='OperationList'>
+                                {operations && operations.length > 0 ? (
+                                    operations.filter(op => op.type != 'select').map((op, i, arr) => {
+                                        const index = operations.indexOf(op)
+                                        return(
+                                            <React.Fragment key={'Fragment' + index}>
+                                                {i != 0 && arr[i-1].versionId != op.versionId && <li className='Version Element' key={'Version'  + arr[i-1].versionId}>Version: {arr[i-1].versionId}</li>}
+                                                <li key={index} className={operationIndex==index ? 'selected' : ''} onClick={event => onSelectedOperation(event,index)}>
+                                                {dataUrl ? (
+                                                    <div>
+                                                        <img src={dataUrl[index]}/>
+                                                        <img src={OPERATIONICONS[op.type]} className='operation icon' title={op.type + ' operation'}/>
+                                                        <UserPictureWidget userId={op.userId} class={'user picture'}/>
+                                                    </div>
+                                                ) : op.type}
+                                                </li>
+                                                {arr.length-1 == i && <li className='Version Element' key={'Version'  + op.versionId}>{op.versionId==null ? 'New Operations': 'Version: '+ op.versionId}</li>}
+                                            </React.Fragment>
+                                        )
+                                    })
+                                ):(
+                                    <span>No operations recorded</span>
+                                )}
+                            </ul>
+                        ) : (
+                            model ? (
+                                //TODO: Improve model filtering
+                                <ModelGraph model={new Group().add(...model.clone().children.filter(obj => obj.name != manipulator.name && obj.name != box.name))}/>
+                            ) : <span>No parts are available</span>
+                        )}
                     </div>
                     {save && (
                         <div className='save'>

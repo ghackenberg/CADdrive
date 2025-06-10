@@ -76,7 +76,7 @@ export function updateBox(selection: { part: Object3D, parts: Object3D[] }, box:
         mesh.position.set(cx, -cy, -cz)
 
         box.setFromObject(mesh)
-        box.visible = true        
+        box.visible = true                
     } else {
         box.visible = false
     }
@@ -112,7 +112,7 @@ export function updateGrid(model: Group) {
     model.add(grid)
 }
 
-export function selectCleanup(operationlist: AbstractOperation[]) {
+export function selectCleanup(operationlist: AbstractOperation[], userId: string, versionId: string = null) {
     const result: AbstractOperation[] = []
     let usedIds:  string[] = []
     for (const operation of operationlist) {
@@ -124,19 +124,19 @@ export function selectCleanup(operationlist: AbstractOperation[]) {
             case 'rotate':
             case 'color change':
                 if (currentIds.length != usedIds.length || !currentIds.every(id => usedIds.includes(id))) {
-                    result.push(new SelectOperation(shortid(),currentIds,usedIds))
+                    result.push(new SelectOperation(shortid(), userId,  versionId, Date.now(),currentIds,usedIds))
                     usedIds = currentIds
                 }
                 break
             case 'delete':
                 if (currentIds.length != usedIds.length || !currentIds.every(id => usedIds.includes(id))) {
-                    result.push(new SelectOperation(shortid(),currentIds,usedIds))
+                    result.push(new SelectOperation(shortid(), userId, versionId, Date.now(), currentIds,usedIds))
                 }
                 usedIds = []
                 break
             case 'insert':
                 if (usedIds.length != 0) {
-                    result.push(new SelectOperation(shortid(),[],usedIds))
+                    result.push(new SelectOperation(shortid(), userId, versionId, Date.now(), [],usedIds))
                 }
                 usedIds = currentIds
                 break
@@ -206,7 +206,10 @@ export async function parseCustomLDrawDelta(data: string): Promise<AbstractOpera
             case "insert":
                 //console.log("insert")
                 return new InsertOperation(
-                    obj.uuid,
+                    obj.operationId,
+                    obj.userId,
+                    obj.versionId,
+                    obj.timestamp,
                     obj.id, 
                     obj.part, 
                     obj.color, 
@@ -215,17 +218,20 @@ export async function parseCustomLDrawDelta(data: string): Promise<AbstractOpera
                 )
             case "select":
                 //console.log("select")
-                return new SelectOperation(obj.uuid, obj.after, obj.before)
+                return new SelectOperation(obj.operationId, obj.userId, obj.versionId, obj.timestamp, obj.after, obj.before)
             case "move":
                 //console.log("move")
-                return new MoveOperation(obj.uuid, obj.id, new Vector3(obj.movement.x, obj.movement.y, obj.movement.z))
+                return new MoveOperation(obj.operationId, obj.userId, obj.versionId, obj.timestamp, obj.id, new Vector3(obj.movement.x, obj.movement.y, obj.movement.z))
             case "rotate":
                 //console.log("rotate")
-                return new RotateOperation(obj.uuid, obj.id, obj.selId, obj.rotation as number)
+                return new RotateOperation(obj.operationId, obj.userId, obj.versionId, obj.timestamp, obj.id, obj.selId, obj.rotation as number)
             case "delete":
                 //console.log("delete")
                 return new DeleteOperation(
-                    obj.uuid,
+                    obj.operationId,
+                    obj.userId,
+                    obj.versionId,
+                    obj.timestamp,
                     obj.id, 
                     obj.part, 
                     obj.color, 
@@ -234,7 +240,7 @@ export async function parseCustomLDrawDelta(data: string): Promise<AbstractOpera
                 )
             case "color change":
                 //console.log("color change")
-                return new ColorOperation(obj.uuid, obj.id, obj.oldcolor, obj.newcolor)
+                return new ColorOperation(obj.operationId, obj.userId, obj.versionId, obj.timestamp, obj.id, obj.oldcolor, obj.newcolor)
             default:
                 return obj
         }

@@ -4,7 +4,7 @@ import { LDrawLoader } from "three/examples/jsm/loaders/LDrawLoader"
 import { selectbyId, unselectbyId, updateBox, updateHelper } from "./main"
 
 export abstract class AbstractOperation {
-    constructor(public type: string, public uuid: string) {
+    constructor(public type: string, public operationId: string, public userId: string, public versionId: string, public timestamp: number) {
         // empty
     }
     abstract undo(model: Group, LDRAW_LOADER: LDrawLoader): Promise<void>
@@ -14,8 +14,8 @@ export abstract class AbstractOperation {
 }
 
 export class InsertOperation extends AbstractOperation {
-    constructor(uuid: string, public id: string[], public part: string[], public color: string[], public position: Vector3[], public rotation: Euler[]) {
-        super('insert', uuid)
+    constructor(operationId: string, userId: string, versionId: string, timestamp: number, public id: string[], public part: string[], public color: string[], public position: Vector3[], public rotation: Euler[]) {
+        super('insert', operationId, userId, versionId, timestamp)
     }
     override async undo(model: Group): Promise<void> {
         unselectbyId(model, this.id)
@@ -65,8 +65,8 @@ export class InsertOperation extends AbstractOperation {
 }
 
 export class SelectOperation extends AbstractOperation {
-    constructor(uuid: string,public after: string[], public before: string[]) {
-        super('select', uuid)
+    constructor(operationId: string, userId: string, versionId: string, timestamp: number, public after: string[], public before: string[]) {
+        super('select', operationId, userId, versionId, timestamp)
     }
     override async undo(model: Group): Promise<void> {
         unselectbyId(model,this.after)
@@ -121,13 +121,13 @@ export class SelectOperation extends AbstractOperation {
         return this.after.includes(id) || this.before.includes(id)
     }
     override getIds(): string[] {
-        return [...this.after, ...this.before]
+        return this.after
     }
 }
 
 export class MoveOperation extends AbstractOperation {
-    constructor(uuid: string, public id: string[], public movement: Vector3) {
-        super('move', uuid)
+    constructor(operationId: string, userId: string, versionId: string, timestamp: number, public id: string[], public movement: Vector3) {
+        super('move', operationId, userId, versionId, timestamp)
     }
     override async undo(model: Group): Promise<void> {
         for ( const element of this.id) {
@@ -150,8 +150,8 @@ export class MoveOperation extends AbstractOperation {
 }
 
 export class RotateOperation extends AbstractOperation {
-    constructor(uuid: string, public id: string[], public selId: string, public rotation: number) {
-        super('rotate', uuid)
+    constructor(operationId: string, userId: string, versionId: string, timestamp: number, public id: string[], public selId: string, public rotation: number) {
+        super('rotate', operationId, userId, versionId, timestamp)
     }
     override async undo(model: Group): Promise<void> {
         //console.log("undo rotation", this.rotation)
@@ -238,8 +238,8 @@ export class RotateOperation extends AbstractOperation {
 }
 
 export class DeleteOperation extends AbstractOperation {
-    constructor(uuid: string, public id: string[], public part: string[], public color: string[], public position: Vector3[], public rotation: Euler[]) {
-        super('delete', uuid)
+    constructor(operationId: string, userId: string, versionId: string, timestamp: number, public id: string[], public part: string[], public color: string[], public position: Vector3[], public rotation: Euler[]) {
+        super('delete', operationId, userId, versionId, timestamp)
     }
     override async undo(model: Group, LDRAW_LOADER: LDrawLoader): Promise<void> {
         //unselectbyId(model, this.id)
@@ -306,8 +306,8 @@ export class DeleteOperation extends AbstractOperation {
 }
 
 export class ColorOperation extends AbstractOperation {
-    constructor(uuid: string, public id: string[], public oldcolor: string[], public newcolor: string) {
-        super('color change', uuid)
+    constructor(operationId: string, userId: string, versionId: string, timestamp: number, public id: string[], public oldcolor: string[], public newcolor: string) {
+        super('color change', operationId, userId, versionId, timestamp)
     }
     override async undo(model: Group, LDRAW_LOADER: LDrawLoader): Promise<void> {
         //Load all available materials

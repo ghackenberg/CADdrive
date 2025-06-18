@@ -43,9 +43,11 @@
 \email{georg.hackenberg@fh-ooe.at}
 
 \begin{abstract}
-    In this paper, we explore the application of software product line engineering (SPLE) principles to the development of physical products, specifically using digital LEGO as a case study. 
-    By translating key concepts from the SPLE community, we demonstrate how modularity, variability management, and systematic reuse can enhance the design and production of physical products. 
-    Our experience highlights the benefits and challenges of this interdisciplinary approach, providing valuable insights for both software engineers and product designers.
+    In this paper, we explore the application of software product line engineering (SPLE) principles to the development of physical products. 
+    By translating key SPLE concepts into tangible design exercises, we provide a practical framework for teaching product line engineering in physical product design. 
+    Our approach leverages digital LEGO to create an interactive case study, enabling students to experiment with atomic modules, interface constraints, and 150\% models in a low-barrier, visual environment. 
+    Through a detailed drone product line example, we demonstrate how educators can use this method to illustrate key SPLE challenges, including geometric compatibility and variant validation. 
+    The results highlight the effectiveness of digital LEGO as an educational tool for bridging software and physical design paradigms, offering scalable lessons for curriculum development in engineering and design programs.
 \end{abstract}
 
 \keywords{Software Product Line Engineering (SPLE); Digital LEGO; Modularity; Variability Management; Systematic Reuse; Physical Product Design; Interdisciplinary Approach}
@@ -154,7 +156,7 @@ Our work bridges this gap by using digital LEGO as a low-fidelity alternative fo
 \subsection{Variants and representations}
 \label{sec:variants}
 
-The digital representations of the individual products in a product line can include, but are not limited to, requirement and design specifications, system and computer-aided design (CAD) models, source code and build files, test plans and cases, user documentation, repair manuals and installation guides, project budgets, schedules and work plans, product calibration and configuration files, data models, parts lists, and more~\cite{Clements_2015}. 
+The digital representations of the individual products in a product line can include, but are not limited to, requirement and design specifications, system and CAD models, source code and build files, test plans and cases, user documentation, repair manuals and installation guides, project budgets, schedules and work plans, product calibration and configuration files, data models, parts lists, and more~\cite{Clements_2015}. 
 
 A wide-spread technique for the digital representation of product lines and their product variants are so-called 150\% models~\cite{Clements_2015}.
 Such models combine all relevant features and characteristics of all product variants of the product line into a common superset model.
@@ -162,15 +164,15 @@ Furthermore, such models include all possible configurations of features and cha
 
 Such superset representations of products lines and their variants have been applied successfully not only to software systems, but also to cyber-physical production systems and their various interdisciplinary subsystems~\cite{Fadhlillah_2023}, digital twins of physical products with advanced simulation capabilities~\cite{Wagner_2024}, and assembly instructions for configurable physical products~\cite{Zogopoulos_2024}.
 
-To adopt the principles, many industries use advanced tooling, which requires significant expertise and organizational maturity. 
-While Bombardier Transportation relies on complex tools like Simulink and manual trimming of components to manage different train configurations~\cite{Abbas_2020}, the approach of Raytheon to manage its missile defense product line combines PLE with Model Based Engineering, which also requires comprehensive tools like Gears and Rhapsody~\cite{Young_2019}. 
+To adopt the SPLE principles, many industries use advanced tooling, which requires significant expertise and organizational maturity. 
+For example, while Bombardier Transportation relies on complex tools like Simulink and manual trimming of components to manage different train configurations~\cite{Abbas_2020}, the approach of Raytheon to manage its missile defense product line combines PLE with Model Based Engineering, which also requires comprehensive tools like Gears and Rhapsody~\cite{Young_2019}. 
 Digital LEGO, by contrast, offers a simplified yet powerful educational alternative that captures the core principles of PLE while eliminating industrial complexities.
 
 \section{Case study}
 \label{sec:case-study}
 
 In this third section we introduce the case study, which we prepared for testing the applicability of digital LEGO based on the open LDraw\footnote{\url{https://ldraw.org}} data format and parts library for product line engineering education in a physical product design context.
-The study draws inspiration from established SPL practices in drone software~\cite{Steiner_2014}, adapting variability modeling techniques to a physical drone product line. 
+The study draws inspiration from established SPLE practices in drone software~\cite{Steiner_2014}, adapting variability modeling techniques to a physical drone product line. 
 Unlike Simulink-based approaches, we use digital LEGO to visualize constraints, enabling student experimentation, rapid prototyping and immediate feedback.
 
 The case study was developed using a design science methodology, following three iterative phases:
@@ -181,7 +183,7 @@ The case study was developed using a design science methodology, following three
 
 •	Validation: Evaluated through pedagogical alignment with the framework of Kuiter et al.~\cite{Kuiter_2025} and mechanical feasibility checks.
 
-Our key design decision was to focus on FPV drones for their modular design and clear performance trade-offs, breaking them down into key components that we adapted into LDraw-compatible modules. 
+Our key design decision was to focus on First Person View (FPV) drones for their modular design and clear performance trade-offs, breaking them down into key components that we adapted into LDraw-compatible modules. 
 The study's validity metrics include three FPV drone variants (ultralight, freestyle, and long-range) with distinct performance characteristics, ten modular components, four spatial constraints, and a complete 150\% LDraw model representation.
 
 \begin{figure*}[tbp]
@@ -298,7 +300,7 @@ Finally, it is worth mentioning that in reality the frame-battery interface migh
 
 \begin{figure*}[tbp]
     \includegraphics[width=\textwidth]{./FeatureTreeWithLegend3.jpg}
-    \caption{Orthogonal varialibility model consisting of one root and four child variation points, and the variants.}
+    \caption{Orthogonal variability model consisting of one root and four child variation points, and the variants.}
     \label{fig:feature-tree}
 \end{figure*}
 
@@ -312,7 +314,7 @@ Similarly, the large cover only fits onto the large frame, while not fitting the
 
 As stated before, the atomic modules from Section~\ref{sec:atomic-modules} can be assembled according to the interfaces from Section~\ref{sec:interfaces} to build customized end products with various different performance characteristics.
 However, not all combinations of atomic modules are feasible due to geometric and functional constraints.
-We describe the set of feasible configurations for our drone case study in the form of an orthogonal variabilty model (OVM) in \cref{fig:feature-tree}.
+We describe the set of feasible configurations for our drone case study in the form of an OVM in \cref{fig:feature-tree}.
 
 At its root, the OVM defines a variability point for the entire drone, which includes four mandatory variability dependencies (solid black lines).
 These four mandatory variability dependencies point to four independent variability points for the propeller, the battery, the frame, and the cover, which all must be present in a feasible product configuration.
@@ -339,11 +341,11 @@ Furthermore, this type of constraint applies to the frames and the batteries, wh
 
 \subsubsection*{Dynamic space constraint}
 
-Dynamic space constraints concern the dynamic (i.e.\ variable) spatial proeprties of modules.
+Dynamic space constraints concern the dynamic (i.e.\ variable) spatial properties of modules.
 In our drone case, this type of constraint applies to the small frame and the large propellers.
 In general, also the large propellers can be mounted into small frames due to standard connector geometries.
 Also, in certain rotational angles, the large propellers do not collide with the small frame.
-However, during drone operateion other rotational angles are possible, while cause such collisions, impair system functionality, and potentially cause damage.
+However, during drone operation other rotational angles are possible, which cause such collisions, impair system functionality, and potentially cause damage.
 
 \subsection{Model representations}
 \label{sec:150-model}
@@ -369,7 +371,7 @@ Also, automatic validation of spatial constraints can be implemented on top of t
 
 The knowledge acquired from the literature review coupled with the case study have provided a comprehensive demonstration of how PLE principles can be effectively applied to the development of physical products with the usage of digital LEGO. 
 The first step in our study was to create atomic modules, which could then be assembled into individual variants. 
-Then, we derived a robust orthogonal variability model (OVM) as well as a comprehensive 150\% LDraw model representing feasible product configurations. 
+Then, we derived a robust OVM as well as a comprehensive 150\% LDraw model representing feasible product configurations. 
 By utilizing these methodologies, we were able to derive a product line comprising three distinct drone configuration with several spatial constraint dependencies among the atomic modules.
 
 In the next steps, we plan to explore geometric interfaces between components of physical products in a product line. Unlike software engineering, the realm of interfacing in this context remains relatively uncharted, making it an interesting area for exploration. 

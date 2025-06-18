@@ -69,8 +69,7 @@ For example, software products that are being developed for the international ma
 To increase software reuse and streamline development processes, developers create a modular software framework that includes common functionalities. 
 The framework modules then can be reused across different product models and customized as needed to meet specific requirements for each individual market and customer.
 
-Originating in software development, SPLE principles have now spread far beyond the software domain. 
-Companies in many other industries, such as automotive, aerospace, and consumer electronics are taking advantage of reusability and variability management while reducing time-to-market, improving efficiency, and increasing customer satisfaction. 
+SPLE principles have now spread far beyond the software domain. Companies in many other industries, such as automotive, aerospace, and consumer electronics are taking advantage of reusability and variability management while reducing time-to-market, improving efficiency, and increasing customer satisfaction. 
 For instance, Lockheed Martin estimates that because of its SPLE-inspired approach it saves over \$47 million a year ~\cite{Gregg_2015}, while Hewlett-Packard reports that it builds products 10 times as complex, with 1/4 of the staff, in 1/3 of the time, and with 1/25 of the bugs of previous products ~\cite{Mebane_2007}.
 
 However, when it comes to incorporating SPLE principles into the creation of technical systems, particularly when creating geometric representations of product lines of mechanical products, this approach has not yet become widely established. 
@@ -83,9 +82,9 @@ Also, we want to help improving and more widely establishing product line engine
 \paragraph{Research question}
 
 To reach our research objective, we tackle the following research questions here:
-Can we use digital LEGO for building interesting use cases for product line engineering?
-Can we see typical issues in product line engineering such as module (in-)compatibility in such use cases?
-Can we use existing digital LEGO tools for building these use cases already today?
+How can digital LEGO be applied to create meaningful use cases for PLE education in physical product design?
+What challenges arise in managing module compatibility and variability when applying PLE principles to digital LEGO models?
+To what extent do existing digital LEGO tool support the modeling and validation of PLE concepts and where are the gaps?
 
 \paragraph{Contribution}
 
@@ -99,6 +98,18 @@ Subsequently, we first summarize the relevant state-of-the-art of product line e
 First, we describe common principles and methodologies in the field of PLE in Section~\ref{sec:principles}.
 Then, we explain the concept of modules and non-contact as well as contact-based mechanical interfaces in Section~\ref{sec:modules}.
 Finally, we explore the representation of the product line and its individual variants in Section~\ref{sec:variants}.
+
+To conduct a comprehensive literature review on SPLE, we employed a structured search strategy. 
+The primary keywords included: "Software Product Line Engineering", "Product Line Engineering", "Variability Management", "Feature Modeling", “LEGO”, "Interface", "Modularity", "Domain Engineering" and "Software Reuse". 
+The search was performed in Google Scholar, ACM Digital Library and SPLE conference proceedings. 
+The search combined the terms using Boolean logic to refine results. 
+For example, in Google Scholar, the following query was used: ("Software Product Line Engineering" OR "Product Line Engineering") AND ("Variability Management" OR "Feature Model" OR "Modularity" OR "Domain Engineering"). 
+Only English-language publications were considered. 
+SPLC conference was scanned manually to identify relevant papers that might have been missed in database searches. 
+Additionally, technical reports, theses, and industry whitepapers were considered to capture practical insights. 
+The references of selected papers were reviewed to find foundational works, citations were tracked to discover newer research building on key studies. 
+Based on their relevance to SPLE methodologies, variability management, and modularity, 26 papers were selected from a large pool (around 1000 papers).
+
 
 \subsection{Principles and methodologies}
 \label{sec:principles}
@@ -118,18 +129,27 @@ Note that with the appearance of second-generation PLE, the importance of the ap
 \subsection{Modules and interfaces}
 \label{sec:modules}
 
-Next, it is worth mentioning that PLE goes hand in hand with the concept of modularity.
+Next, it is worth mentioning that PLE often goes hand in hand with the concept of modularity.
 While modularity enables the configuration of multiple end products from a limited number of modules, PLE manages and optimizes a company's product diversity in order to control complexity and to balance out too many variants and versions.
 Li et al.~\cite{Li_2019} explain modularity as a systematic approach where a product or system is composed of various modules, and these modules can be combined in different ways to form different products with individual characteristics.
 
 However, clear rules should be defined to reassure that all subsystems will be compatible and function correctly in the final design~\cite{Baldwin_2003}.
 Such rules concern, among other things, the syntactic and semantic module interfaces, which define how the modules can be connected and interact.
 The effects of a misspecified interface can go beyond module incompatibility to unexpected product behavior~\cite{Parslov_2015}. 
+In their course on software product lines, Kuiter et al.~\cite{Kuiter_2025} highlight how modular systems with clearly defined interfaces can be effectively used for modelling variability. 
+They demonstrate it by using as a tangible example LEGO minifigures.  
 
 When applying PLE principles to the development of physical products, it is important to consider the physical nature of module interfaces.
 Ulrich ~\cite{Ulrich_1995} states, that interfaces may involve mechanical, contact-based interactions between components in addition to non-contact interactions.
 Such contact-based interactions usually entail constraints on the contact points of the mechanical surfaces to guarantee the required function of the assembly.
 By specifying these constraints in computer-aided design (CAD) models, designers can ensure the proper arrangement and compatibility of parts within the products of the product line.
+
+Warniez et al.~\cite{Warniez_2014} emphasize that early integration of geometric specifications is critical to avoid late-stage design conflicts and propose to formalize geometric constraints via SysML profiles. 
+Yet, this approach lacks a direct connection to physical prototyping, making it challenging to validate real-world assemblability.
+Koch et al.~\cite{Koch_2016} highlight the role of geometric constraints in ensuring compatibility and propose integrating CAD models with feature models to manage geometric dependencies. 
+However, it requires specialized CAD toolchains, limiting accessibility for education or early-stage design. 
+Our work bridges this gap by using digital LEGO as a low-fidelity alternative for early spatial validation (like SysML) but with precise geometry (unlike abstract SysML volumes).
+
 
 \subsection{Variants and representations}
 \label{sec:variants}
@@ -146,7 +166,19 @@ Such superset representations of products lines and their variants have been app
 \label{sec:case-study}
 
 In this third section we introduce the case study, which we prepared for testing the applicability of digital LEGO based on the open LDraw\footnote{\url{https://ldraw.org}} data format and parts library for product line engineering education in a physical product design context.
-The selected product line includes three first person view (FPV) drone variants: an \textit{ultralight drone}, a \textit{freestyle drone} and a \textit{long-range drone}, which differ primarily in their performance characteristics.
+The study draws inspiration from established SPL practices in drone software~\cite{Steiner_2014}, adapting variability modeling techniques to a physical drone product line. 
+Unlike Simulink-based approaches, we use digital LEGO to visualize constraints, enabling student experimentation, rapid prototyping and immediate feedback.
+
+The case study was developed using a design science methodology, following three iterative phases:
+
+•	Problem identification: Addressed gaps in teaching PLE for physical systems (e.g., lack of spatial constraint modeling tools).
+
+•	Artifact design: Built a modular drone product line using LDraw’s hierarchical assemblies to encode interfaces and constraints.
+
+•	Validation: Evaluated through pedagogical alignment with the framework of Kuiter et al.~\cite{Kuiter_2025} and mechanical feasibility checks.
+
+Our key design decision was to focus on FPV drones for their modular design and clear performance trade-offs, breaking them down into key components that we adapted into LDraw-compatible modules. 
+The study's validity metrics include three FPV drone variants (ultralight, freestyle, and long-range) with distinct performance characteristics, ten modular components, four spatial constraints, and a complete 150\% LDraw model representation.
 
 \begin{figure*}[tbp]
     \subcaptionbox{Small propeller\label{fig:propellor-small}}{
@@ -194,7 +226,8 @@ The selected product line includes three first person view (FPV) drone variants:
     \label{fig:atomic-modules}
 \end{figure*}
 
-Subsequently, we first provide an overview of the atomic (mechatronic) modules of the product line, from which the individual variants can been assembled in Section~\ref{sec:atomic-modules}.
+
+We first provide an overview of the atomic (mechatronic) modules of the product line, from which the individual variants can been assembled in Section~\ref{sec:atomic-modules}.
 Then, we introduce the interfaces between the individual modules and possible interface constraints in Section~\ref{sec:interfaces}.
 Thereafter, we explain the configuration options of the drone use case in the form of an orthogonal variability model (OVM) in Section~\ref{sec:configuration-options}.
 And finally, we introduce the 150\% LDraw (or digital LEGO) model for the drone use case including all atomic modules as well as the assembly structures of the three different drone variants in Section~\ref{sec:150-model}.
@@ -323,7 +356,7 @@ Finally, the propeller, battery, frame, and cover assemblies (i.e.\ \textit{modu
 
 Now, when changing the atomic module assembly (i.e.\ adding, moving, removing digital LEGO bricks), these changes are reflected automatically in each product configuration assembly.
 Obviously such changes to atomic module assembly can have undesired consequences, especially when changing the spatial properties at their interfaces.
-Such changes can introduce incompatibilities between previously compatible modules, or make previously incompatible modukles suddenly compatible.
+Such changes can introduce incompatibilities between previously compatible modules, or make previously incompatible modules suddenly compatible.
 Due to representation of the product line the 150\% LDraw model, the changes are visible instantaneously in each product configuration and, therefore, can be validated quickly.
 Also, automatic validation of spatial constraints can be implemented on top of this infrastructure, but are not implemented in current LDraw modeling tools.
 

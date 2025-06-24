@@ -1,52 +1,46 @@
 import * as React from 'react'
 import { useLocation, useParams } from 'react-router'
 
-import { BoxHelper, Group, Mesh, MeshStandardMaterial } from 'three'
+import { BoxHelper, Group, Material, Mesh, MeshStandardMaterial } from 'three'
 
-import { AbstractOperation, CustomLDrawModel, parseCustomLDrawDelta, parseCustomLDrawModel, selectCleanup, updateBox, updateHelper } from 'productboard-ldraw'
+import { AbstractOperation, ColorOperation, CustomLDrawModel, DeleteOperation, InsertOperation, parseCustomLDrawDelta, selectCleanup, updateBox, renderPreperation, parseCustomLDrawModel } from 'productboard-ldraw'
 
 import { FileClient } from '../../clients/rest/file'
 import { VersionClient } from '../../clients/rest/version'
 import { UserContext } from '../../contexts/User'
 import { VersionContext } from '../../contexts/Version'
 import { createScene } from '../../functions/editor'
+import { render } from '../../functions/render'
 import { useAsyncHistory } from '../../hooks/history'
 import { useVersions } from '../../hooks/list'
-import { getObjectMaterialCode, LDRAW_LOADER, MATERIAL_LOADING } from '../../loaders/ldraw'
+import { getMaterials, getObjectMaterialCode, LDRAW_LOADER, MATERIAL_LOADING } from '../../loaders/ldraw'
 import { ModelView3D } from '../widgets/ModelView3D'
 
-/*async function correctModel(model: Group, operation: AbstractOperation[], removeOperations: AbstractOperation[]) {
-    const remove = removeOperations.slice()
-    let index =  operation.length - 1
-    // Step 1: undo all operations that are after the operations which will be removed
-    while (remove.length > 0 && index >= 0) {
-        await operation[index].undo(model,LDRAW_LOADER)
-        if (remove.some(op => op.uuid == operation[index].uuid)) {
-            remove.splice(remove.indexOf(operation[index]), 1)
-            operation.splice(index, 1)
-        }
-        index--
-    }
-    // Step 2: redo the still included operations
-    for (let i = index + 1; i<operation.length; i++) {
-        await operation[i].redo(model, LDRAW_LOADER)
-    }
-}*/
+const MOVE_INSIDE_VERSIONS = false
 
-async function undoUntil(model: Group, operations: AbstractOperation[], index: number, disabledOperations: AbstractOperation[]) {
+//TODO: remove model
+//      use merged version only for rearranged ops
+//      indicate conflict with picture or something else
+//NEW:  
+//      Copy coloring for versions of version view (for merger and for editor)
+//      Copy designe for merger from version view
+//      Show Version number again
+//      render affected parts that are not included in model
+
+/*async function undoUntil(model: Group, operations: AbstractOperation[], index: number, disabledOperations: AbstractOperation[]) {
     for (let i = operations.length - 1; i >= index; i--) {
         if (!disabledOperations.includes(operations[i])) {
             await operations[i].undo(model,LDRAW_LOADER)
         }
     }
-}
-async function redoFrom(model: Group, operations: AbstractOperation[], index: number, disabledOperations: AbstractOperation[]) {
+}*/
+/*async function redoFrom(model: Group, operations: AbstractOperation[], index: number, disabledOperations: AbstractOperation[]) {
     for (let i = index; i < operations.length; i++) {
         if (!disabledOperations.includes(operations[i])) {
             await operations[i].redo(model,LDRAW_LOADER)
         }
     }
-}
+}*/
 function updateSelection(model: Group, reselectIds: string[]) {//operation: AbstractOperation[], selectedOperation = operation[operation.length - 1]) {
     // unselect all parts
     for (const child of model.children) {
@@ -78,9 +72,73 @@ function updateSelection(model: Group, reselectIds: string[]) {//operation: Abst
                     }
                 })
             }
-            updateBox({part: parts[0], parts: parts},model.children.find(child => child.name == 'box') as BoxHelper)
+            updateBox({part: parts[0], parts: parts}, model.children.find(child => child.name == 'box') as BoxHelper)
+        } else {
+            updateBox({part: undefined,  parts: []}, model.children.find(child => child.name == 'box') as BoxHelper)
         }
     }
+} 
+
+function correctColorChanges(operationList: AbstractOperation[]) {
+    // Corrects the colors in delete and color change operations and removes useles color changes
+    const partIDs: string[] = []
+    const colorList: string[] = []
+    const result: AbstractOperation[] = []
+
+    for (const operation of operationList) {
+        if (operation instanceof InsertOperation){
+            for (let i = 0; i < operation.id.length; i++) {
+                partIDs.push(operation.id[i])
+                colorList.push(operation.color[i])
+            }
+        } else if (operation instanceof DeleteOperation) {
+            /*const ids: string[] = []
+            const parts: string[] = []
+            const rotation: Euler[] = []
+            const position: Vector3[] = []
+            const colors: string[] = []*/
+            for (let i = 0; i < operation.id.length; i++) {
+                const foundIndex = partIDs.findIndex(entry => entry == operation.id[i])
+                if (foundIndex != -1) {
+                    /*ids.push(operation.id[i])
+                    parts.push(operation.part[i])
+                    rotation.push(operation.rotation[i])
+                    position.push(operation.position[i])
+                    colors.push(colorList[foundIndex])*/
+                    operation.color[i] = colorList[foundIndex]
+                }
+            }
+            /*if (ids.length != operation.id.length) {
+                result.push(new DeleteOperation(operation.operationId, operation.userId, operation.versionId, operation.timestamp, ids, parts, colors, position, rotation))
+                continue
+            }*/
+        } else if (operation instanceof ColorOperation) {
+            /*const ids: string[] = []
+            const colors: string[] = []*/
+            for (let i = 0; i < operation.id.length; i++) {
+                const foundIndex = partIDs.findIndex(entry => entry == operation.id[i])
+                if (foundIndex != -1) {
+                    /*ids.push(partIDs[foundIndex])
+                    console.log("Farbe", colorList[foundIndex])
+                    colors.push(colorList[foundIndex])
+                    console.log("Re change", colorList[foundIndex], colorList)
+                    colorList[foundIndex] = operation.newcolor
+                    console.log("CC", foundIndex, colorList[foundIndex], colorList, partIDs)*/
+                    operation.oldcolor[i] = colorList[foundIndex]
+                    colorList[foundIndex] = operation.newcolor
+                }
+            }
+            /*if (ids.length != operation.id.length || operation.oldcolor.some((color,index) => color != colors[index])) {
+                if (ids.length != 0) {
+                    console.log("Hallo",operation.oldcolor,colors)
+                    result.push(new ColorOperation(operation.operationId, operation.userId, operation.versionId, operation.timestamp, ids, colors, operation.newcolor))
+                }
+                continue
+            }*/
+        }
+        result.push(operation)
+    }
+    return result
 }
 
 export function ProductVersionMergeView() {
@@ -105,27 +163,46 @@ export function ProductVersionMergeView() {
     const [models, setModels] = React.useState<Group[]>([])
     const [operations, setOperations] = React.useState<AbstractOperation[][]>([])
 
+    const [availableMaterials, setAvailableMaterials] = React.useState<Material[]>()
+
     const [mergedModel, setMergedModel] = React.useState<Group>(new Group())
-    const [mergedOperations, setMergedOperations] = React.useState<AbstractOperation[]>([])
+    const [mergedOperations] = React.useState<AbstractOperation[]>([])
     const [disabledOperations, setDisabledOperations] = React.useState<AbstractOperation[]>([])
+    const [dataUrl] = React.useState<string[]>([])
 
     const [basicScene, setBasicScene] = React.useState<Group>(new Group())
 
-    const [startMerging, setStartMerger] = React.useState<boolean>()
+    const [startMerging, setStartMerging] = React.useState<boolean>()
     const [mergingIndex, setMergingIndex] = React.useState<{i: number, j:number}>({i: 0, j: 0})
     const [possibleConflicts] = React.useState<{all: AbstractOperation[], local: AbstractOperation[]}>({all: [], local:[]})
-
-    const [conflictSolver, setConflictSolver] = React.useState<boolean>(false)
-    const [conflictOperations, _setConflictOperations] = React.useState<{inserted: AbstractOperation[], new: AbstractOperation}>({inserted: [], new: undefined})
-    const [decision, setDecision] = React.useState<string>('existing')
-    const [selectedOperation, setSelectedOperation] = React.useState<number>()
-    const [previewModel, setPreviewModel] = React.useState<Group>(new Group())
+    const [baseIndex, setBaseIndex] = React.useState<number>()
 
     const [save, setSave] = React.useState<boolean>()
     const [number, setNumber] = React.useState<string>('minor')
     const [description,setDescription] = React.useState<string>('')
 
     const [currentOperation, setCurrentOperation] = React.useState<number>()
+
+    const [renderToggle, setRenderToggle] = React.useState(false)
+
+    const [update, setUpdate] = React.useState(0)
+
+    // Load available materials and set initial selected material
+    React.useEffect(() => {
+        let exec = true
+        getMaterials().then(materials => {
+            if (exec) {
+                setAvailableMaterials(materials)
+            }
+        })
+        return () => { exec = false }
+    }, [])
+
+    React.useEffect(() => {
+        if (versions && versions.filter(version => versionId.includes(version.versionId)).some(version => version.modelType != 'ldraw-model')) {
+            goBack()
+        }
+    }, [versions])
 
     React.useEffect(() => {
         let exec = true
@@ -164,12 +241,11 @@ export function ProductVersionMergeView() {
     }, [versions])
 
     React.useEffect(() => {
-        //Merger
         if (models.length > 0 && operations.length > 0 && models.length == operations.length) {
             console.log("Activate")
 
             setBasicScene(mergedModel.clone())
-            setStartMerger(true)
+            setStartMerging(true)
 
             console.log("mergedModel", mergedModel, "\nmergedOperation", mergedOperations)
         }
@@ -179,48 +255,25 @@ export function ProductVersionMergeView() {
             reconstruct()
         }
     },[startMerging])
-    React.useEffect(() => {
-        if (conflictSolver) {
-            (async() => {
-                const model = mergedModel.clone()
-                model.children.find(obj => obj.name == 'manipulator').visible = false
-                console.log(model.children.find(obj => obj.name == 'box'))
-                if (decision == 'existing') {
-                    updateHelper(model, mergedOperations[mergedOperations.length-1].getIds())
-                    setPreviewModel(model)
-                } else if (decision == 'new') {
-                    for(const operation of conflictOperations.inserted) {
-                        await operation.undo(model, LDRAW_LOADER)
-                    }
-                    await conflictOperations.new.redo(model, LDRAW_LOADER)
-                    setPreviewModel(model)
-                } else if (decision == 'both') {
-                    await conflictOperations.new.redo(model, LDRAW_LOADER)
-                    setPreviewModel(model)
-                } else if (decision == 'choose') {
-                    for (let index = conflictOperations.inserted.length - 1; index > selectedOperation; index--) {
-                        await conflictOperations.inserted[index].undo(model,LDRAW_LOADER)
-                    }
-                    await conflictOperations.new.redo(model, LDRAW_LOADER)
-                    setPreviewModel(model)
-                }
-            })()
-        }
-    },[decision, selectedOperation])
 
     async function reconstruct() {
-    
+        console.log("Reconstruct", mergedOperations)
+        let lastCommonAncestorIndex: number
         for (let i = mergingIndex.i; i < operations.length; i++) {
             if (i == 0 || mergingIndex.i != i) {
                possibleConflicts.local = possibleConflicts.all.slice()
                console.log(possibleConflicts.local)
             }
+
+            let lastCommonOpID: string
             for (let j = mergingIndex.j; j < operations[i].length; j++) {
                 const op = operations[i][j]
                 if (op.type == 'select') {
                     continue
                 }
+                console.log("My OP", op)
                 if (!mergedOperations.some(operation => operation.operationId == op.operationId)) {
+                    console.log("I'm here", op.operationId)
                     if (['move', 'rotate', 'delete'].includes(op.type)) {//op instanceof MoveOperation || op instanceof RotateOperation || op instanceof DeleteOperation) {
                         //Conflict detection
                         const currentIds = op.getIds()
@@ -228,17 +281,14 @@ export function ProductVersionMergeView() {
                             if (element.getIds().some(obj => currentIds.includes(obj))) {
                                 //TODO Conflict !!!
                                 console.log("CONFLICT!!!!!", op, possibleConflicts.local, mergedOperations , "\nTest\n", possibleConflicts.local.filter(operation => operation.getIds().some(id => currentIds.includes(id))))
-                                /*conflictOperations.inserted = possibleConflicts.local.filter(operation => operation.getIds().some(id => currentIds.includes(id)))
-                                conflictOperations.new = op
-                                mergingIndex.i = i
-                                mergingIndex.j = j
-                                setConflictSolver(true)
-                                const preview = mergedModel.clone()
-                                preview.children.find(obj => obj.name == 'manipulator').visible = false
-                                setPreviewModel(preview)
-                                return*/
                                 mergedOperations.push(op)
                                 disabledOperations.push(op)
+                                // render image
+                                const renderModel = await renderPreperation(op, mergedModel.clone(), availableMaterials, LDRAW_LOADER)
+                                await render(renderModel, 150, 150).then(result => {
+                                    dataUrl.push(result.dataUrl)
+                                    console.log("Render")
+                                })
                                 break
                             }
                         }
@@ -249,93 +299,58 @@ export function ProductVersionMergeView() {
                     }
                     await op.redo(mergedModel, LDRAW_LOADER)
                     mergedOperations.push(op)
-                } else if (possibleConflicts.local.some(obj => obj.operationId == op.operationId)) {
-                    console.log("Splice", possibleConflicts.local,possibleConflicts.local.findIndex(obj => obj.operationId == op.operationId), "\n Operation causing splice\n", op, mergedOperations.filter(a => a.operationId == op.operationId))
-                    possibleConflicts.local.splice(possibleConflicts.local.findIndex(obj => obj.operationId == op.operationId),1)
+                    // render image
+                    const renderModel = await renderPreperation(op, mergedModel.clone(), availableMaterials, LDRAW_LOADER)
+                    await render(renderModel, 150, 150).then(result => {
+                        dataUrl.push(result.dataUrl)
+                        console.log("Render")
+                    })
+                } else {
+                    lastCommonOpID = op.operationId
+                    if (possibleConflicts.local.some(obj => obj.operationId == op.operationId)) {
+                        console.log("Splice", possibleConflicts.local,possibleConflicts.local.findIndex(obj => obj.operationId == op.operationId), "\n Operation causing splice\n", op, mergedOperations.filter(a => a.operationId == op.operationId))
+                        possibleConflicts.local.splice(possibleConflicts.local.findIndex(obj => obj.operationId == op.operationId),1)
+                    }
                 }
+            }
+            const commonIndex = mergedOperations.findIndex(op => op.operationId == lastCommonOpID)
+            console.log(lastCommonOpID, commonIndex, lastCommonAncestorIndex)
+            if (lastCommonAncestorIndex == undefined) {
+                lastCommonAncestorIndex = mergedOperations.length - 1
+            } else if(lastCommonAncestorIndex > commonIndex) {
+                lastCommonAncestorIndex = commonIndex
             }
             possibleConflicts.local = []
         }
         
-        // remove all selections
-        /*for (const child of mergedModel.children) {
-            child.traverse(object => {
-                if (object instanceof Mesh) {
-                    if (object.material instanceof MeshStandardMaterial) {
-                        if (object.material.emissive.r == 0.1) {
-                            object.material.emissive.setScalar(0)
-                        }
-                    }
-                }
-            })
-        }
-        // correct all selections and redo last selection
-        const correctedOperations = selectCleanup(mergedOperations)
-        for (let index = correctedOperations.length - 1; index >= 0; index--) {
-            if (correctedOperations[index].type == 'select') {
-                correctedOperations[index].redo(mergedModel,LDRAW_LOADER)
-                break
-            } else if (correctedOperations[index].type == 'delete') {
-                break
-            } else if (correctedOperations[index].type == 'insert') {
-                selectbyId(mergedModel,correctedOperations[index].getIds())
-                break
-            }
-        }*/
+        setBaseIndex(lastCommonAncestorIndex)
         updateSelection(mergedModel, mergedOperations[mergedOperations.length - 1].getIds())
         const manipulator = mergedModel.children.find(child => child.name == 'manipulator')
         manipulator.visible = false
-        setMergedOperations(mergedOperations)
+        //setMergedOperations(mergedOperations)
         setMergingIndex({i: operations.length, j: -1})
         setCurrentOperation(mergedOperations.length - 1)
+
+        setUpdate(update+1)
 
         //return mergedOperations
     }
 
-    async function onManualMerge() {
-        setConflictSolver(false)
-        console.log(conflictOperations)
-
-        if (decision == 'new') {
-            while (conflictOperations.inserted.length > 0) {
-                console.log("Manuall merge",conflictOperations, mergedOperations)
-                const removedOp = conflictOperations.inserted.pop()
-
-                removedOp.undo(mergedModel,LDRAW_LOADER)
-                mergedOperations.splice(mergedOperations.indexOf(removedOp), 1)
-
-                possibleConflicts.all.splice(possibleConflicts.all.indexOf(removedOp), 1)
-                possibleConflicts.local.splice(possibleConflicts.local.indexOf(removedOp), 1)
-            }
-            await conflictOperations.new.redo(mergedModel,LDRAW_LOADER)
-            mergedOperations.push(conflictOperations.new)
-            possibleConflicts.all.push(conflictOperations.new)
-        } else if (decision == 'both') {
-            await conflictOperations.new.redo(mergedModel, LDRAW_LOADER)
-            mergedOperations.push(conflictOperations.new)
-            possibleConflicts.all.push(conflictOperations.new)
-        } else if (decision == 'choose') {
-            for (let index = conflictOperations.inserted.length - 1; index > selectedOperation; index--) {
-                await conflictOperations.inserted[index].undo(mergedModel, LDRAW_LOADER)
-            }
-        }
-        mergingIndex.j++
-        setDecision('existing')
-        setStartMerger(!startMerging)
-    }
-
-    async function onMove(_event: React.MouseEvent,index: number, moveUp: boolean) {
-        //moveUp = true: move upwards, moveUp = false: move downwards
+    async function onMove(_event: React.MouseEvent,index: number, moveDwon: boolean) {
+        // moveDown = true: move downwards on UI, moveDown = false: move upwards on UI
         let operation: AbstractOperation = undefined
-        if (moveUp) {
+        setUpdate(update+1)
+
+        if (moveDwon) {
             try {
-                if(index == 0) {
+                if(index == 0 || index <= baseIndex + 1 || (!MOVE_INSIDE_VERSIONS && mergedOperations[index].versionId == mergedOperations[index - 1].versionId)) {
                     return
                 }
-                await undoUntil(mergedModel,mergedOperations, index - 1, disabledOperations)
+                //await undoUntil(mergedModel,mergedOperations, index - 1, disabledOperations)
+                mergedModel.remove(...mergedModel.children.filter(child => child.name.endsWith('.dat')))
                 operation = mergedOperations.splice(index, 1)[0]
                 mergedOperations.splice(index - 1, 0, operation)
-                await redoFrom(mergedModel, mergedOperations, index - 1, disabledOperations)
+                await redoFrom(mergedModel, index - 1)//, mergedOperations, 0, disabledOperations)
                 updateSelection(mergedModel, mergedOperations[index - 1].getIds())
                 setCurrentOperation(index-1)
             } catch (error) {
@@ -351,7 +366,7 @@ export function ProductVersionMergeView() {
                 }
                 const newModel = basicScene.clone()
                 console.log("Rotation: ", newModel.rotation.x)
-                await redoFrom(newModel, mergedOperations, 0, disabledOperations)
+                await redoFrom(newModel, index - 1)//, mergedOperations, 0, disabledOperations)
                 const manipulator = newModel.children.find(child => child.name == 'manipulator')
                 manipulator.visible = false
                 console.log(newModel, newModel.rotation.x)
@@ -361,14 +376,15 @@ export function ProductVersionMergeView() {
             }
             
         } else {
-            if(index ==  mergedOperations.length - 1) {
+            if(index ==  mergedOperations.length - 1 || (!MOVE_INSIDE_VERSIONS && mergedOperations[index].versionId == mergedOperations[index + 1].versionId)) {
                 return
             }
             try {
-                await undoUntil(mergedModel, mergedOperations, index, disabledOperations)
+                //await undoUntil(mergedModel, mergedOperations, index, disabledOperations)
+                mergedModel.remove(...mergedModel.children.filter(child => child.name.endsWith('.dat')))
                 operation = mergedOperations.splice(index, 1)[0]
                 mergedOperations.splice(index + 1, 0, operation)
-                await redoFrom(mergedModel, mergedOperations, index, disabledOperations)
+                await redoFrom(mergedModel, index)//, mergedOperations, 0, disabledOperations)
                 updateSelection(mergedModel, mergedOperations[index + 1].getIds())
                 setCurrentOperation(index+1)
             } catch (error) {
@@ -384,7 +400,7 @@ export function ProductVersionMergeView() {
                 }
                 const newModel = basicScene.clone()
                 console.log("Rotation: ", newModel.rotation.x)
-                await redoFrom(newModel, mergedOperations, 0, disabledOperations)
+                await redoFrom(newModel, index)//, mergedOperations, 0, disabledOperations)
                 const manipulator = newModel.children.find(child => child.name == 'manipulator')
                 manipulator.visible = false
                 console.log(newModel, newModel.rotation.x)
@@ -399,16 +415,17 @@ export function ProductVersionMergeView() {
     }
 
     async function onToggleOperation(enable: boolean, operation: AbstractOperation, index: number) {
+        setUpdate(update+1)
+
         if (enable) {
             try {
-                await undoUntil(mergedModel, mergedOperations, index, disabledOperations)
-                //disabledOperations.splice(disabledOperations.findIndex(op => op == operation))
+                mergedModel.remove(...mergedModel.children.filter(child => child.name.endsWith('.dat')))
                 const newDisabledList = disabledOperations.filter(op => op != operation)
-                await redoFrom(mergedModel, mergedOperations, index, newDisabledList)
+                await redoFrom(mergedModel, index, newDisabledList)//, mergedOperations, 0, newDisabledList)
                 setDisabledOperations(newDisabledList)
             } catch (error) {
                 const newModel = basicScene.clone()
-                await redoFrom(newModel, mergedOperations, 0, disabledOperations)
+                await redoFrom(newModel, index)//, mergedOperations, 0, disabledOperations)
                 const manipulator = newModel.children.find(obj => obj.name == 'manipulator')
                 manipulator.visible = false
                 updateSelection(newModel, operation.getIds())
@@ -417,15 +434,14 @@ export function ProductVersionMergeView() {
             }
         } else {
             try {
-                await undoUntil(mergedModel, mergedOperations, index, disabledOperations)
-                //disabledOperations.splice(disabledOperations.findIndex(op => op == operation))
+                mergedModel.remove(...mergedModel.children.filter(child => child.name.endsWith('.dat')))
                 const newDisabledList = disabledOperations.slice()
                 newDisabledList.push(operation)
-                await redoFrom(mergedModel, mergedOperations, index, newDisabledList)
+                await redoFrom(mergedModel, index, newDisabledList)//, mergedOperations, 0, newDisabledList)
                 setDisabledOperations(newDisabledList)
             } catch (error) {
                 const newModel = basicScene.clone()
-                await redoFrom(newModel, mergedOperations, 0, disabledOperations)
+                await redoFrom(newModel, index)//, mergedOperations, 0, disabledOperations)
                 const manipulator = newModel.children.find(obj => obj.name == 'manipulator')
                 manipulator.visible = false
                 setMergedModel(newModel)
@@ -441,6 +457,24 @@ export function ProductVersionMergeView() {
         if (index != currentOperation) {
             updateSelection(mergedModel, ids)
             setCurrentOperation(index)
+        }
+    }
+
+    async function redoFrom(model:Group, firstRenderIndex = 0, disabledList: AbstractOperation[] = disabledOperations) {
+        console.log(disabledList, model)
+        for (let i = 0; i < mergedOperations.length; i++) {
+            if (!disabledList.includes(mergedOperations[i])) {
+                console.log(mergedOperations[i].type, mergedOperations[i], model, disabledList)
+                await mergedOperations[i].redo(model,LDRAW_LOADER)
+            }
+            if (firstRenderIndex <= i) {
+                const renderModel = await renderPreperation(mergedOperations[i],model.clone(), availableMaterials, LDRAW_LOADER)
+                render(renderModel, 150, 150).then(result => {
+                    dataUrl[i] = result.dataUrl
+                    //dataUrl.push(result.dataUrl)
+                    i == mergedOperations.length-1 && setRenderToggle(!renderToggle)
+                })
+            }
         }
     }
 
@@ -488,7 +522,8 @@ export function ProductVersionMergeView() {
         })
 
         const ldrawDelta: AbstractOperation[] = [] // = selectCleanup
-        const cleanUpOperation = selectCleanup(mergedOperations, contextUser.userId, String(major + "." + minor + "." + patch))
+        const cleanUpOperation = selectCleanup(correctColorChanges(mergedOperations), contextUser.userId, String(major + "." + minor + "." + patch))
+        console.log("Correction result", cleanUpOperation)
         for (const op of cleanUpOperation) {
             if (op.versionId == null) {
                 op.versionId = String(major + "." + minor + "." + patch)
@@ -531,55 +566,54 @@ export function ProductVersionMergeView() {
                     </a>
                 </div>
                 <div className='main'>
-                    MergedModels:
-                    <ul>
-                        {mergedModel.children.map((object, i) => {
-                            if (object.userData['id']) {
-                                const Data: string = object.userData['id'] + " part: " + object.name + " position: " + object.position.x + " " + object.position.y + " " + object.position.z + " rotation: " + object.rotation.y
-                                return <li key={i}>{Data}</li>
-                            } else {return  undefined}
-                        })}
-                    </ul>
-                    MergedDeltas:
+                    <strong>Operations merging</strong>
                     <ol className='mergedOperations'>
                         {mergedOperations.map((op, i) => {
                             return <li key={i} className={(currentOperation==i ? 'selected' : '') + (disabledOperations.includes(op) ? ' disabled' : '')} onClick={() => onClick(i, op.getIds())}>
-                                {"OperationType:" + op.type + " uuid: " + op.operationId}
-                                {currentOperation == i && (
-                                    <div className='buttons'>
-                                        <button onClick={event => onMove(event, i,true)}>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <polyline points="18 15 12 9 6 15"></polyline>
-                                            </svg>
-                                        </button>
-                                        <button onClick={event => onMove(event, i, false)}>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <polyline points="6 9 12 15 18 9"></polyline>
-                                            </svg>
-                                        </button>
-                                        <button onClick={() => onToggleOperation(disabledOperations.includes(op), op, i)}>
-                                            {disabledOperations.includes(op) ? (
-                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M1 12C2.73 16.11 7 20 12 20C17 20 21.27 16.11 23 12C21.27 7.89 17 4 12 4C7 4 2.73 7.89 1 12Z"/>
-                                                    <circle cx="12" cy="12" r="3"/>
-                                                </svg> 
-                                            ) : (
-                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M1 12C2.73 16.11 7 20 12 20C17 20 21.27 16.11 23 12C21.27 7.89 17 4 12 4C7 4 2.73 7.89 1 12Z"/>
-                                                    <circle cx="12" cy="12" r="3"/>
-                                                    <line x1="1" y1="1" x2="23" y2="23"/>
-                                                </svg>                                      
-                                            )}
-                                        </button>
-                                    </div>
-                                )}
+                                <div className='item'>
+                                    <span>{op.type}</span> 
+                                    {dataUrl[i] ? <img className='preview image' src={dataUrl[i]}/> : "Version: " + op.versionId + " (id: " + op.operationId + ")"}
+                                    {currentOperation == i && i > baseIndex && (
+                                        <div className='buttons'>
+                                            <button onClick={event => onMove(event, i,false)}>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                                </svg>
+                                            </button>
+                                            <button onClick={event => onMove(event, i, true)}>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                                </svg>
+                                            </button>
+                                            <button onClick={() => onToggleOperation(disabledOperations.includes(op), op, i)}>
+                                                {disabledOperations.includes(op) ? (
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M1 12C2.73 16.11 7 20 12 20C17 20 21.27 16.11 23 12C21.27 7.89 17 4 12 4C7 4 2.73 7.89 1 12Z"/>
+                                                        <circle cx="12" cy="12" r="3"/>
+                                                    </svg> 
+                                                ) : (
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M1 12C2.73 16.11 7 20 12 20C17 20 21.27 16.11 23 12C21.27 7.89 17 4 12 4C7 4 2.73 7.89 1 12Z"/>
+                                                        <circle cx="12" cy="12" r="3"/>
+                                                        <line x1="1" y1="1" x2="23" y2="23"/>
+                                                    </svg>                                      
+                                                )}
+                                            </button>
+                                        </div>
+                                    )}
+                                    {i <= baseIndex && (
+                                        <div className='buttons' style={{marginLeft: '1em'}}>
+                                            Unchangeable base operation
+                                        </div>
+                                    )}
+                                </div>
                             </li>
                         })}
                     </ol>
                 </div>
             </div>
-            <div>
-                <ModelView3D model={mergedModel}/>
+            <div className='preview'>
+                <ModelView3D model={mergedModel} update={update}/>
             </div>
             {save && (
                 <div className='save'>
@@ -601,47 +635,6 @@ export function ProductVersionMergeView() {
                             </button>
                             <button className='button stroke green' onClick={() => setSave(false)}>
                                 Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {conflictSolver && (
-                <div className='ConflictSolver'>
-                    <div className='form'>
-                        <div className='text'>
-                            <p>A merge conflict occured.</p>
-                            <p>Choose how the result should look like</p>
-                        </div>
-                        <div className='decision'>
-                            <input type='radio' name='decision' value='existing' checked={decision == 'existing'} onChange={event => setDecision(event.currentTarget.value)}/>
-                            <span>existing</span>
-                            <input type='radio' name='decision' value='new' checked={decision == 'new'} onChange={event => setDecision(event.currentTarget.value)}/>
-                            <span>new</span>
-                            <input type='radio' name='decision' value='both' checked={decision == 'both'} onChange={event => setDecision(event.currentTarget.value)}/>
-                            <span>both</span>
-                            {/*<input type='radio' name='decision' value='choose' checked={decision == 'choose'} onChange={event => setDecision(event.currentTarget.value)}/>
-                            <span>choose operation</span>*/}
-                        </div>
-                        { decision == 'choose' && (
-                            <div className='operation selection'>
-                                Choose which operation should be the last before the new operation:
-                                <ol>
-                                    {conflictOperations.inserted.map((op, i) => {
-                                        return <li key={i} className={selectedOperation==i ? 'selected' : ''} onClick={() => setSelectedOperation(i)}>{op.type}</li>
-                                    })}
-                                </ol>
-                            </div>
-                        )}
-                        <div className='previewModel'>
-                            <ModelView3D model={previewModel}/>
-                        </div>
-                        <div className='action'>
-                            <button className='button fill green' onClick={onManualMerge}>
-                                Save
-                            </button>
-                            <button className='button stroke green' onClick={goBack}>
-                                Abbort
                             </button>
                         </div>
                     </div>

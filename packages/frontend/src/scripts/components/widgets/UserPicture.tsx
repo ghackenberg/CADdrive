@@ -6,9 +6,6 @@ import PixelIcon from '/src/images/pixel.png'
 import UserIcon from '/src/images/user.png'
 
 export const UserPictureWidget = (props: { userId: string, background?: string, class?: string }) => {
-    //TODO use useUser hook
-    //const loadedUser = useUser(typeof props.user == 'string' ? props.user : null)
-    //const user = typeof props.user == 'string' ? loadedUser : props.user as UserRead
     const user = useUser(props.userId)
 
     const src = user && !user.deleted ? UserIcon : PixelIcon

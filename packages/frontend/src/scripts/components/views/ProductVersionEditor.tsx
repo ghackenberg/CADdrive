@@ -3,9 +3,9 @@ import { useContext } from 'react'
 import { useParams } from 'react-router'
 
 import shortid from 'shortid'
-import { Box3, Group, Mesh, Object3D, Vector3, Material, LineSegments, MeshStandardMaterial, LineBasicMaterial, Intersection, Event, BoxHelper, Euler, GridHelper, BoxGeometry } from 'three'
+import { Box3, Group, Mesh, Object3D, Vector3, Material, LineSegments, MeshStandardMaterial, LineBasicMaterial, Intersection, Event, BoxHelper, Euler, GridHelper } from 'three'
 
-import { CustomLDrawModel, parseCustomLDrawDelta, parseCustomLDrawModel, AbstractOperation, InsertOperation, SelectOperation, DeleteOperation, MoveOperation, RotateOperation, ColorOperation, updateGrid as updateGrid, updateBox, updateHelper, selectbyId } from 'productboard-ldraw'
+import { CustomLDrawModel, parseCustomLDrawDelta, parseCustomLDrawModel, AbstractOperation, InsertOperation, SelectOperation, DeleteOperation, MoveOperation, RotateOperation, ColorOperation, updateGrid as updateGrid, updateBox, updateHelper, selectbyId, renderPreperation } from 'productboard-ldraw'
 
 import { LoadingView } from './Loading'
 import { FileClient } from '../../clients/rest/file'
@@ -47,9 +47,6 @@ const BLOCKS:{group: string, items: string[]}[] = [
 const GRIDLOCK = new Vector3(20, 8, 20)
 
 const OPERATIONICONS: {[key: string]: "*.png"} = {'insert': PlusIcon, 'delete': MinusIcon, 'color change': ColorChangeIcon, 'move': MoveIcon, 'rotate': RotateIcon}
-
-// TODO find better buttons at uxwing
-//      Modify user widget with useuser hook so that it can load the image from the id
 
 export const ProductVersionEditorView = () => {
 
@@ -132,7 +129,7 @@ export const ProductVersionEditorView = () => {
         return () => { exec = false }
     }, [])
 
-    // Check if version refers to plain LDraw model, else go back
+    // Check if version refers to plain or CADdrive LDraw model, else go back
     React.useEffect(() => {
         if (version && version.modelType != 'ldr' && version.modelType != 'ldraw-model') {
             goBack()
@@ -185,15 +182,6 @@ export const ProductVersionEditorView = () => {
                         const ops = await parseCustomLDrawDelta(deltatext)
                         console.log(ops)
 
-                        /*const screenshotModel = model.clone()
-                        screenshotModel.remove(...screenshotModel.children.filter(child => child.name.endsWith('.dat')))
-                        for (const operation of ops) {
-                            await operation.redo(screenshotModel, LDRAW_LOADER)
-                            const renderModel = await renderPreperation(operation, screenshotModel.clone())
-                            await render(renderModel,150,150).then(result => {
-                                dataUrl.push(result.dataUrl)
-                            })
-                        }*/
                         setOperations(ops)
                         setOperationIndex(ops.length-1)
                         
@@ -234,11 +222,6 @@ export const ProductVersionEditorView = () => {
                                 }
                             }
                         })
-                        
-                        /*const select = ops.reverse().find(op => op.type == 'select') as SelectOperation
-                        console.log(select)
-                        selectionParts.push(...model.children.filter(child => select.after.includes(child.userData['id'])))
-                        selectionPart = selectionParts[0]*/
                     }
                     process()
                 }
@@ -295,7 +278,7 @@ export const ProductVersionEditorView = () => {
                 //screenshotModel.remove(...screenshotModel.children.filter(child => child.name.endsWith('.dat')))
                 for (const operation of operations) {
                     await operation.redo(screenshotModel, LDRAW_LOADER)
-                    const renderModel = await renderPreperation(operation, screenshotModel.clone())
+                    const renderModel = await renderPreperation(operation, screenshotModel.clone(), availableMaterials, LDRAW_LOADER)
                     await render(renderModel,150,150).then(result => {
                         urls.push(result.dataUrl)
                     })
@@ -900,7 +883,6 @@ export const ProductVersionEditorView = () => {
                 setOperationIndex(index)
                 updateStates()
             }
-            //operationIndex != undefined ? setOperationIndex(operationIndex-1) : setOperationIndex(-1)
         } else {
             if (operationIndex != undefined && operationIndex < operations.length - 1) {
                 await operations[operationIndex + 1].redo(model, LDRAW_LOADER)
@@ -911,11 +893,7 @@ export const ProductVersionEditorView = () => {
                 }
                 setOperationIndex(index)
                 updateStates()
-                //setOperationIndex(operationIndex+1)
-            } /*else {
-                setOperationIndex(0)
-                console.log("ERROR")
-            }*/
+            }
         }
     }
 
@@ -960,7 +938,7 @@ export const ProductVersionEditorView = () => {
         }
         //console.log("rendering operations",newOperations)
         for (const ops of newOperations) {
-            const renderModel = await renderPreperation(ops)
+            const renderModel = await renderPreperation(ops, model.clone(), availableMaterials, LDRAW_LOADER)
             await render(renderModel, 150, 150).then(result => {
                 dataUrl.push(result.dataUrl)
             }) 
@@ -1057,37 +1035,6 @@ export const ProductVersionEditorView = () => {
         }
 
         const data = { baseVersionIds, major, minor, patch, description }
-
-        /*
-        let ldrawModel = ''
-
-        for (const child of model.children) {
-            if (child.name && child.name.endsWith('.dat')) {
-                const color = getObjectMaterialCode(child)
-
-                const x = child.position.x
-                const y = child.position.y
-                const z = child.position.z
-
-                const a = child.matrix.elements[0]
-                const b = child.matrix.elements[1]
-                const c = -child.matrix.elements[2]
-                const d = child.matrix.elements[4]
-                const e = child.matrix.elements[5]
-                const f = child.matrix.elements[6]
-                const g = -child.matrix.elements[8]
-                const h = child.matrix.elements[9]
-                const i = child.matrix.elements[10]
-
-                const file = child.name
-
-                ldrawModel += `0 ID ${child.userData['id']}\n`
-                ldrawModel += `1 ${color} ${x} ${y} ${z} ${a} ${b} ${c} ${d} ${e} ${f} ${g} ${h} ${i} ${file}\n`
-            }
-        }
-
-        //console.log(ldraw)
-        */
 
         const ldrawModel: CustomLDrawModel = model.children.filter(child => child.name && child.name.endsWith('.dat')).map(child => {
             return {
@@ -1241,62 +1188,6 @@ export const ProductVersionEditorView = () => {
         didDelete && addOperations([new DeleteOperation(shortid(), contextUser.userId, null, Date.now(), id, partName, color, position, rotation)])
     }
 
-    async function renderPreperation(currentOperation: AbstractOperation = operations[operations.length - 1],renderModel: Group = model.clone()) {
-        renderModel.remove(...renderModel.children.filter(child => !child.name.endsWith('.dat')))
-        
-        //console.log("Render Preperations", currentOperation)
-        let brickMaterial: Material
-        const transparentMaterial = availableMaterials.find(mat => mat.name == ' Trans_Clear')
-        const coloredParts = currentOperation.getIds()
-        if (currentOperation instanceof InsertOperation) {
-            // color new parts green
-            brickMaterial = availableMaterials.find(mat => mat.name == ' Green')
-        } else if (currentOperation instanceof DeleteOperation) {
-            // undo operation and color those parts red
-            brickMaterial = availableMaterials.find(mat => mat.name == ' Red')
-
-            const box = new BoxHelper(new Mesh(new BoxGeometry()))
-            box.name = 'box'
-            renderModel.add(box)
-
-            //console.log("model", renderModel)
-            await currentOperation.undo(renderModel, LDRAW_LOADER)
-            renderModel.remove(...renderModel.children.filter(child => !child.name.endsWith('.dat')))
-        } else if (currentOperation instanceof SelectOperation) {
-            brickMaterial = availableMaterials.find(mat => mat.name == ' Yellow')
-        } else {
-            // color affected parts blue
-            brickMaterial = availableMaterials.find(mat => mat.name == ' Blue')
-        }
-        for (const child of renderModel.children) {
-            const isColorPart = coloredParts.includes(child.userData['id'])
-            child.traverse(object => {
-                if (object instanceof Mesh) {
-                    if (object.material instanceof MeshStandardMaterial) {
-                        if (isColorPart) {
-                            object.material = brickMaterial
-                        } else {
-                            object.material = transparentMaterial.clone()
-                            object.material.emissive.setScalar(0.1)
-                        }               
-                    } else {
-                        throw 'Material type not supported'
-                    }
-                } else if (object instanceof LineSegments) {
-                    if (object.material instanceof LineBasicMaterial) {
-                        if (isColorPart) {
-                            object.material = brickMaterial.userData.edgeMaterial
-                        } else {
-                            object.material = transparentMaterial.userData.edgeMaterial
-                        }
-                       
-                    }
-                }
-            })
-        }
-        return renderModel
-    }
-
     function jumpGrid(up: boolean) {
         // up = true: move on top up = false: move to the lowest part
         let usedPart: Object3D
@@ -1335,10 +1226,6 @@ export const ProductVersionEditorView = () => {
         setGridHeight(-height/GRIDLOCK.y - (dimensions.y-4)/GRIDLOCK.y)
     }
 
-    //console.log(operations, operationIndex,  model)
-    //console.log(operations.length,dataUrl ? dataUrl.length : 'undef', operations)
-    //console.log(model && manipulator, model && model.clone().children.filter(obj => (obj.name == manipulator.name || obj.name == box.name)))
-
     return (
         versionId == 'new' || (version && (version.modelType == 'ldr' || version.modelType == 'ldraw-model')) ? (
             <main className={`view product-version-editor`}>
@@ -1361,31 +1248,10 @@ export const ProductVersionEditorView = () => {
                         <button className='button fill red' title='Abbort editing and leave editor without saving' onClick={() => goBack()}>
                             <img src={AbbortIcon}/>
                         </button>
-                        <button className='button fill gray' title='Undo current operation' onClick={() => {
-                            /*if (operationIndex != -1 && operationIndex != undefined) {
-                                operations[operationIndex].undo(model, LDRAW_LOADER).then(()=>{
-                                    updateOperations(true)
-                                    updateStates()
-                                })
-                            }*/
-                            updateOperations(true)
-                        }}>
+                        <button className='button fill gray' title='Undo current operation' onClick={() => updateOperations(true)}>
                             <img src={BackIcon}/>
                         </button>
-                        <button className='button fill gray' title='Redo following operation (if possible)' onClick={() => {
-                            /*if (operations.length > 0 && operationIndex == -1) {
-                                operations[0].redo(model, LDRAW_LOADER).then(()=>{
-                                    updateOperations(false)
-                                    updateStates() 
-                                })
-                            } else if (operations.length - 1 > operationIndex) {
-                                operations[operationIndex+1].redo(model, LDRAW_LOADER).then(()=>{
-                                    updateOperations(false)
-                                    updateStates()
-                                })  
-                            }*/
-                            updateOperations(false)
-                        }}>
+                        <button className='button fill gray' title='Redo following operation (if possible)' onClick={() => updateOperations(false)}>
                             <img src={BackIcon} style={{transform:'rotate(180deg)'}}/>
                         </button>
                         <button className='button fill blue' onClick={() => {
@@ -1397,26 +1263,11 @@ export const ProductVersionEditorView = () => {
                         <button className='button fill red' title='Delete selected Parts' onClick={deleteParts}>
                             <img src={DeleteIcon}/>
                         </button>
-                        {/*<label>
-                            Insertion height:
-                            <input type='number' value={gridHeight} min={-99} max={99} onChange={event => {
-                                const number = Number(event.currentTarget.value)
-                                if(number > -100 && number < 100) {
-                                    setGridHeight(number)
-                                }
-                            }}/>
-                        </label>*/}
                         <span>Insertion level:</span>
-                        <button className='button fill white' title='Move grid upwards' onClick={() => {
-                            setGridHeight(gridHeight + 1)
-                            //updateGridHeight(model, gridHeight + 1)
-                        }}>
+                        <button className='button fill white' title='Move grid upwards' onClick={() => setGridHeight(gridHeight + 1)}>
                             <img src={BackIcon} style={{transform:'rotate(90deg)'}}/>
                         </button>
-                        <button className='button fill white' title='Move grid downwards' onClick={() => {
-                            setGridHeight(gridHeight - 1)
-                            //updateGridHeight(model, gridHeight - 1)
-                        }}>
+                        <button className='button fill white' title='Move grid downwards' onClick={() => setGridHeight(gridHeight - 1)}>
                             <img src={BackIcon} style={{transform:'rotate(-90deg)'}}/>
                         </button>
                         <button className='button fill white' title='Move grid to the highest located brick of selected parts or model' onClick={() => jumpGrid(true)}>
@@ -1441,12 +1292,6 @@ export const ProductVersionEditorView = () => {
                                     ))}
                                 </div>
                             ))}
-                            {/*<div className='brick'>
-                                <span className='title'>Brick</span>
-                                {BLOCKS.map(block => (
-                                <img key={block} src={`/rest/parts/${block}.png`} className={selection && selection.part && selection.part.name.split('.')[0] == block ? 'selected' : ''} onDragStart={event => onNewPartDragStart(event, `${block}.dat`)}/>
-                            ))}
-                            </div>*/}
                         </div>
                     </div>
                     <div className="colors" onWheel={e => {e.currentTarget.scrollLeft += e.deltaY}}>

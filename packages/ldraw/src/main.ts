@@ -1,5 +1,5 @@
 import shortid from 'shortid'
-import { Box3, BoxGeometry, BoxHelper, Euler, EulerOrder, GridHelper, Group, Mesh, MeshStandardMaterial, Object3D, Vector3 } from 'three'
+import { Box3, BoxGeometry, BoxHelper, Euler, EulerOrder, GridHelper, Group, LineBasicMaterial, LineSegments, Material, Mesh, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { LDrawLoader } from 'three/examples/jsm/loaders/LDrawLoader'
 
 import { CustomLDrawModel } from './custom'
@@ -146,6 +146,60 @@ export function selectCleanup(operationlist: AbstractOperation[], userId: string
         result.push(operation)
     }
     return result
+}
+
+export async function renderPreperation(currentOperation: AbstractOperation, renderModel: Group, availableMaterials: Material[], LDRAW_LOADER: LDrawLoader) {
+    renderModel.remove(...renderModel.children.filter(child => !child.name.endsWith('.dat')))
+    
+    //console.log("Render Preperations", currentOperation)
+    let brickMaterial: Material
+    const transparentMaterial = availableMaterials.find(mat => mat.name == ' Trans_Clear')
+    const coloredParts = currentOperation.getIds()
+    if (currentOperation instanceof InsertOperation) {
+        // color new parts green
+        brickMaterial = availableMaterials.find(mat => mat.name == ' Green')
+    } else if (currentOperation instanceof DeleteOperation) {
+        // undo operation and color those parts red
+        brickMaterial = availableMaterials.find(mat => mat.name == ' Red')
+
+        const box = new BoxHelper(new Mesh(new BoxGeometry()))
+        box.name = 'box'
+        renderModel.add(box)
+
+        //console.log("model", renderModel)
+        await currentOperation.undo(renderModel, LDRAW_LOADER)
+        renderModel.remove(...renderModel.children.filter(child => !child.name.endsWith('.dat')))
+    } else {
+        // color affected parts blue
+        brickMaterial = availableMaterials.find(mat => mat.name == ' Blue')
+    }
+    for (const child of renderModel.children) {
+        const isColorPart = coloredParts.includes(child.userData['id'])
+        child.traverse(object => {
+            if (object instanceof Mesh) {
+                if (object.material instanceof MeshStandardMaterial) {
+                    if (isColorPart) {
+                        object.material = brickMaterial
+                    } else {
+                        object.material = transparentMaterial.clone()
+                        object.material.emissive.setScalar(0.1)
+                    }               
+                } else {
+                    throw 'Material type not supported'
+                }
+            } else if (object instanceof LineSegments) {
+                if (object.material instanceof LineBasicMaterial) {
+                    if (isColorPart) {
+                        object.material = brickMaterial.userData.edgeMaterial
+                    } else {
+                        object.material = transparentMaterial.userData.edgeMaterial
+                    }
+                    
+                }
+            }
+        })
+    }
+    return renderModel
 }
 
 export async function parseCustomLDrawModel(LDRAW_LOADER: LDrawLoader, MATERIAL_LOADING: Promise<void>, data: string): Promise<Group> {

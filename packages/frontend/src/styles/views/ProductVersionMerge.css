@@ -1,24 +1,83 @@
-main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations{
-    list-style-position: inside;
+main.view.product-version.sidebar div.preview {
+    display: block;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 50%;
+    /*width: 35em !important;*/
+    /*width: 40em;*/
 }
-main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li{
+
+main.view.product-version.sidebar div.mergeData {
+    /*list-style-position: inside;*/
+    position: absolute;
+    top: 0;
+    left: 0;
+    /*right: 50%;*/
+    bottom: 0;
+
+    width: 50%;
+
+    background-color: white;
+}
+
+main.view.product-version.sidebar div.mergeData div.main strong {
+    position: relative;
+    left: 30%;
+}
+
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations {
+    position: absolute;
+    top: 5em;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    display: flex;
+    flex-direction: column-reverse;
+
+    padding-right: 0.5em;
+
+    overflow: scroll;
+}
+
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li div.item {
     display: grid;
 
-    grid-template-columns: 25em auto;
+    min-height: 2em;
+
+    grid-template-columns: minmax(4em, 20%) minmax(6em, 50%) minmax(5em, 30%);
 
     align-items: center;
 
-    margin: 1em 0;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+
+    /*margin: 0.5em 0;*/
 }
-main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li.selected{
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li.selected {
     background-color: lightblue;
 }
-main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li.disabled{
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li.disabled {
     color: gray;
 }
-main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li button{
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li img.preview.image {
+    height: 10em;
+    width: 10em;
+}
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li div.button {
+    width: 100%;
+}
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li button {
     margin-left: 1em;
 }
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li button svg{
+    height: 1.5em;
+    width: 1.5em;
+}
+
 main.view.product-version.sidebar div.save {
     position: absolute;
 
@@ -67,6 +126,7 @@ main.view.product-version.sidebar div.save div.form div.action {
 
     justify-content: center;
 }
+
 main.view.product-version.sidebar div.ConflictSolver {
     position: absolute;
 

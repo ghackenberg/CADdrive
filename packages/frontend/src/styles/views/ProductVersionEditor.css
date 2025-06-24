@@ -93,21 +93,18 @@ main.view.product-version-editor div.buttons {
 
     z-index: 2;
 }
-
 main.view.product-version-editor div.buttons button {
     padding: 0em;
 }
 main.view.product-version-editor div.buttons button:not(.button.fill.white) img {
     filter: brightness(0) invert(1);
 }
-
 main.view.product-version-editor div.buttons img {
     display: block;
     height: 2em;
     width: 2em;
     padding: 0.5em
 }
-
 main.view.product-version-editor div.buttons label input {
     width: 3em;
 }
@@ -136,7 +133,6 @@ main.view.product-version-editor div.History div.history.tabs {
     display: flex;
     align-items: center;
 }
-
 main.view.product-version-editor div.History div.history.tabs a {
     display: table;
 
@@ -147,11 +143,9 @@ main.view.product-version-editor div.History div.history.tabs a {
 
     text-align: center;
 }
-
 main.view.product-version-editor div.History div.history.tabs a.selected {
     background-color: lightblue;
 }
-
 main.view.product-version-editor div.History div.history.tabs a span {
     color: black;
 }
@@ -176,24 +170,24 @@ main.view.product-version-editor div.History ul.OperationList {
 
     margin: 0;
 }
-
 main.view.product-version-editor div.History ul.OperationList li {
     cursor: pointer;
+    margin-top: 2px;
+    margin-bottom: 2px;
 }
-
 main.view.product-version-editor div.History ul.OperationList li.Version.Element {
     display: flex;
     justify-content: center;
 }
-
-main.view.product-version-editor div.History ul.OperationList li.selected {
-    background-color: lightblue;
+main.view.product-version-editor div.History ul.OperationList li.selected img{
+    background: lightblue;
 }
-
-main.view.product-version-editor div.History ul.OperationList li:is(.selected, :hover) img {
+main.view.product-version-editor div.History ul.OperationList li:not(.selected):hover img{
+    background: rgb(230, 230, 230);
+}
+/*main.view.product-version-editor div.History ul.OperationList li:is(.selected, :hover) img {
     background: none;
-}
-
+}*/
 main.view.product-version-editor div.History ul.OperationList li div {
     position: relative;
 
@@ -202,7 +196,6 @@ main.view.product-version-editor div.History ul.OperationList li div {
     width: 10em;
     height: 10em;
 }
-
 main.view.product-version-editor div.History ul.OperationList li img {
     width: 10em;
 
@@ -210,7 +203,6 @@ main.view.product-version-editor div.History ul.OperationList li img {
     border-radius: 1em;
     display: block;
 }
-
 main.view.product-version-editor div.History ul.OperationList li img.operation.icon {
     position: relative;
 
@@ -223,7 +215,6 @@ main.view.product-version-editor div.History ul.OperationList li img.operation.i
 
     background: none;
 }
-
 main.view.product-version-editor div.History ul.OperationList li img.user.picture {
     position: relative;
 
@@ -280,7 +271,6 @@ main.view.product-version-editor div.palette div.palette.tabs {
     display: flex;
     align-items: center;
 }
-
 main.view.product-version-editor div.palette div.palette.tabs a {
     display: table;
 
@@ -291,7 +281,6 @@ main.view.product-version-editor div.palette div.palette.tabs a {
 
     padding: 1em;
 }
-
 main.view.product-version-editor div.palette div.palette.tabs a span {
     color: black;
 }
@@ -310,16 +299,14 @@ main.view.product-version-editor div.palette div.parts {
 
     overflow: scroll;
 }
-
-main.view.product-version-editor div.parts div {
+main.view.product-version-editor div.palette div.parts div {
     display: flex;
 
     flex-wrap: wrap;
 
     overflow: auto
 }
-
-main.view.product-version-editor div.parts div img {
+main.view.product-version-editor div.palette div.parts div img {
     display: block;
     
     margin: 2px;
@@ -328,19 +315,17 @@ main.view.product-version-editor div.parts div img {
 
     width: calc((100% / 3) - 4px);
 }
-
-main.view.product-version-editor div.parts div span {
+main.view.product-version-editor div.palette div.parts div span {
     display: block;
     text-align: center;
     width: 100%;
 }
-
-main.view.product-version-editor div.parts img.selected {
+main.view.product-version-editor div.palette div.parts img.selected {
     background-color: lightblue;
 }
+main.view.product-version-editor div.palette div.parts img:not(.selected):hover {
+    background-color: rgb(230, 230, 230);
 
-main.view.product-version-editor div.parts img:not(.selected):hover {
-    background-color: white;
 }
 
 main.view.product-version-editor div.colors {
@@ -362,7 +347,6 @@ main.view.product-version-editor div.colors {
 
     z-index: 2;
 }
-
 main.view.product-version-editor div.colors a {
     display: block;
 
@@ -373,7 +357,6 @@ main.view.product-version-editor div.colors a {
 
     box-sizing: border-box;
 }
-
 main.view.product-version-editor div.colors a.selected {
     border: 0.1em solid white;
 }

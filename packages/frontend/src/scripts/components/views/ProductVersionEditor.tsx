@@ -5,6 +5,7 @@ import { useParams } from 'react-router'
 import shortid from 'shortid'
 import { Box3, Group, Mesh, Object3D, Vector3, Material, LineSegments, MeshStandardMaterial, LineBasicMaterial, Intersection, Event, BoxHelper, Euler, GridHelper } from 'three'
 
+import { VersionRead } from 'productboard-common'
 import { CustomLDrawModel, parseCustomLDrawDelta, parseCustomLDrawModel, AbstractOperation, InsertOperation, SelectOperation, DeleteOperation, MoveOperation, RotateOperation, ColorOperation, updateGrid as updateGrid, updateBox, updateHelper, selectbyId, renderPreperation } from 'productboard-ldraw'
 
 import { LoadingView } from './Loading'
@@ -14,6 +15,7 @@ import { UserContext } from '../../contexts/User'
 import { VersionContext } from '../../contexts/Version'
 import { COLOR_S, COLOR_X, COLOR_Y, COLOR_Z, createScene } from '../../functions/editor'
 import { render } from '../../functions/render'
+import { computeColor } from '../../functions/tree'
 import { useVersion } from '../../hooks/entity'
 import { useAsyncHistory } from '../../hooks/history'
 import { useVersions } from '../../hooks/list'
@@ -48,6 +50,14 @@ const GRIDLOCK = new Vector3(20, 8, 20)
 
 const OPERATIONICONS: {[key: string]: "*.png"} = {'insert': PlusIcon, 'delete': MinusIcon, 'color change': ColorChangeIcon, 'move': MoveIcon, 'rotate': RotateIcon}
 
+function getVersionHSL(versionId: string, color:{[versionId: string]: number}, versions: VersionRead[]) {
+    if (versionId == null) {
+        return 'black'
+    }
+    const hue = color[versions.find(version => version.major == Number(versionId.split('.')[0]) && version.minor == Number(versionId.split('.')[1]) && version.patch == Number(versionId.split('.')[2])).versionId]
+    return `hsl(${hue}, ${50}%, ${50}%)`
+}
+
 export const ProductVersionEditorView = () => {
 
     // HISTORY
@@ -72,6 +82,9 @@ export const ProductVersionEditorView = () => {
 
     const viewRef = React.createRef<ModelView3D>()
     const inputRef = React.createRef<HTMLInputElement>()
+
+    // CONSTANTS
+    const color = computeColor(versions)
 
     // STATES
 
@@ -1325,7 +1338,7 @@ export const ProductVersionEditorView = () => {
                                         const index = operations.indexOf(op)
                                         return(
                                             <React.Fragment key={'Fragment' + index}>
-                                                {i != 0 && arr[i-1].versionId != op.versionId && <li className='Version Element' key={'Version'  + arr[i-1].versionId}>Version: {arr[i-1].versionId}</li>}
+                                                {i != 0 && arr[i-1].versionId != op.versionId && <li className='Version Element' key={'Version'  + arr[i-1].versionId} style={{backgroundColor: getVersionHSL(arr[i-1].versionId, color, versions)}}>Version: {arr[i-1].versionId}</li>}
                                                 <li key={index} className={operationIndex==index ? 'selected' : ''} onClick={event => onSelectedOperation(event,index)}>
                                                 {dataUrl ? (
                                                     <div>
@@ -1335,7 +1348,7 @@ export const ProductVersionEditorView = () => {
                                                     </div>
                                                 ) : op.type}
                                                 </li>
-                                                {arr.length-1 == i && <li className='Version Element' key={'Version'  + op.versionId}>{op.versionId==null ? 'New Operations': 'Version: '+ op.versionId}</li>}
+                                                {arr.length-1 == i && <li className='Version Element' key={'Version'  + op.versionId} style={{backgroundColor: getVersionHSL(op.versionId, color, versions)}}>{op.versionId==null ? 'New Operations': 'Version: '+ op.versionId}</li>}
                                             </React.Fragment>
                                         )
                                     })

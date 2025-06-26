@@ -176,8 +176,15 @@ main.view.product-version-editor div.History ul.OperationList li {
     margin-bottom: 2px;
 }
 main.view.product-version-editor div.History ul.OperationList li.Version.Element {
-    display: flex;
-    justify-content: center;
+    /*display: flex;
+    justify-content: center;*/
+    display: inline-block;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    border-radius: 0.25em;
+    color: white;
 }
 main.view.product-version-editor div.History ul.OperationList li.selected img{
     background: lightblue;

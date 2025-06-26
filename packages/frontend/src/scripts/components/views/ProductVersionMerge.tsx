@@ -3,6 +3,7 @@ import { useLocation, useParams } from 'react-router'
 
 import { BoxHelper, Group, Material, Mesh, MeshStandardMaterial } from 'three'
 
+import { VersionRead } from 'productboard-common'
 import { AbstractOperation, ColorOperation, CustomLDrawModel, DeleteOperation, InsertOperation, parseCustomLDrawDelta, selectCleanup, updateBox, renderPreperation, parseCustomLDrawModel } from 'productboard-ldraw'
 
 import { FileClient } from '../../clients/rest/file'
@@ -11,6 +12,7 @@ import { UserContext } from '../../contexts/User'
 import { VersionContext } from '../../contexts/Version'
 import { createScene } from '../../functions/editor'
 import { render } from '../../functions/render'
+import { computeColor } from '../../functions/tree'
 import { useAsyncHistory } from '../../hooks/history'
 import { useVersions } from '../../hooks/list'
 import { getMaterials, getObjectMaterialCode, LDRAW_LOADER, MATERIAL_LOADING } from '../../loaders/ldraw'
@@ -19,29 +21,13 @@ import { ModelView3D } from '../widgets/ModelView3D'
 const MOVE_INSIDE_VERSIONS = false
 
 //TODO: remove model
-//      use merged version only for rearranged ops
 //      indicate conflict with picture or something else
 //NEW:  
-//      Copy coloring for versions of version view (for merger and for editor)
 //      Copy designe for merger from version view
-//      Show Version number again
 //      render affected parts that are not included in model
+//      rework base operation to avoid false base operations (check if no other ops are between base ops)
 
-/*async function undoUntil(model: Group, operations: AbstractOperation[], index: number, disabledOperations: AbstractOperation[]) {
-    for (let i = operations.length - 1; i >= index; i--) {
-        if (!disabledOperations.includes(operations[i])) {
-            await operations[i].undo(model,LDRAW_LOADER)
-        }
-    }
-}*/
-/*async function redoFrom(model: Group, operations: AbstractOperation[], index: number, disabledOperations: AbstractOperation[]) {
-    for (let i = index; i < operations.length; i++) {
-        if (!disabledOperations.includes(operations[i])) {
-            await operations[i].redo(model,LDRAW_LOADER)
-        }
-    }
-}*/
-function updateSelection(model: Group, reselectIds: string[]) {//operation: AbstractOperation[], selectedOperation = operation[operation.length - 1]) {
+function updateSelection(model: Group, reselectIds: string[]) {
     // unselect all parts
     for (const child of model.children) {
         if (child.name.endsWith('.dat')) {
@@ -55,8 +41,6 @@ function updateSelection(model: Group, reselectIds: string[]) {//operation: Abst
         }
     }
     // select parts of last operation
-    //const ids = operation[operation.length - 1].getIds()
-    //console.log(operation[operation.length - 1], ids)
     if ( reselectIds.length > 0) {
         const parts = model.children.filter(child => reselectIds.includes(child.userData['id']))
         //console.log(operation[operation.length - 1], parts)
@@ -141,6 +125,11 @@ function correctColorChanges(operationList: AbstractOperation[]) {
     return result
 }
 
+function getVersionHSL(versionId: string, color:{[versionId: string]: number}, versions: VersionRead[]) {
+    const hue = color[versions.find(version => version.major == Number(versionId.split('.')[0]) && version.minor == Number(versionId.split('.')[1]) && version.patch == Number(versionId.split('.')[2])).versionId]
+    return `hsl(${hue}, ${50}%, ${50}%)`
+}
+
 export function ProductVersionMergeView() {
 
     const { hash } = useLocation()
@@ -187,6 +176,9 @@ export function ProductVersionMergeView() {
 
     const [update, setUpdate] = React.useState(0)
 
+    // CONSTANTS
+    const color = computeColor(versions)
+    
     // Load available materials and set initial selected material
     React.useEffect(() => {
         let exec = true
@@ -206,9 +198,7 @@ export function ProductVersionMergeView() {
 
     React.useEffect(() => {
         let exec = true
-        //const {model} = createScene()
         setMergedModel(createScene().model)
-        //setBasicScene(createScene().model)
         const filLoeder = async() => {
             let modelBuffer: ArrayBuffer[] = []
             let deltaBuffer: ArrayBuffer[] = []
@@ -464,7 +454,7 @@ export function ProductVersionMergeView() {
         console.log(disabledList, model)
         for (let i = 0; i < mergedOperations.length; i++) {
             if (!disabledList.includes(mergedOperations[i])) {
-                console.log(mergedOperations[i].type, mergedOperations[i], model, disabledList)
+                //console.log(mergedOperations[i].type, mergedOperations[i], model, disabledList)
                 await mergedOperations[i].redo(model,LDRAW_LOADER)
             }
             if (firstRenderIndex <= i) {
@@ -521,13 +511,36 @@ export function ProductVersionMergeView() {
             }
         })
 
+        // Removing disabled operations from result
+        for (const op of disabledOperations) {
+            mergedOperations.splice(mergedOperations.indexOf(op),1)
+        }
+
         const ldrawDelta: AbstractOperation[] = [] // = selectCleanup
-        const cleanUpOperation = selectCleanup(correctColorChanges(mergedOperations), contextUser.userId, String(major + "." + minor + "." + patch))
+        const cleanUpOperation = selectCleanup(correctColorChanges(mergedOperations), contextUser.userId)
         console.log("Correction result", cleanUpOperation)
+        let useNewVersion = false
+        let lastMajor = 0
+        let lastMinor = 0
+        let lastPatch = 0
         for (const op of cleanUpOperation) {
-            if (op.versionId == null) {
+            if (op.versionId == null || useNewVersion) {
                 op.versionId = String(major + "." + minor + "." + patch)
+            } else {
+                const currentMajor = Number(op.versionId.split('.')[0])
+                const currentMinor = Number(op.versionId.split('.')[1])
+                const currentPatch = Number(op.versionId.split('.')[2])
+                console.log(currentMajor, currentMinor, currentPatch, "   ", lastMajor, lastMinor, lastPatch)
+                if (currentMajor < lastMajor || (currentMajor == lastMajor && currentMinor < lastMinor) || (currentMajor == lastMajor && currentMinor == lastMinor && currentPatch < lastPatch)) {
+                    useNewVersion = true
+                    op.versionId = String(major + "." + minor + "." + patch)
+                }
+                lastMajor = currentMajor
+                lastMinor = currentMinor
+                lastPatch = currentPatch
+
             }
+
             ldrawDelta.push(op)
         }
         const ldrawModelS = JSON.stringify(ldrawModel)
@@ -571,7 +584,10 @@ export function ProductVersionMergeView() {
                         {mergedOperations.map((op, i) => {
                             return <li key={i} className={(currentOperation==i ? 'selected' : '') + (disabledOperations.includes(op) ? ' disabled' : '')} onClick={() => onClick(i, op.getIds())}>
                                 <div className='item'>
-                                    <span>{op.type}</span> 
+                                    <span className='operation type'>{op.type}</span> 
+                                    <span className="version label" style={{backgroundColor: getVersionHSL(op.versionId,color, versions)}}>
+                                        {op.versionId}
+                                    </span>
                                     {dataUrl[i] ? <img className='preview image' src={dataUrl[i]}/> : "Version: " + op.versionId + " (id: " + op.operationId + ")"}
                                     {currentOperation == i && i > baseIndex && (
                                         <div className='buttons'>

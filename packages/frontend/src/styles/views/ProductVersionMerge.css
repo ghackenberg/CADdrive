@@ -21,6 +21,17 @@ main.view.product-version.sidebar div.mergeData {
     background-color: white;
 }
 
+main.view.product-version.sidebar div.mergeData div.header a {
+    padding: 0;
+}
+
+main.view.product-version.sidebar div.mergeData div.header a img {
+    display: block;
+    height: 2em;
+    width: 2em;
+    padding: 0.5em
+}
+
 main.view.product-version.sidebar div.mergeData div.main strong {
     position: relative;
     left: 30%;
@@ -38,6 +49,9 @@ main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations {
 
     padding-left: 0.5em;
     padding-right: 0.5em;
+
+    margin-top: 2em;
+    margin-bottom: 0;
 
     overflow: scroll;
 
@@ -59,6 +73,9 @@ main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li:
     content: counter(item) ". ";
     counter-increment: item;
     align-content: center;
+    text-align: right;
+
+    width: 1.5em;
 
     padding-left: 0.5em;
     padding-right: 0.5em;
@@ -89,9 +106,9 @@ main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li 
     display: grid;
 
     /*position: relative;
-    left: 2em;
+    left: 2em;*/
 
-    width: calc(100% - 2em);*/
+    width: 100%/*calc(100% - 2.5em)*/;
 
     min-height: 2em;
 
@@ -101,6 +118,8 @@ main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li 
 
     padding-top: 0.5em;
     padding-bottom: 0.5em;
+
+    container-type: inline-size;
 
     /*margin: 0.5em 0;*/
 }
@@ -118,15 +137,60 @@ main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li 
     width: 10em;
 }
 
-main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li div.button {
-    width: 100%;
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li div.buttons {
+    position: relative;
+    
+    
+    display: flex;
+    /*width: 100%;*/
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
 }
-main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li button {
-    margin-left: 1em;
+@container (max-width: 425px) {
+    main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li div.buttons {
+        flex-direction: column;
+    }
+    main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li div a {
+        margin-top: 1px;
+        margin-left: 0;
+    }
+    main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li div a:first-child {
+        border-top-left-radius: 50%;
+        border-top-right-radius: 50%;
+        border-bottom-left-radius: 0%;
+        margin-top: 0;
+    }
+    main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li div a:last-child {
+        border-bottom-left-radius: 50%;
+        border-bottom-right-radius: 50%;
+        border-top-right-radius: 0%;
+    }
 }
-main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li button svg{
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li a {
+    display: block;
+    width: 3em;
+    height: 3em;
+
+    background-color: rgb(230,230,230);
+
+    margin-left: 1px;
+    align-items: center;
+}
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li a:first-child {
+    border-top-left-radius: 50%;
+    border-bottom-left-radius: 50%;
+    margin-left: 0;
+}
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li a:last-child {
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+}
+main.view.product-version.sidebar div.mergeData div.main ol.mergedOperations li a img{
     height: 1.5em;
     width: 1.5em;
+
+    padding: 0.75em;
 }
 
 main.view.product-version.sidebar div.save {

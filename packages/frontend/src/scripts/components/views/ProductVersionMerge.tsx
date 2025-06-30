@@ -4,7 +4,7 @@ import { useLocation, useParams } from 'react-router'
 import { BoxHelper, Group, Material, Mesh, MeshStandardMaterial } from 'three'
 
 import { VersionRead } from 'productboard-common'
-import { AbstractOperation, ColorOperation, CustomLDrawModel, DeleteOperation, InsertOperation, parseCustomLDrawDelta, selectCleanup, updateBox, renderPreperation, parseCustomLDrawModel } from 'productboard-ldraw'
+import { AbstractOperation, ColorOperation, CustomLDrawModel, DeleteOperation, InsertOperation, parseCustomLDrawDelta, selectCleanup, updateBox, renderPreperation, parseCustomLDrawModel, SelectOperation } from 'productboard-ldraw'
 
 import { FileClient } from '../../clients/rest/file'
 import { VersionClient } from '../../clients/rest/version'
@@ -17,6 +17,12 @@ import { useAsyncHistory } from '../../hooks/history'
 import { useVersions } from '../../hooks/list'
 import { getMaterials, getObjectMaterialCode, LDRAW_LOADER, MATERIAL_LOADING } from '../../loaders/ldraw'
 import { ModelView3D } from '../widgets/ModelView3D'
+
+import BackIcon from '/src/images/back.png'
+import ShowIcon from '/src/images/show.png'
+import HideIcon from '/src/images/hide.png'
+import AbbortIcon from '/src/images/delete.png'
+import SaveIcon from '/src/images/save.png'
 
 const MOVE_INSIDE_VERSIONS = false
 
@@ -223,54 +229,97 @@ export function ProductVersionMergeView() {
                 }
                 return {loadedModels,loadedDeltas}
             })().then(({loadedModels,loadedDeltas}) => {
-                setModels(loadedModels)
-                setOperations(loadedDeltas)  
+                if (exec) {
+                    setModels(loadedModels)
+                    setOperations(loadedDeltas)  
+                }        
             })
         })
         return () => {exec = false}
     }, [versions])
 
     React.useEffect(() => {
+        let exec = true
         if (models.length > 0 && operations.length > 0 && models.length == operations.length) {
-            console.log("Activate")
+            //console.log("Activate")
+            
+            if (exec) {
+                setBasicScene(mergedModel.clone())
+                setStartMerging(true)
+            }
 
-            setBasicScene(mergedModel.clone())
-            setStartMerging(true)
-
-            console.log("mergedModel", mergedModel, "\nmergedOperation", mergedOperations)
+            //console.log("mergedModel", mergedModel, "\nmergedOperation", mergedOperations)
         }
+        return () => { exec = false }
     },[models, operations])
     React.useEffect(()=>{
-        if (operations.length != 0 && mergingIndex.j != -1) {
-            reconstruct()
+        let exec = true
+        if (exec && operations.length != 0 && mergingIndex.j != -1) {
+            reconstruct(exec)
         }
+
+        return () => { exec = false }
     },[startMerging])
 
-    async function reconstruct() {
+    async function reconstruct(exec: boolean) {
         console.log("Reconstruct", mergedOperations)
-        let lastCommonAncestorIndex: number
+
+        // Operation diffing
+        let sameOperations = operations[0].slice().filter(op => op.type != 'select')
+        console.log(sameOperations)
+        for (let index = 1; index < operations.length; index++) {
+            const newSameOperations: AbstractOperation[] = []
+            for (const op of operations[index]) {
+                const foundOperation = sameOperations.find(operation => operation.operationId == op.operationId)
+                console.log("found op: ",foundOperation)
+                if (!(op instanceof SelectOperation) && foundOperation/*sameOperations.some(operation => operation.operationId == op.operationId)*/) {
+                    if (foundOperation.versionId < op.versionId) {
+                        newSameOperations.push(foundOperation)
+                    } else {
+                        newSameOperations.push(op)
+                    }
+                }
+                console.log(newSameOperations)
+            }
+            sameOperations = newSameOperations
+        }
+        
+        console.log(sameOperations)
+        for (const operation of sameOperations) {
+            await operation.redo(mergedModel, LDRAW_LOADER)
+            mergedOperations.push(operation)
+            const renderModel = await renderPreperation(operation, mergedModel.clone(), availableMaterials, LDRAW_LOADER)
+            await render(renderModel, 150, 150).then(result => {
+                dataUrl.push(result.dataUrl)
+                console.log("Render")
+            })
+            //possibleConflicts.all.push(operation)
+        }
+        /*for (let index = 0; index < operations.length; index++) {
+            operations[index].findIndex(op => sameOperations.includes())
+        }*/
+
+        const lastCommonAncestorIndex: number = sameOperations.length - 1
         for (let i = mergingIndex.i; i < operations.length; i++) {
             if (i == 0 || mergingIndex.i != i) {
                possibleConflicts.local = possibleConflicts.all.slice()
-               console.log(possibleConflicts.local)
+               //console.log(possibleConflicts.local)
             }
 
-            let lastCommonOpID: string
+            //let lastCommonOpID: string
+            //let lastCommonOpIDIndex = -1
             for (let j = mergingIndex.j; j < operations[i].length; j++) {
                 const op = operations[i][j]
                 if (op.type == 'select') {
                     continue
                 }
-                console.log("My OP", op)
                 if (!mergedOperations.some(operation => operation.operationId == op.operationId)) {
-                    console.log("I'm here", op.operationId)
-                    if (['move', 'rotate', 'delete'].includes(op.type)) {//op instanceof MoveOperation || op instanceof RotateOperation || op instanceof DeleteOperation) {
+                    if (['move', 'rotate', 'delete', 'color change'].includes(op.type)) {
                         //Conflict detection
                         const currentIds = op.getIds()
                         for (const element of possibleConflicts.local) {
-                            if (element.getIds().some(obj => currentIds.includes(obj))) {
-                                //TODO Conflict !!!
-                                console.log("CONFLICT!!!!!", op, possibleConflicts.local, mergedOperations , "\nTest\n", possibleConflicts.local.filter(operation => operation.getIds().some(id => currentIds.includes(id))))
+                            if (element.getIds().some(obj => currentIds.includes(obj)) && (op.type != 'color change' || op.type == element.type)) {
+                                // Conflict detected
                                 mergedOperations.push(op)
                                 disabledOperations.push(op)
                                 // render image
@@ -283,6 +332,7 @@ export function ProductVersionMergeView() {
                             }
                         }
                         if (mergedOperations[mergedOperations.length - 1] == op) {
+                            // continue if conflict was detected
                             continue
                         }
                         possibleConflicts.all.push(op)
@@ -293,36 +343,41 @@ export function ProductVersionMergeView() {
                     const renderModel = await renderPreperation(op, mergedModel.clone(), availableMaterials, LDRAW_LOADER)
                     await render(renderModel, 150, 150).then(result => {
                         dataUrl.push(result.dataUrl)
-                        console.log("Render")
+                        //console.log("Render")
                     })
                 } else {
-                    lastCommonOpID = op.operationId
+                    //lastCommonOpID = op.operationId
+                    /*const index = mergedOperations.findIndex(operation => operation.operationId == op.operationId)
+                    if (index == lastCommonOpIDIndex + 1) {
+                        lastCommonOpIDIndex = index
+                    }*/
                     if (possibleConflicts.local.some(obj => obj.operationId == op.operationId)) {
-                        console.log("Splice", possibleConflicts.local,possibleConflicts.local.findIndex(obj => obj.operationId == op.operationId), "\n Operation causing splice\n", op, mergedOperations.filter(a => a.operationId == op.operationId))
+                        //console.log("Splice", possibleConflicts.local,possibleConflicts.local.findIndex(obj => obj.operationId == op.operationId), "\n Operation causing splice\n", op, mergedOperations.filter(a => a.operationId == op.operationId))
                         possibleConflicts.local.splice(possibleConflicts.local.findIndex(obj => obj.operationId == op.operationId),1)
                     }
                 }
             }
-            const commonIndex = mergedOperations.findIndex(op => op.operationId == lastCommonOpID)
-            console.log(lastCommonOpID, commonIndex, lastCommonAncestorIndex)
-            if (lastCommonAncestorIndex == undefined) {
+            //const commonIndex = mergedOperations.findIndex(op => op.operationId == lastCommonOpID)
+            //console.log(lastCommonOpID, commonIndex, lastCommonAncestorIndex)
+            /*if (lastCommonAncestorIndex == undefined) {
                 lastCommonAncestorIndex = mergedOperations.length - 1
-            } else if(lastCommonAncestorIndex > commonIndex) {
-                lastCommonAncestorIndex = commonIndex
-            }
+            } else if(lastCommonAncestorIndex > lastCommonOpIDIndex) {
+                lastCommonAncestorIndex = lastCommonOpIDIndex
+            }*/
             possibleConflicts.local = []
         }
         
-        setBaseIndex(lastCommonAncestorIndex)
-        updateSelection(mergedModel, mergedOperations[mergedOperations.length - 1].getIds())
-        const manipulator = mergedModel.children.find(child => child.name == 'manipulator')
-        manipulator.visible = false
-        //setMergedOperations(mergedOperations)
-        setMergingIndex({i: operations.length, j: -1})
-        setCurrentOperation(mergedOperations.length - 1)
+        if (exec) {
+            setBaseIndex(lastCommonAncestorIndex)
+            updateSelection(mergedModel, mergedOperations[mergedOperations.length - 1].getIds())
+            const manipulator = mergedModel.children.find(child => child.name == 'manipulator')
+            manipulator.visible = false
+            //setMergedOperations(mergedOperations)
+            setMergingIndex({i: operations.length, j: -1})
+            setCurrentOperation(mergedOperations.length - 1)
 
-        setUpdate(update+1)
-
+            setUpdate(update+1)
+        }
         //return mergedOperations
     }
 
@@ -401,7 +456,7 @@ export function ProductVersionMergeView() {
         }
         const manipulator = mergedModel.children.find(child => child.name == 'manipulator')
         manipulator.visible = false
-        console.log("After meoveement", operation, mergedOperations, currentOperation, index)
+        //console.log("After meoveement", operation, mergedOperations, currentOperation, index)
     }
 
     async function onToggleOperation(enable: boolean, operation: AbstractOperation, index: number) {
@@ -451,7 +506,7 @@ export function ProductVersionMergeView() {
     }
 
     async function redoFrom(model:Group, firstRenderIndex = 0, disabledList: AbstractOperation[] = disabledOperations) {
-        console.log(disabledList, model)
+        //console.log(disabledList, model)
         for (let i = 0; i < mergedOperations.length; i++) {
             if (!disabledList.includes(mergedOperations[i])) {
                 //console.log(mergedOperations[i].type, mergedOperations[i], model, disabledList)
@@ -564,18 +619,18 @@ export function ProductVersionMergeView() {
     
     //console.log("Model", mergedModel, "\nOperations", mergedOperations)
     //console.log(models.length != 0 ? models : "no model", operations.length != 0 ? operations : "no operation")
-    console.log('disabled' , disabledOperations)
+    //console.log('disabled' , disabledOperations)
     const versionIds = versionId.split('+')
 
     return (
         <main className={`view product-version sidebar ${!hash ? 'hidden' : 'visible'}` }>
             <div className='mergeData'>
                 <div className='header'>
-                    <a className='button green fill' onClick={() => setSave(true)}>
-                        Save
+                    <a className='button green fill' title='Save merged models' onClick={() => setSave(true)}>
+                        <img src={SaveIcon}/>
                     </a>
-                    <a className='button red fill' onClick={goBack}>
-                        Cancel
+                    <a className='button red fill' title='Abbort merging and leave merger without saving' onClick={goBack}>
+                        <img src={AbbortIcon}/>
                     </a>
                 </div>
                 <div className='main'>
@@ -591,30 +646,19 @@ export function ProductVersionMergeView() {
                                     {dataUrl[i] ? <img className='preview image' src={dataUrl[i]}/> : "Version: " + op.versionId + " (id: " + op.operationId + ")"}
                                     {currentOperation == i && i > baseIndex && (
                                         <div className='buttons'>
-                                            <button onClick={event => onMove(event, i,false)}>
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                    <polyline points="18 15 12 9 6 15"></polyline>
-                                                </svg>
-                                            </button>
-                                            <button onClick={event => onMove(event, i, true)}>
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                                </svg>
-                                            </button>
-                                            <button onClick={() => onToggleOperation(disabledOperations.includes(op), op, i)}>
+                                            <a title='Move operation upwards' onClick={event => onMove(event, i,false)}>
+                                                <img src={BackIcon} style={{transform:'rotate(90deg)'}}/>
+                                            </a>
+                                            <a title='Move operation downwards' onClick={event => onMove(event, i, true)}>
+                                                <img src={BackIcon} style={{transform:'rotate(-90deg)'}}/>
+                                            </a>
+                                            <a title={disabledOperations.includes(op) ? 'Enable operation' : 'Disable operation'} onClick={() => onToggleOperation(disabledOperations.includes(op), op, i)}>
                                                 {disabledOperations.includes(op) ? (
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                        <path d="M1 12C2.73 16.11 7 20 12 20C17 20 21.27 16.11 23 12C21.27 7.89 17 4 12 4C7 4 2.73 7.89 1 12Z"/>
-                                                        <circle cx="12" cy="12" r="3"/>
-                                                    </svg> 
+                                                    <img src={ShowIcon}/>
                                                 ) : (
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                        <path d="M1 12C2.73 16.11 7 20 12 20C17 20 21.27 16.11 23 12C21.27 7.89 17 4 12 4C7 4 2.73 7.89 1 12Z"/>
-                                                        <circle cx="12" cy="12" r="3"/>
-                                                        <line x1="1" y1="1" x2="23" y2="23"/>
-                                                    </svg>                                      
+                                                    <img src={HideIcon}/>                                   
                                                 )}
-                                            </button>
+                                            </a>
                                         </div>
                                     )}
                                     {i <= baseIndex && (

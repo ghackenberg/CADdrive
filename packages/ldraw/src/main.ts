@@ -149,9 +149,13 @@ export function selectCleanup(operationlist: AbstractOperation[], userId: string
 }
 
 export async function renderPreperation(currentOperation: AbstractOperation, renderModel: Group, availableMaterials: Material[], LDRAW_LOADER: LDrawLoader) {
+    // redo insert if it is not included in the model
+    if (currentOperation instanceof InsertOperation && !currentOperation.id.every(id => renderModel.children.some(part => part.userData['id'] == id))) {
+        await currentOperation.redo(renderModel, LDRAW_LOADER)
+    }
+    
     renderModel.remove(...renderModel.children.filter(child => !child.name.endsWith('.dat')))
     
-    //console.log("Render Preperations", currentOperation)
     let brickMaterial: Material
     const transparentMaterial = availableMaterials.find(mat => mat.name == ' Trans_Clear')
     const coloredParts = currentOperation.getIds()
@@ -166,7 +170,6 @@ export async function renderPreperation(currentOperation: AbstractOperation, ren
         box.name = 'box'
         renderModel.add(box)
 
-        //console.log("model", renderModel)
         await currentOperation.undo(renderModel, LDRAW_LOADER)
         renderModel.remove(...renderModel.children.filter(child => !child.name.endsWith('.dat')))
     } else {

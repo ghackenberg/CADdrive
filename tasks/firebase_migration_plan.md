@@ -96,7 +96,50 @@ This document outlines a plan to migrate the existing CADdrive backend, currentl
     *   Consider using Cloud Run for long-running or resource-intensive rendering tasks if Cloud Functions timeouts become an issue.
     *   Store rendered images back into Firebase Storage.
 
-### Phase 5: Testing and Deployment
+### Phase 5: Frontend Migration (packages/frontend)
+
+This phase focuses on updating the React-based frontend application to integrate with the new Firebase backend.
+
+#### 5.1. Firebase SDK Integration and Configuration
+
+1.  **Install Firebase SDK:**
+    *   Add the Firebase JavaScript SDK to the frontend's `package.json`: `npm install firebase`.
+2.  **Firebase Configuration:**
+    *   Initialize Firebase in the frontend application. Create a Firebase configuration file (e.g., `firebase.ts`) to hold the project's Firebase config object (apiKey, authDomain, projectId, etc.).
+    *   Use environment variables (e.g., via `webpack.DefinePlugin`) to supply these credentials securely, avoiding hardcoding them in the source.
+
+#### 5.2. Frontend Authentication
+
+1.  **Replace JWT with Firebase Auth:**
+    *   **Remove `jose` and custom JWT logic:** The JWT verification logic in `Root.tsx` using `jose` should be removed.
+    *   **Refactor `auth.ts`:** Instead of reading a JWT from `localStorage`, this module should get the ID token from the currently signed-in Firebase user using `firebase.auth().currentUser.getIdToken()`.
+    *   **Refactor Authentication Flow:** The authentication views and logic under `src/scripts/components/views/Auth*.tsx` and the `TokenClient` in `src/scripts/clients/rest/token.ts` must be replaced with Firebase Authentication UI and logic (`firebase.auth()`). Use either FirebaseUI for a quick setup or build a custom flow using the Firebase SDK for sign-up, sign-in (e.g., with email/password or social providers), and sign-out.
+    *   **Update `UserContext`:** The `UserContext` should be updated to reflect the user's state from `firebase.auth().onAuthStateChanged`.
+
+#### 5.3. API Client Refactoring
+
+1.  **Update API Endpoints:**
+    *   All `axios` calls in the REST clients (`src/scripts/clients/rest/*.ts`) currently use relative URLs (e.g., `/rest/products`). These must be updated to point to the absolute URLs of the deployed Firebase Cloud Functions.
+    *   This can be managed through an environment variable that defines the base API URL.
+2.  **Update Authorization Headers:**
+    *   The `auth` object in `src/scripts/clients/auth.ts` should be updated to include the Firebase ID token in the `Authorization` header as a Bearer token for all authenticated API requests.
+
+#### 5.4. Real-time Communication (MQTT to Firestore)
+
+1.  **Remove MQTT Client:**
+    *   The `MqttAPI` client (`src/scripts/clients/mqtt.ts`) will be completely removed.
+2.  **Refactor `CacheAPI`:**
+    *   The `CacheAPI` (`src/scripts/clients/cache.ts`) needs a major overhaul.
+    *   Replace all MQTT subscription logic (`subscribeUserMessage`, `subscribeProductMessage`) with real-time listeners from the Cloud Firestore SDK (`onSnapshot`).
+    *   This will allow the frontend to listen for changes in Firestore collections directly and update the local cache and UI in real-time.
+
+#### 5.5. File Uploads and Downloads
+
+1.  **Refactor File Handling:**
+    *   **Uploads:** Modify components and clients that handle file uploads (`AttachmentClient`, `VersionClient`, `UserClient`) to use the Firebase Storage SDK. Files should be uploaded directly from the client to a Firebase Storage bucket.
+    *   **Downloads:** Update all file URLs to point to Firebase Storage URLs. Use the Firebase Storage SDK to get a download URL for a file and use that in `<img>` tags or for direct downloads. For example, user profile pictures (`UserPictureWidget.tsx`) will now be fetched from Firebase Storage.
+
+### Phase 6: Testing and Deployment
 
 1.  **Unit & Integration Testing:**
     *   Update existing tests and write new ones for Firebase-specific logic (Authentication, Firestore, Storage, Cloud Functions).
@@ -108,6 +151,7 @@ This document outlines a plan to migrate the existing CADdrive backend, currentl
     *   Implement robust Firebase Security Rules for Cloud Firestore and Firebase Storage to control data access.
 4.  **Deployment:**
     *   Deploy all Firebase components (Functions, Firestore indexes, Storage rules).
+    *   Deploy the frontend application using Firebase Hosting for a seamless integration.
     *   Update DNS records to point frontend applications to the new Firebase-hosted backend.
 
 ## Potential Challenges & Considerations
@@ -125,3 +169,4 @@ This document outlines a plan to migrate the existing CADdrive backend, currentl
 5.  Adapting NestJS application for deployment on Cloud Functions.
 6.  Migrating MQTT to Firebase real-time solutions.
 7.  Migrating rendering background jobs to Cloud Functions.
+8.  Refactor the frontend application to work with the new Firebase backend.
